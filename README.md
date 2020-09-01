@@ -9,6 +9,7 @@ Optimization for discrete and continuous systems = DE + B + BPO + repeat
 - [Contact](#contact) 
 - [License](#license) 
 
+---
 
 Here, the source code stored in code blocks of a Markdown file.
 - The command `sh chop -C` extracts that code to stdout. 
