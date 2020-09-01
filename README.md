@@ -37,6 +37,29 @@ If that all works you should see one failed test (which tests that the test engi
 - Gawk >= 5.0
 - Bash
 
+### Contribute
+
+My conventions:
+
+- All code in Markdown Lua blocks with a one line comment before it (as a level4 heading)
+
+        #### inc(a) : returns one more than a
+        ```lua
+        function x(a) return a+1 end
+        ```
+
+- All source code in one file.
+  - Application specific code at top, general utilities at bottom,
+- Using classes to divide the code. 
+   - Update the non-class library code rarely (since that is functions global to the module).
+   = Update the class code a lot.
+- Use classes for polymorphism. Don't use inheritance (adds to debugging effort).
+- Instances are created with a lower case function.
+- Classes are
+- Indent code with 2 characters for tabs.
+
+
+
 ### License
 
 Copyright 2020, Tim Menzies

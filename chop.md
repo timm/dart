@@ -104,7 +104,6 @@ function round(num, places)
   local mult = 10^(places or 0)
   return math.floor(num * mult + 0.5) / mult
 end
-
 ```
 ### Strings
 #### o(t,pre) : return `t` as a string, with `pre`fix
