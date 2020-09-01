@@ -4,7 +4,7 @@
 #### CONFIGURATION ###############
 
 Comment="-- "
-Needs="lua gawk bash"
+Needs="lua awk bash"
 
 #### end config ##################
 
@@ -47,7 +47,7 @@ Inside tmux:
 
 Alias
 EOF
-gawk '/^alias/ {print "  " $0}'   $Dir/$Sh
+awk '/^alias/ {print "  " $0}'   $Dir/$Sh
 tput sgr0
 }
 
@@ -58,7 +58,7 @@ alias gp='git add *; git commit -am saving; git push; git status'
 alias ls='ls -G'
 alias reload='. $Dir/$Sh'
 
-color() { gawk '
+color() { awk '
 /FAIL/ {print "\033[31m" $0 "\033[0m";next}
 /PASS/ {print "\033[32m" $0 "\033[0m";next}
        {print}'
@@ -68,13 +68,13 @@ PROMPT_COMMAND='echo -ne " 🪓 $(git branch 2>/dev/null | grep '^*' | colrm 1 2
 
 vims() { vim +PluginInstall +qall; }
 
-md2code() { gawk -v com="$Comment" '
+md2code() { awk -v com="$Comment" '
 sub(/```.+$/,"") { In = 1 }
 sub(/```/,   "") { In = 0 }
                  { print (In?"":com) $0 }
 '
 }
-toc() { gawk '
+toc() { awk '
 function ns(n,    s) {
    while(n-- > 0) s= s "    "
    return s
