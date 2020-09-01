@@ -1,13 +1,13 @@
 # Chop
 
-Optimization fr discrete and continuous systems = DE + B + BPO + repeat
+Optimization for discrete and continuous systems = DE + B + BPO + repeat
 
 - [About](#about) : 
-    - [Citation](#citation) : 
-    - [Contact](#contact) : 
     - [Install](#install) : 
     - [Requirements](#requirements) : 
     - [License](#license) : 
+    - [Citation](#citation) : 
+    - [Contact](#contact) : 
 
 ## About
 

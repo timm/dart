@@ -95,7 +95,7 @@ function trim(s) {
      split(s,a,/[ \t]*:[ \t]/)
      a[1] = trim( a[1] )
      a[2] = trim( a[2] )
-     if (length(a) == 1)
+     if (length(a) == 1 || ! a[2] )
           print ns(new) "- [" s    "](#" tolower(link) ") " 
      else print ns(new) "- [" a[1] "](#" tolower(link) ") : " a[2] 
 }
