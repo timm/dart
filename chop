@@ -33,13 +33,14 @@ tput sgr0
 tput bold; tput setaf 0; cat <<EOF
 
 Usage:
-  sh chop -I      install
-  sh chop -C      extract code from $Src
-  sh chop -R      run code in $Src
-  sh chop -U [X]  run unit test X (and if X is missing, run all tests)
-  sh chop -T FILE extract table of contents from markdown FILE
   sh chop -h      help
+  sh chop -C      extract code from $Src
   sh chop -E      enter a tmux dev environment
+  sh chop -I      install
+  sh chop -R      run code in $Src
+  sh chop -T FILE extract table of contents from markdown FILE
+  sh chop -U [X]  run test X (or, if X is missing, run all tests)
+  sh chop -W [X]  rerun "-U" when code is changed.
 
 Inside tmux:
   reload     = alias for . chop
@@ -101,6 +102,20 @@ function trim(s) {
 }
 END {print ""}'
 }
+tests() {
+  local LAST=`ls -l "$Dir/$Src"`
+  echo "Control-C to exit "
+  chop -U $1
+  while true; do
+    sleep 1
+    local NEW=`ls -l "$Dir/$Src"`
+    if [ "$NEW" != "$LAST" ]; then 
+      chop -U $1
+      LAST="$NEW"
+    fi
+  done
+}
+
 if [ "$1" = "-h" ]; then 
   usage
 elif [ "$1" = "-T" ]; then
@@ -108,6 +123,8 @@ elif [ "$1" = "-T" ]; then
 elif [ "$1" = "-R" ]; then
   chop -C > /tmp/$$$Src
   lua /tmp/$$$Src
+elif [ "$1" = "-W" ]; then
+  tests $2
 elif [ "$1" = "-U" ]; then
   chop -C > /tmp/$$$Src
   lua /tmp/$$$Src  -U  $2 | color

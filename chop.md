@@ -65,11 +65,11 @@ is in a markdown file and extraced using
 ## Config
 ### the : global with all settings
 ```lua
-local the,c,klass,less,goal,num           = nil,nil,nil,nil,nil
+local the,c,klass,less,goal,num          = nil,nil,nil,nil,nil
 local y,x,sym,xsym,xnum,cols             = nil,nil,nil,nil,nil,nil
 local round,o,oo,ooo,id,same             = nil,nil,nil,nil,nil,nil 
 local map, copy,select,any,anys,keys,csv = nil,nil,nil,nil,nil,nil
-local within,rogues,eg,Eg,cli            = nil,nil,nil,nil,nil
+local within,rogues,eg,eg1,Eg,main       = nil,nil,nil,nil,nil,nil
 
 the = {aka={},
       id=0,
@@ -242,23 +242,30 @@ end
 ```
 #### eg(x): run the test function `eg_x` or, if `x` is nil, run all.
 ```lua
-function eg(t,      t1,t2, passed,err,y,n)
-  for name,f in keys(Eg) do
-      if t and not name:match("^"..t) then break end
-      the.test.yes = the.test.yes + 1
-      t1 = os.clock()
-      math.randomseed(the.seed)
-      passed,err = pcall(f) 
-      if passed then
-         t2= os.clock()
-         print(string.format("PASS! "..name.." \t: %8.6f secs", t2-t1))
-      else
-        the.test.no = the.test.no + 1
-        y,n = the.test.yes,  the.test.no
-        print(string.format("FAIL! "..name.." \t: %s [%.0f] %%",
-                            err:gsub("^.*: ",""), 
-                            100*y/(y+n))) end 
-end end 
+function eg(t)
+  if not t then print("") end
+  for name,f in keys(Eg) do 
+    if t then
+       if name:match(t) then eg1(name,f) end
+    else
+       eg1(name,f) end end
+end  
+
+function eg1(name,f,   t1,t2,passed,err,y,n)
+  the.test.yes = the.test.yes + 1
+  t1 = os.clock()
+  math.randomseed(the.seed)
+  passed,err = pcall(f) 
+  if passed then
+    t2= os.clock()
+    print(string.format("PASS! "..name.." \t: %8.6f secs", t2-t1))
+  else
+    the.test.no = the.test.no + 1
+    y,n = the.test.yes,  the.test.no
+    print(string.format("FAIL! "..name.." \t: %s [%.0f] %%",
+        err:gsub("^.*: ",""), 
+    100*y/(y+n))) end 
+end
 ```
 ### Unit tests
 ```lua 
@@ -270,11 +277,10 @@ function Eg.id(  a)  a={}; id(a); id(a); assert(1==a._id) end
 function Eg.map( t)
 	assert(30 == map({1,2,3}, function (z) return z*10 end)[3])
 end
-function Eg.copy(   t,u)
 ```
-## Main
+## Main 
 ```lua
-function cli()
+function main()
   if arg[1] == "-U" then 
     local status = eg(arg[2])
     rogues() 
@@ -282,7 +288,7 @@ function cli()
   end
 end
 
-if not pcall(debug.getlocal, 4, 1) then cli() end
+if not pcall(debug.getlocal, 4, 1) then main() end
 
 return {the=the,cli=cli}
 ```
