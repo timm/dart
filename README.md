@@ -14,6 +14,12 @@ Optimization for discrete and continuous systems = DE + B + BPO + repeat
 Here, the source code stored in code blocks of a Markdown file.
 - The command `sh chop -C` extracts that code to stdout. 
 - The command `sh chop -X` extracts, then runs, that code.
+- Once extracted, the resulting code code be included elsewhere:
+
+```lua
+-- returns a table of services you can use
+chop=require("chop")
+```
 
 ### Install
 
