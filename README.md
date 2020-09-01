@@ -2,15 +2,13 @@
 
 Optimization for discrete and continuous systems = DE + B + BPO + repeat
 
-- [About](#about) 
-    - [Install](#install) 
-    - [Requirements](#requirements) 
-    - [Contribute](#contribute) 
-    - [Citation](#citation) 
-    - [Contact](#contact) 
-    - [License](#license) 
+- [Install](#install) 
+- [Requirements](#requirements) 
+- [Contribute](#contribute) 
+- [Citation](#citation) 
+- [Contact](#contact) 
+- [License](#license) 
 
-## About
 
 Here, the source code stored in code blocks of a Markdown file.
 - The command `sh chop -C` extracts that code to stdout. 
@@ -22,7 +20,7 @@ Here, the source code stored in code blocks of a Markdown file.
 chop=require("chop")
 ```
 
-### Install
+## Install
 
 - Pre-install the  requirements (see below). 
 - Download [the zip](https://github.com/timm/chop/archive/master.zip).
@@ -32,13 +30,13 @@ chop=require("chop")
 
 If that all works you should see one failed test (which tests that the test engine works) and everything else passing.
 
-### Requirements
+## Requirements
 
 - Lua >= 5.3
 - Gawk >= 5.0
 - Bash
 
-### Contribute
+## Contribute
 
 Please follow my _Lua-isa-simple-language-so-lets-keep-it-simple_ conventions:
 
@@ -75,20 +73,20 @@ Please follow my _Lua-isa-simple-language-so-lets-keep-it-simple_ conventions:
   
 
 
-### Citation
+## Citation
 
 Tim Menzies,  
 CHOP: data mining + optimization  
 2020  
 http://github.com/timm/chop
 
-### Contact
+## Contact
 
 Tim Menzies   
 timm@ieee.org  
 http://menzies.us
 
-### License
+## License
 
 Copyright 2020, Tim Menzies
 
