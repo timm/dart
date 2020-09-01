@@ -2,12 +2,12 @@
 
 Optimization for discrete and continuous systems = DE + B + BPO + repeat
 
-- [About](#about) : 
-    - [Install](#install) : 
-    - [Requirements](#requirements) : 
-    - [License](#license) : 
-    - [Citation](#citation) : 
-    - [Contact](#contact) : 
+- [About](#about) 
+    - [Install](#install) 
+    - [Requirements](#requirements) 
+    - [License](#license) 
+    - [Citation](#citation) 
+    - [Contact](#contact) 
 
 ## About
 
