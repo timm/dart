@@ -47,17 +47,26 @@ My conventions:
         ```lua
         function x(a) return a+1 end
         ```
-
+- No globals (so keep the list of `local`s at top of file up to date).
 - All source code in one file.
-  - Application specific code at top, general utilities at bottom,
-- Using classes to divide the code. 
-   - Update the non-class library code rarely (since that is functions global to the module).
-   = Update the class code a lot.
-- Use classes for polymorphism. Don't use inheritance (adds to debugging effort).
-- Instances are created with a lower case function.
-- Classes are
+  - Application specific code at top;
+  - General utilities at bottom,
+  - Unit tests at the very bottom, all inside the `Eg` variable.
 - Indent code with 2 characters for tabs.
-
+- Using classes to divide the code. 
+  - Update the non-class library code rarely (since that is functions global to the module).
+  - Update the class code a lot.
+- Classes:
+  - Use classes for polymorphism. 
+  - Don't use inheritance (adds to debugging effort).
+  - Classes are created by assigning some defaults to a global value;    
+    e.g. `Emp={lname="", fname="", add=address() }`
+  - The `the` local handles information and defaults shared across all functions and classes.
+  - Class constructors are lower case functions that call `isa(X)` 
+    (where `X` is some class).
+    - Constructors often use the idiom `new.x = y or the.zzz.y` where `y` is a parameter
+      based to the constructor (which can override some global default in `the.zzz.y`.
+  
 
 
 ### License
