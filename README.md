@@ -23,8 +23,8 @@ If that all works you should see one failed test (which tests that the test engi
 
 ### Requirements
 
-- Lua
-- Gawk
+- Lua >= 5.3
+- Gawk >= 5.0
 - Bash
 
 ### License
