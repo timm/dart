@@ -57,6 +57,9 @@ Please follow my _Lua-isa-simple-language-so-lets-keep-it-simple_ conventions:
     - And I test for that using `not pcall(debug.getlocal, 4, 1)`.
   - Finally, there  is a return statement that exports the more useful parts of the code.
 - No globals (so keep the list of `local`s at top of file up to date).
+- Minimize use of the `local` keyword (so ugly)
+  - Use it once at top of file.
+  - Then (usually) define function locals as extra input arguments.
 - Indent code with 2 characters for tabs.
 - Using classes to divide the code. 
   - Update the non-class library code rarely (since that is functions global to the module).
@@ -71,6 +74,9 @@ Please follow my _Lua-isa-simple-language-so-lets-keep-it-simple_ conventions:
     (where `X` is some class).
     - Constructors often use the idiom `new.x = y or the.zzz.y` where `y` is a parameter
       based to the constructor (which can override some global default in `the.zzz.y`).
+- Table of contents
+  - When the code or README.md updates, also update the table of contents using the tool    
+    `sh chop -T FILE`.
   
 
 

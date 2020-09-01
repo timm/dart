@@ -264,12 +264,13 @@ end end
 ```lua 
 Eg={}
 function Eg.test()   assert(1==2) end
-function Eg.rnf()    assert(3.2==round(3.2222,1)) end
+function Eg.rnd()    assert(3.2==round(3.2222,1)) end
 function Eg.o()      assert("{1, aa, 3}" == o({1,"aa",3})) end
 function Eg.id(  a)  a={}; id(a); id(a); assert(1==a._id) end
 function Eg.map( t)
 	assert(30 == map({1,2,3}, function (z) return z*10 end)[3])
 end
+function Eg.copy(   t,u)
 ```
 ## Main
 ```lua
