@@ -77,6 +77,104 @@ the = {aka={},
       test= {yes=0,no=0}
 }
 ```
+## Cocomo
+### Coc.project() : return a random project
+```lua
+Coc={}
+function Coc.project(    p,n,x,a) 
+  function p(x,y) return a(Coc.Em,{lo=x or 1, hi=y or 5, m= .073, n= .21})   end
+  function n(x,y) return a(Coc.Em,{lo=x or 1, hi=y or 5, m=-.178, n=-.078})  end
+  function sf()   return a(Coc.Sf,{lo=1,      hi=6,      m=-1.56, n=-1.014}) end
+  a = from(2.2, 9.18)
+  return {a   = a,      
+          b   = (.85-1.1)/(9.18-2.2)*a+1.1 + (1.1-.8)/2,
+          prec= sf(), flex= sf(),   arch= sf(),   team= sf(),   pmat= sf(),
+          rely= p(),  data= p(2,5), cplx= p(1,6), ruse= p(2,6), 
+          docu= p(),  time= p(3,6), stor= p(3,6), pvol= p(2,5),
+          acap= n(),  pcap= n(),    pcon= n(),    aexp= n(),    
+          plex= n(),  ltex= n(),    tool= n(),    site= n(1,6), sced= n()})
+end
+
+Coc.Em={}
+function Coc.Em:__call()
+  self.m = self.m or from(self.m,self.n)
+  self.x = self.x or round(from(self.lo,self.hi),0)
+  return self.m*(self.x - 3) + 1
+end
+
+Coc.Sf={}
+function Coc.Sf:__call()
+  self.m = self.m or from(self.m,self.n)
+  self.x = self.x or round(from(self.lo,self.hi),0)
+  return self.m*(self.x - 6)
+end
+
+```
+### Coc.Risk
+```lua
+function Coc.risk(    _,ne,nw,nw4,sw4,ne46, sw26,sw46)
+  _  = 0
+  -- bounded by 1..5
+  ne={{_,_,_,1,2,_}, -- bad if lohi 
+      {_,_,_,_,1,_},
+      {_,_,_,_,_,_},
+      {_,_,_,_,_,_},
+      {_,_,_,_,_,_},
+      {_,_,_,_,_,_}}
+  nw={{2,1,_,_,_,_}, -- bad if lolo 
+      {1,_,_,_,_,_},
+      {_,_,_,_,_,_},
+      {_,_,_,_,_,_},
+      {_,_,_,_,_,_},
+      {_,_,_,_,_,_}}
+  nw4={{4,2,1,_,_,_}, -- very bad if  lolo 
+       {2,1,_,_,_,_},
+       {1,_,_,_,_,_},
+       {_,_,_,_,_,_},
+       {_,_,_,_,_,_},
+       {_,_,_,_,_,_}}
+  sw4={{_,_,_,_,_,_}, -- very bad if  hilo 
+       {_,_,_,_,_,_},
+       {1,_,_,_,_,_},
+       {2,1,_,_,_,_},
+       {4,2,1,_,_,_},
+       {_,_,_,_,_,_}}
+  
+  -- bounded by 1..6
+  ne46={{_,_,_,1,2,4}, -- very bad if lohi
+        {_,_,_,_,1,2},
+        {_,_,_,_,_,1},
+        {_,_,_,_,_,_},
+        {_,_,_,_,_,_},
+        {_,_,_,_,_,_}}
+  sw26={{_,_,_,_,_,_}, -- bad if hilo
+        {_,_,_,_,_,_},
+        {_,_,_,_,_,_},
+        {_,_,_,_,_,_},
+        {1,_,_,_,_,_},
+        {2,1,_,_,_,_}}
+  sw46={{_,_,_,_,_,_}, -- very bad if hilo
+        {_,_,_,_,_,_},
+        {_,_,_,_,_,_},
+        {1,_,_,_,_,_},
+        {2,1,_,_,_,_},
+        {4,2,1,_,_,_}}
+  return { 
+    cplx= {acap=sw46, pcap=sw46, tool=sw46}, --12
+    ltex= {pcap=nw4},  -- 4
+    pmat= {acap=nw,  pcap=sw46}, -- 6
+    pvol= {plex=sw2}, --2
+    rely= {acap=sw4,  pcap=sw4,  pmat=sw4}, -- 12
+    ruse= {aexp=sw46, ltex=sw46},  --8
+    sced= {
+      cplx=ne46, time=ne46, pcap=nw4, aexp=nw4, acap=nw4,  
+      plex=nw4, ltex=nw, pmat=nw, rely=ne, pvol=ne, tool=nw}, -- 34
+    stor= {acap=sw46, pcap=sw46}, --8
+    team= {aexp=nw,  sced=nw,  site=nw}, --6
+    time= {acap=sw46, pcap=sw46, tool=sw26}, --10
+    tool= {acap=nw,  pcap=nw,  pmat=nw}} -- 6
+end
+```
 ## Data
 ### Columns
 #### Define column types
@@ -98,6 +196,10 @@ end
 ```
 ## Lib
 ### Maths
+#### from(lo,hi) : return a number from `lo` to `hi`
+```lua
+function from(lo,hi) return lo+(hi-lo)*math.random() end
+```
 #### round(n,places) : round `n` to some decimal `places`.
 ```lua
 function round(num, places)
@@ -166,6 +268,16 @@ function select(t,f,     g,u)
   u, f = {}, f or same
   for _,v in pairs(t) do if f(v) then u[#u+1] = v  end end
   return u
+end
+```
+#### a(class,has) : create a new instance of `class`, add the `has` slides 
+```lua
+function a(klass,has,      new)
+  new = copy(klass or {})
+  for k,v in pairs(has or {}) do new[k] = v end
+  setmetatable(new, klass)
+  klass.__index = klass
+  return new
 end
 ```
 ### Lists
