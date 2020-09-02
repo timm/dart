@@ -81,32 +81,35 @@ the = {aka={},
 ### Coc.project() : return a random project
 ```lua
 Coc={}
-function Coc.project(    p,n,x,a) 
-  function p(x,y) return a(Coc.Em,{lo=x or 1, hi=y or 5, m= .073, n= .21})   end
-  function n(x,y) return a(Coc.Em,{lo=x or 1, hi=y or 5, m=-.178, n=-.078})  end
-  function sf()   return a(Coc.Sf,{lo=1,      hi=6,      m=-1.56, n=-1.014}) end
+function Coc.project(    p,n,x,a,v) 
+  function eq1(m,x) return m*(x-3)+1
+  function eq2(m,x) return m*(x-6)
+  function v(z)     return a(Coc.var,z)
+  function p(x,y)   return v{eq=eq1,lo=x or 1,hi=y or 5,m= .073,n= .21} end
+  function n(x,y)   return v{eq=eq1,lo=x or 1,hi=y or 5,m=-.178,n=-.078} end
+  function sf()     return v{eq=eq2,lo=1,     hi=6,     m=-1.56,n=-1.014} end
   a = from(2.2, 9.18)
-  return {a   = a,      
-          b   = (.85-1.1)/(9.18-2.2)*a+1.1 + (1.1-.8)/2,
-          prec= sf(), flex= sf(),   arch= sf(),   team= sf(),   pmat= sf(),
-          rely= p(),  data= p(2,5), cplx= p(1,6), ruse= p(2,6), 
-          docu= p(),  time= p(3,6), stor= p(3,6), pvol= p(2,5),
-          acap= n(),  pcap= n(),    pcon= n(),    aexp= n(),    
-          plex= n(),  ltex= n(),    tool= n(),    site= n(1,6), sced= n()})
+  return {
+    a   = a
+    b   = (.85-1.1)/(9.18-2.2)*a+1.1 + (1.1-.8)/2,
+    prec=sf(), flex=sf(),   arch=sf(),   team=sf(),   pmat=sf(),
+    rely=p(),  data=p(2,5), cplx=p(1,6), ruse=p(2,6), 
+    docu=p(),  time=p(3,6), stor=p(3,6), pvol=p(2,5),
+    acap=n(),  pcap=n(),    pcon=n(),    aexp=n(),    
+    plex=n(),  ltex=n(),    tool=n(),    site=n(1,6), sced=n()})
 end
 
-Coc.Em={}
-function Coc.Em:__call()
+Coc.Var={}
+function Coc.Var:__call()
   self.m = self.m or from(self.m,self.n)
   self.x = self.x or round(from(self.lo,self.hi),0)
-  return self.m*(self.x - 3) + 1
+  return self.eq(m,x)
 end
-
-Coc.Sf={}
-function Coc.Sf:__call()
-  self.m = self.m or from(self.m,self.n)
-  self.x = self.x or round(from(self.lo,self.hi),0)
-  return self.m*(self.x - 6)
+function Coc.Var:set(lo,hi)
+  self.lo = lo
+  self.hi = hi or lo
+  self.m  = nil
+  self.x  = nil
 end
 
 ```
