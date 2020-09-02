@@ -33,7 +33,8 @@ Here, the source code stored in code blocks of a Markdown file.
 ```lua
 -- returns a table of services you can use
 chop=require("chop")
-`
+```
+
 - [Install](#install) 
 - [Requirements](#requirements) 
 - [Contribute](#contribute) 
@@ -42,8 +43,6 @@ chop=require("chop")
 - [License](#license) 
 
 ---
-
-``
 
 ## Install
 
