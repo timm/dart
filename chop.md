@@ -23,7 +23,7 @@ alt="lisp" src="https://img.shields.io/badge/language-lua,bash-blue"> <a
 
 - [Config](#config) 
     - [the](#the--global-with-all-settings) : global with all settings
-- [Modelling](#modelling) 
+- [Modeling](#modelling) 
     - [Var](#var) 
         - [var(inits)](#varinits--create-a-new-var) : create a new `Var`.
         - [var:_call()](#varcall---calculate-a-new-value) : calculate a new value.
@@ -83,7 +83,7 @@ local round,o,oo,ooo,id,same             = nil,nil,nil,nil,nil,nil
 local map, copy,select,any,anys,keys,csv = nil,nil,nil,nil,nil,nil
 local within,rogues,eg,eg1,Eg,main       = nil,nil,nil,nil,nil,nil
 local from,ako,var                       = nil,nil,nil
-local Var,Coc                            = nil,nil
+local Mx,mx,Coc                            = nil,nil
 
 the = {aka={},
       id=0,
@@ -93,8 +93,8 @@ the = {aka={},
 ```
 
 ## Modelling
-### Var
-#### var(inits) : create a new `Var`.
+### MX
+#### mx(inits) : create a new `MX`.
 
 `MX`s are objects that know use some `eq` to convert `m` and `x` into a value.
 The `x` values come from some upper to lower range (denoted `lo0,hi0`)
@@ -103,14 +103,14 @@ does not extensive beyond `lo0,hi0`).
 
 ```lua
 MX={}
-function var(inits, new)
+function mx(inits, new)
   new     = ako(MX,inits)
   new.lo0 = new.lo  or 0
   new.hi0 = new.hi  or 1
   return new
 end
 ```
-#### var:_call() :  calculate a new value.
+#### MX:_call() :  calculate a new value.
 
 ```lua
 function MX:__call()
@@ -119,7 +119,7 @@ function MX:__call()
   return self.eq(self.m,self.x)
 end
 ```
-#### var:again() : forget old values, compute a new one.
+#### MX:again() : forget old values, compute a new one.
 
 ```lua
 function MX:again() self.m, self.x = nil,nil; return self:__call() end
@@ -493,8 +493,8 @@ function Eg.o()      assert("{1, aa, 3}" == o({1,"aa",3})) end
 function Eg.id(  a)  a={}; id(a); id(a); assert(1==a._id) end
 function Eg.map( t)  assert(30 == map({1,2,3}, function (z) return z*10 end)[3]) end
 
-function Eg.var(v)
-  v=var({lo=1,hi=5,m1=.073,m2=.21, eq=function (m,x) return m*x end})
+function Eg.mx(v)
+  v=mx({lo=1,hi=5,m1=.073,m2=.21, eq=function (m,x) return m*x end})
   print(1,5,v())
   v:squeeze(1)
   print(1,v(),v())
