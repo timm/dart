@@ -64,12 +64,16 @@ is in a markdown file and extraced using
 
 ## Config
 ### the : global with all settings
+
+
 ```lua
 local the,c,klass,less,goal,num          = nil,nil,nil,nil,nil
 local y,x,sym,xsym,xnum,cols             = nil,nil,nil,nil,nil,nil
 local round,o,oo,ooo,id,same             = nil,nil,nil,nil,nil,nil 
 local map, copy,select,any,anys,keys,csv = nil,nil,nil,nil,nil,nil
 local within,rogues,eg,eg1,Eg,main       = nil,nil,nil,nil,nil,nil
+local from,ako,var                       = nil,nil,nil
+local Var,Coc                            = nil,nil
 
 the = {aka={},
       id=0,
@@ -77,43 +81,72 @@ the = {aka={},
       test= {yes=0,no=0}
 }
 ```
+
+## Modelling
+### Var
+#### var(inits) : create a new `Var`.
+`Var`s are objects that know their upper and lower range (denoted `lo0,hi0`
+which can be squeezed into some sub-range `lo,hi` (as long as the squeeze
+does not extensive beyond `lo0,hi0`.
+
+```lua
+Var={}
+function var(inits, new)
+  new     = ako(Var,inits)
+  new.lo0 = new.lo 
+  new.hi0 = new.hi 
+  return new
+end
+
+function Var:__call()
+  self.m = self.m or from(self.m1,self.m2)
+  self.x = self.x or math.floor(round(from(self.lo,self.hi),0))
+  return self.eq(self.m,self.x)
+end
+```
+
+#### Var:squeeze(lo,hi) : restrict to `lo,hi` (if `hi` missing, set `hi` to `lo`).
+
+```lua
+function Var:squeeze(lo,hi)
+  hi = hi or lo
+  assert(self.lo0 <= lo and lo <= self.hi0)
+  assert(self.lo0 <= hi and hi <= self.hi0)
+  self.lo = lo
+  self.hi = hi 
+  self.m  = nil
+  self.x  = nil
+end
+```
+
 ## Cocomo
 ### Coc.project() : return a random project
+
 ```lua
 Coc={}
-function Coc.project(    p,n,x,a,v) 
-  function eq1(m,x) return m*(x-3)+1
-  function eq2(m,x) return m*(x-6)
-  function v(z)     return a(Coc.var,z)
-  function p(x,y)   return v{eq=eq1,lo=x or 1,hi=y or 5,m= .073,n= .21} end
-  function n(x,y)   return v{eq=eq1,lo=x or 1,hi=y or 5,m=-.178,n=-.078} end
-  function sf()     return v{eq=eq2,lo=1,     hi=6,     m=-1.56,n=-1.014} end
+function Coc.eq1(m,x) return m*(x-3)+1 end
+function Coc.eq2(m,x) return m*(x-6)   end
+function Coc.p(x,y)   return var{eq=Coc.eq1,lo=x or 1,hi=y or 5,m1= .073,m2= .21} end
+function Coc.n(x,y)   return var{eq=Coc.eq1,lo=x or 1,hi=y or 5,m1=-.178,m2=-.078} end
+function Coc.sf()     return var{eq=Coc.eq2,lo=1,     hi=6,     m1=-1.56,m2=-1.014} end
+
+function Coc.project(    a,sf,p,n)
   a = from(2.2, 9.18)
+  sf,p,n= Coc.sf, Coc.p, Coc.n
   return {
-    a   = a
-    b   = (.85-1.1)/(9.18-2.2)*a+1.1 + (1.1-.8)/2,
+    a   = function () return a end,
+    b   = function () return (.85-1.1)/(9.18-2.2)*a+1.1 + (1.1-.8)/2 end,
     prec=sf(), flex=sf(),   arch=sf(),   team=sf(),   pmat=sf(),
     rely=p(),  data=p(2,5), cplx=p(1,6), ruse=p(2,6), 
     docu=p(),  time=p(3,6), stor=p(3,6), pvol=p(2,5),
     acap=n(),  pcap=n(),    pcon=n(),    aexp=n(),    
-    plex=n(),  ltex=n(),    tool=n(),    site=n(1,6), sced=n()})
-end
-
-Coc.Var={}
-function Coc.Var:__call()
-  self.m = self.m or from(self.m,self.n)
-  self.x = self.x or round(from(self.lo,self.hi),0)
-  return self.eq(m,x)
-end
-function Coc.Var:set(lo,hi)
-  self.lo = lo
-  self.hi = hi or lo
-  self.m  = nil
-  self.x  = nil
+    plex=n(),  ltex=n(),    tool=n(),    site=n(1,6), sced=n()}
 end
 
 ```
+
 ### Coc.Risk
+
 ```lua
 function Coc.risk(    _,ne,nw,nw4,sw4,ne46, sw26,sw46)
   _  = 0
@@ -178,9 +211,11 @@ function Coc.risk(    _,ne,nw,nw4,sw4,ne46, sw26,sw46)
     tool= {acap=nw,  pcap=nw,  pmat=nw}} -- 6
 end
 ```
+
 ## Data
 ### Columns
 #### Define column types
+
 ```lua
 function c(s,k)   return string.sub(s,1,1)==k end
 function klass(x) return c(x,"!")  end 
@@ -197,21 +232,27 @@ function cols(all,f)
   return select(all, function(z) return f(z.txt) end)
 end
 ```
+
 ## Lib
 ### Maths
 #### from(lo,hi) : return a number from `lo` to `hi`
+
 ```lua
 function from(lo,hi) return lo+(hi-lo)*math.random() end
 ```
+
 #### round(n,places) : round `n` to some decimal `places`.
+
 ```lua
 function round(num, places)
   local mult = 10^(places or 0)
   return math.floor(num * mult + 0.5) / mult
 end
 ```
+
 ### Strings
 #### o(t,pre) : return `t` as a string, with `pre`fix
+
 ```lua
 function o(z,pre,   s,sep) 
   s, sep = (pre or "")..'{', ""
@@ -219,11 +260,15 @@ function o(z,pre,   s,sep)
   return s..'}'
 end
 ```
+
 #### oo(t,pre) : print `t` as a string, with `pre`fix
+
 ```lua
 function oo(z,pre) print(o(z,pre)) end
 ```
+
 #### ooo(t,pre) : return a string representing `t`'s recursive contents.
+
 ```lua
 function ooo(t,pre,    indent,fmt)
   pre=pre or ""
@@ -239,19 +284,25 @@ function ooo(t,pre,    indent,fmt)
   print(fmt .. tostring(v)) end end end end
 end
 ```
+
 ### Meta
 #### id(x) : ensure `x` has a unique if
+
 ```lua
 function id (x)
 	if not x._id then the.id=the.id+1; x._id= the.id end
 	return x._id 
 end
 ```
+
 #### same(z) : return z
+
 ```lua
 function same(z) return z end
 ```
+
 #### map(t,f) : apply `f` to everything in `t` and return the result
+
 ```lua
 function map(t,f, u)
   u, f = {}, f or same
@@ -259,13 +310,25 @@ function map(t,f, u)
   return u
 end
 ```
+
 #### copy(t) : return a deep copy of `t`
+
 ```lua
-function copy(t)  
-  return type(t) ~= 'table' and t or map(t,copy)
+function copy(obj, seen)
+    -- Handle non-tables and previously-seen tables.
+    if type(obj) ~= 'table' then return obj end
+    if seen and seen[obj] then return seen[obj] end
+    -- New table; mark it as seen and copy recursively.
+    local s = seen or {}
+    local res = {}
+    s[obj] = res
+    for k, v in pairs(obj) do res[copy(k, s)] = copy(v, s) end
+    return setmetatable(res, getmetatable(obj))
 end
 ```
+
 #### select(t,f) : return a table of items in `t` that satisfy function `f`
+
 ```lua
 function select(t,f,     g,u)
   u, f = {}, f or same
@@ -273,9 +336,11 @@ function select(t,f,     g,u)
   return u
 end
 ```
-#### a(class,has) : create a new instance of `class`, add the `has` slides 
+
+#### ako(class,has) : create a new instance of `class`, add the `has` slides 
+
 ```lua
-function a(klass,has,      new)
+function ako(klass,has,      new)
   new = copy(klass or {})
   for k,v in pairs(has or {}) do new[k] = v end
   setmetatable(new, klass)
@@ -283,12 +348,16 @@ function a(klass,has,      new)
   return new
 end
 ```
+
 ### Lists
 #### any(a) : sample 1 item from `a`
+
 ```lua
 function any(a) return a[1 + math.floor(#a*math.random())] end
 ```
+
 #### anys(a,n) : sample `n` items from `a`
+
 ```lua
 function anys(a,n,   t) 
   t={}
@@ -296,7 +365,9 @@ function anys(a,n,   t)
   return t
 end
 ```
+
 #### keys(t): iterate over key,values (sorted by key)
+
 ```lua
 function keys(t)
   local i,u = 0,{}
@@ -308,8 +379,10 @@ function keys(t)
       return u[i], t[u[i]] end end 
 end
 ```
+
 ### Files
 #### csv(file) : iterate through  non-empty rows, divided on comma, coercing numbers
+
 ```lua
 function csv(file,     stream,tmp,row)
   stream = file and io.input(file) or io.input()
@@ -327,15 +400,19 @@ function csv(file,     stream,tmp,row)
     io.close(stream) end end   
 end
 ```
+
 ## Testing
 ### Support code
 #### within(x,y,z): `y` is between `x` and `z`.
+
 ```lua
 function within(x,y,z)
   assert(x <= y and y <= z, 'outside range ['..x..' to '..']')
 end
 ```
+
 #### rogues(): report escaped local variables
+
 ```lua
 function rogues(   no)
   no = {the=true,
@@ -355,7 +432,9 @@ function rogues(   no)
         print("-- ROGUE ["..k.."]") end end end
 end
 ```
+
 #### eg(x): run the test function `eg_x` or, if `x` is nil, run all.
+
 ```lua
 function eg(t)
   if not t then print("") end
@@ -382,18 +461,35 @@ function eg1(name,f,   t1,t2,passed,err,y,n)
     100*y/(y+n))) end 
 end
 ```
+
 ### Unit tests
+
 ```lua 
 Eg={}
+
 function Eg.test()   assert(1==2) end
 function Eg.rnd()    assert(3.2==round(3.2222,1)) end
 function Eg.o()      assert("{1, aa, 3}" == o({1,"aa",3})) end
 function Eg.id(  a)  a={}; id(a); id(a); assert(1==a._id) end
-function Eg.map( t)
-	assert(30 == map({1,2,3}, function (z) return z*10 end)[3])
+function Eg.map( t)  assert(30 == map({1,2,3}, function (z) return z*10 end)[3]) end
+
+function Eg.var(v)
+  v=var({lo=1,hi=5,m1=.073,m2=.21, eq=function (m,x) return m*x end})
+  print(1,5,v())
+  v:squeeze(1)
+  print(1,v(),v())
+  ooo(v)
 end
+
+function Eg.Coc() 
+  math.randomseed(1)
+  for k,v in keys(Coc.project()) do print(k,v()) end
+end
+
 ```
+
 ## Main 
+
 ```lua
 function main()
   if arg[1] == "-U" then 
@@ -407,3 +503,4 @@ if not pcall(debug.getlocal, 4, 1) then main() end
 
 return {the=the,cli=cli}
 ```
+

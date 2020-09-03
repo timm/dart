@@ -71,12 +71,13 @@ Please follow my _Lua-isa-simple-language-so-lets-keep-it-simple_ conventions:
         function x(a) return a+1 end
         ```
 - Support code
-  - All suupport in its own file that knows to create the followng files (if they do not exist already):
+  - All support code in its own file that knows to create the followng files (if they do not exist already):
     - `./.travis.yml`
     - `./.gitignore`
     - `$HOME/.tmux.conf`
     - `$HOME/.vimrc`
     - `$HOME/.vim/bundle`
+    - `$HOME/.config/htop/htoprc`
 - Source code
   - All source code in one file.
     - All locals listed at top;
@@ -88,6 +89,7 @@ Please follow my _Lua-isa-simple-language-so-lets-keep-it-simple_ conventions:
       - And I test for that using `not pcall(debug.getlocal, 4, 1)`.
     - Finally, there  is a return statement that exports the more useful parts of the code.
   - No globals (so keep the list of `local`s at top of file up to date).
+  - The `the` local handles information and defaults shared across all functions and classes.
   - Minimize use of the `local` keyword (so ugly)
     - Use it once at top of file.
     - Then (usually) define function locals as extra input arguments.
@@ -100,9 +102,9 @@ Please follow my _Lua-isa-simple-language-so-lets-keep-it-simple_ conventions:
     - Don't use inheritance (adds to debugging effort).
     - Classes are created by assigning some defaults to a global value;    
       e.g. `Emp={lname="", fname="", add=address() }`
-    - The `the` local handles information and defaults shared across all functions and classes.
     - Class constructors are lower case functions that call `isa(X)` 
       (where `X` is some class).
+      - Typically for some `Klass`, the constrictor is the same name, starting with lower case (e.g. `klass`).
       - Constructors often use the idiom `new.x = y or the.zzz.y` where `y` is a parameter- S
     
 
