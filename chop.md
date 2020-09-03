@@ -21,39 +21,49 @@ alt="lisp" src="https://img.shields.io/badge/language-lua,bash-blue"> <a
    src="https://travis-ci.org/timm/lump.svg?branch=master"></a>
 </p> 
 
-
-- [Config](#config) : 
-    - [the](#my--global-with-all-settings) : global with all settings
-- [Data](#data) : 
-    - [Columns](#columns) : 
-        - [Define column types](#define-column-types) : 
-- [Lib](#lib) : 
-    - [Maths](#maths) : 
+- [Config](#config) 
+    - [the](#the--global-with-all-settings) : global with all settings
+- [Modelling](#modelling) 
+    - [Var](#var) 
+        - [var(inits)](#varinits--create-a-new-var) : create a new `Var`.
+        - [var:_call()](#varcall---calculate-a-new-value) : calculate a new value.
+        - [var:again()](#varagain--forget-old-values-compute-a-new-one) : forget old values, compute a new one.
+        - [MX:squeeze(lo,hi)](#mxsqueezelohi--restrict-to-lohi-if-hi-missing-set-hi-to-lo) : restrict to `lo,hi` (if `hi` missing, set `hi` to `lo`).
+- [Cocomo](#cocomo) 
+    - [Coc.project()](#cocproject--return-a-random-project) : return a random project
+    - [Coc.Risk](#cocrisk) 
+- [Data](#data) 
+    - [Columns](#columns) 
+        - [Define column types](#define-column-types) 
+- [Lib](#lib) 
+    - [Maths](#maths) 
+        - [from(lo,hi)](#fromlohi--return-a-number-from-lo-to-hi) : return a number from `lo` to `hi`
         - [round(n,places)](#roundnplaces--round-n-to-some-decimal-places) : round `n` to some decimal `places`.
-    - [Strings](#strings) : 
-        - [Interpolation](#interpolation) : 
+    - [Strings](#strings) 
         - [o(t,pre)](#otpre--return-t-as-a-string-with-prefix) : return `t` as a string, with `pre`fix
         - [oo(t,pre)](#ootpre--print-t-as-a-string-with-prefix) : print `t` as a string, with `pre`fix
         - [ooo(t,pre)](#oootpre--return-a-string-representing-ts-recursive-contents) : return a string representing `t`'s recursive contents.
-    - [Meta](#meta) : 
+    - [Meta](#meta) 
         - [id(x)](#idx--ensure-x-has-a-unique-if) : ensure `x` has a unique if
         - [same(z)](#samez--return-z) : return z
         - [map(t,f)](#maptf--apply-f-to-everything-in-t-and-return-the-result) : apply `f` to everything in `t` and return the result
         - [copy(t)](#copyt--return-a-deep-copy-of-t) : return a deep copy of `t`
         - [select(t,f)](#selecttf--return-a-table-of-items-in-t-that-satisfy-function-f) : return a table of items in `t` that satisfy function `f`
-    - [Lists](#lists) : 
+        - [ako(class,has)](#akoclasshas--create-a-new-instance-of-class-add-the-has-slides) : create a new instance of `class`, add the `has` slides
+    - [Lists](#lists) 
         - [any(a)](#anya--sample-1-item-from-a) : sample 1 item from `a`
         - [anys(a,n)](#anysan--sample-n-items-from-a) : sample `n` items from `a`
         - [keys(t)](#keyst-iterate-over-keyvalues-sorted-by-key) : iterate over key,values (sorted by key)
-    - [Files](#files) : 
+    - [Files](#files) 
         - [csv(file)](#csvfile--iterate-through--non-empty-rows-divided-on-comma-coercing-numbers) : iterate through  non-empty rows, divided on comma, coercing numbers
-- [Testing](#testing) : 
-    - [Support code](#support-code) : 
+- [Testing](#testing) 
+    - [Support code](#support-code) 
         - [within(x,y,z)](#withinxyz-y-is-between-x-and-z) : `y` is between `x` and `z`.
         - [rogues()](#rogues-report-escaped-local-variables) : report escaped local variables
-        - [egs(x)](#egsx-run-the-test-function-egx-or-if-x-is-nil-run-all) : run the test function `eg_x` or, if `x` is nil, run all.
-    - [Unit tests](#unit-tests) : 
-- [Main](#main) : 
+        - [eg(x)](#egx-run-the-test-function-egx-or-if-x-is-nil-run-all) : run the test function `eg_x` or, if `x` is nil, run all.
+    - [Unit tests](#unit-tests) 
+- [Main](#main) 
+
 
 
 
@@ -86,35 +96,39 @@ the = {aka={},
 ### Var
 #### var(inits) : create a new `Var`.
 
-`Var`s are objects that know their upper and lower range (denoted `lo0,hi0`
+`MX`s are objects that know use some `eq` to convert `m` and `x` into a value.
+The `x` values come from some upper to lower range (denoted `lo0,hi0`)
 which can be squeezed into some sub-range `lo,hi` (as long as the squeeze
-does not extensive beyond `lo0,hi0`.
+does not extensive beyond `lo0,hi0`).
 
 ```lua
-Var={}
+MX={}
 function var(inits, new)
-  new     = ako(Var,inits)
-  new.lo0 = new.lo 
-  new.hi0 = new.hi 
+  new     = ako(MX,inits)
+  new.lo0 = new.lo  or 0
+  new.hi0 = new.hi  or 1
   return new
 end
+```
+#### var:_call() :  calculate a new value.
 
-function Var:__call()
+```lua
+function MX:__call()
   self.m = self.m or from(self.m1,self.m2)
   self.x = self.x or math.floor(round(from(self.lo,self.hi)))
   return self.eq(self.m,self.x)
 end
-
-function Var:again()
-  self.m, self.x = nil,nil
-  return self:__call()
-end
 ```
-
-#### Var:squeeze(lo,hi) : restrict to `lo,hi` (if `hi` missing, set `hi` to `lo`).
+#### var:again() : forget old values, compute a new one.
 
 ```lua
-function Var:squeeze(lo,hi)
+function MX:again() self.m, self.x = nil,nil; return self:__call() end
+```
+
+#### MX:squeeze(lo,hi) : restrict to `lo,hi` (if `hi` missing, set `hi` to `lo`).
+
+```lua
+function MX:squeeze(lo,hi)
   hi = hi or lo
   assert(self.lo0 <= lo and lo <= self.hi0)
   assert(self.lo0 <= hi and hi <= self.hi0)
