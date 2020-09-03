@@ -85,6 +85,7 @@ the = {aka={},
 ## Modelling
 ### Var
 #### var(inits) : create a new `Var`.
+
 `Var`s are objects that know their upper and lower range (denoted `lo0,hi0`
 which can be squeezed into some sub-range `lo,hi` (as long as the squeeze
 does not extensive beyond `lo0,hi0`.
@@ -100,8 +101,13 @@ end
 
 function Var:__call()
   self.m = self.m or from(self.m1,self.m2)
-  self.x = self.x or math.floor(round(from(self.lo,self.hi),0))
+  self.x = self.x or math.floor(round(from(self.lo,self.hi)))
   return self.eq(self.m,self.x)
+end
+
+function Var:again()
+  self.m, self.x = nil,nil
+  return self:__call()
 end
 ```
 
@@ -125,7 +131,7 @@ end
 ```lua
 Coc={}
 function Coc.eq1(m,x) return m*(x-3)+1 end
-function Coc.eq2(m,x) return m*(x-6)   end
+function Coc.eq2(m,x) return math.max(0,m*(x-6))  end
 function Coc.p(x,y)   return var{eq=Coc.eq1,lo=x or 1,hi=y or 5,m1= .073,m2= .21} end
 function Coc.n(x,y)   return var{eq=Coc.eq1,lo=x or 1,hi=y or 5,m1=-.178,m2=-.078} end
 function Coc.sf()     return var{eq=Coc.eq2,lo=1,     hi=6,     m1=-1.56,m2=-1.014} end
@@ -481,10 +487,11 @@ function Eg.var(v)
   ooo(v)
 end
 
-function Eg.Coc() 
-  math.randomseed(1)
-  for k,v in keys(Coc.project()) do print(k,v()) end
+function Eg.Coc(  c) 
+  for _ = 1,10^4 do for k,v in keys(c or Coc.project()) do if type(v) ~= "function" then v:again() end end end
 end
+
+function Eg.Coc1(  c) Eg.Coc( Coc.project()) end
 
 ```
 
