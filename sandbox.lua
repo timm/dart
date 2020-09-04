@@ -7,9 +7,10 @@ function cache(f,   lo, hi,t,ok)
   hi        = hi or lo
   t         = {lo0=lo, lo=lo, hi0=hi,hi=hi}
   ok        = function(z) assert(t.lo0<=z and z<=t.hi0); return z end
-  t.zap     = function()  t.x=nil                                 end
   t.squeeze = function(lo, hi) t.lo=ok(lo); t.hi=ok(hi or lo)     end
-  return setmetatable(t,{__call= function() t.x=t.x or f(t); return t.x end})
+  t.zap     = function()  t.cache=nil                             end
+  return setmetatable(t,{__call= 
+              function() t.cache=t.cache or f(t); return t.cache end})
 end
 
 do
