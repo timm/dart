@@ -90,47 +90,82 @@ the = {aka={},
 ```
 
 ## Modelling
-### MX
-#### mx(inits) : create a new `MX`.
+### Variables
+#### Cache : compute and cache a value from some equation
 
-`MX`s are objects that know use some `eq` to convert `m` and `x` into a value.
-The `x` values come from some upper to lower range (denoted `lo0,hi0`)
-which can be squeezed into some sub-range `lo,hi` (as long as the squeeze
-does not extensive beyond `lo0,hi0`).
+`Cache`s can compute a value.
+```lua
+Cache={}
+function cache(eq, new) new=ako(Cache); new.eq = eq;  return new    end
+function Cache:__call() self.x = self.x or self.eq(); return self.x end
+function Cache:again()  self.x = nil;                 return self.__call() end
+```
+
+#### Var : compute and cache one variable.
+
+`Var`s are objects that can be `__call`ed to compute, then cache,
+some value.  If `__call`ed again then the cached value will be returned
+(but if sent the message `again()` then the computation will be repeated
+and a new value will be cached).
+
+The computation is controlled by some other value
+bounded to some upper to lower range (denoted `lo0,hi0`).  This
+control range which can be squeezed into some sub-range `lo,hi` (as
+long as the squeeze does not extensive beyond `lo0,hi0`).
 
 ```lua
-MX={}
-function mx(inits, new)
-  new     = ako(MX,inits)
-  new.lo0 = new.lo  or 0
-  new.hi0 = new.hi  or 1
+Var={}
+
+function var(inits,new, type) 
+  new     = ako(type or Var, inits)
+  new.lo0 = new.lo or 0
+  new.hi0 = new.hi or 1
   return new
 end
-```
-#### MX:_call() :  calculate a new value.
 
-```lua
-function MX:__call()
-  self.m = self.m or from(self.m1,self.m2)
-  self.x = self.x or math.floor(round(from(self.lo,self.hi)))
-  return self.eq(self.m,self.x)
+function Var:__call():
+  self.x = self.x or from(self.lo, self.hi)
+  return self.x
 end
-```
-#### MX:again() : forget old values, compute a new one.
 
-```lua
-function MX:again() self.m, self.x = nil,nil; return self:__call() end
-```
+function Var:again()
+   self.x = nil
+   return self:__call() 
+end
 
-#### MX:squeeze(lo,hi) : restrict to `lo,hi` (if `hi` missing, set `hi` to `lo`).
-
-```lua
-function MX:squeeze(lo,hi)
+function Var:squeeze(lo,hi)
   hi = hi or lo
   assert(self.lo0 <= lo and lo <= self.hi0)
   assert(self.lo0 <= hi and hi <= self.hi0)
   self.lo = lo
   self.hi = hi 
+  self.x  = nil
+end
+
+```
+### MX : compute and cache two variables.
+
+`MX`s are a more complex kind of `Var` where two values (`m,x`) are cached
+and the computation is controlled by some lambda body `eq`. 
+
+Apart from that,
+like `Var`s, these objects can be `__call`ed, `again()`, and `squeeze`d.
+
+```lua
+MX={}
+
+function mx(inits) return var(inits,new,MX) end
+
+function MX:__call()
+  self.m = self.m or from(self.m1,self.m2)
+  self.x = self.x or math.floor(round(from(self.lo,self.hi)))
+  return self.eq(self.m,self.x)
+end
+
+function MX:again() self.m = nil; return Var.again(self) end
+
+function MX:squeeze(lo,hi)
+  Var.squeeze(self,lo,hi)
   self.m  = nil
   self.x  = nil
 end
@@ -147,20 +182,24 @@ function Coc.p(x,y)   return var{eq=Coc.eq1,lo=x or 1,hi=y or 5,m1= .073,m2= .21
 function Coc.n(x,y)   return var{eq=Coc.eq1,lo=x or 1,hi=y or 5,m1=-.178,m2=-.078} end
 function Coc.sf()     return var{eq=Coc.eq2,lo=1,     hi=6,     m1=-1.56,m2=-1.014} end
 
-function Coc.project(    a,sf,p,n)
+function Coc.project(    a,sf,p,n,out)
   a = from(2.2, 9.18)
   sf,p,n= Coc.sf, Coc.p, Coc.n
-  return {
-    a   = function () return a end,
-    b   = function () return (.85-1.1)/(9.18-2.2)*a+1.1 + (1.1-.8)/2 end,
+  out = {}
+    a   = var {lo = 2.2, high = 9.18},
+    b   = function () return (.85-1.1)/(9.18-2.2)*out.a()+1.1 + (1.1-.8)/2 end,
     prec=sf(), flex=sf(),   arch=sf(),   team=sf(),   pmat=sf(),
     rely=p(),  data=p(2,5), cplx=p(1,6), ruse=p(2,6), 
     docu=p(),  time=p(3,6), stor=p(3,6), pvol=p(2,5),
     acap=n(),  pcap=n(),    pcon=n(),    aexp=n(),    
-    plex=n(),  ltex=n(),    tool=n(),    site=n(1,6), sced=n()}
-end
-
-```
+    plex=n(),  ltex=n(),    tool=n(),    site=n(1,6), sced=n()
+  }
+  sf = p.prec() +  p.flex() + p.arch() + p.team() + p.pmat() 
+  em = p.rely() *  p.data() *  p.cplx() *  p.ruse() * p.docu() * \
+       p.time() *  p.stor() *  p.pvol() * p.acap() *  p.pcap() *  \   
+       p.pcon() *  p.aexp() *  p.lex() *  p.ltex() *  p. tool() * \
+       p.site() *  p.sced()
+   return p.a*p.loc() ^ (p.b() + 0.01*sf) * em
 
 ### Coc.Risk
 
