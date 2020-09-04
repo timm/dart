@@ -23,11 +23,11 @@ alt="lisp" src="https://img.shields.io/badge/language-lua,bash-blue"> <a
 
 - [Config](#config) 
     - [the](#the--global-with-all-settings) : global with all settings
-- [Modeling](#modelling) 
-    - [Var](#var) 
-        - [var(inits)](#varinits--create-a-new-var) : create a new `Var`.
-        - [var:_call()](#varcall---calculate-a-new-value) : calculate a new value.
-        - [var:again()](#varagain--forget-old-values-compute-a-new-one) : forget old values, compute a new one.
+- [Modelling](#modelling) 
+    - [MX](#mx) 
+        - [mx(inits)](#mxinits--create-a-new-mx) : create a new `MX`.
+        - [MX:_call()](#mxcall---calculate-a-new-value) : calculate a new value.
+        - [MX:again()](#mxagain--forget-old-values-compute-a-new-one) : forget old values, compute a new one.
         - [MX:squeeze(lo,hi)](#mxsqueezelohi--restrict-to-lohi-if-hi-missing-set-hi-to-lo) : restrict to `lo,hi` (if `hi` missing, set `hi` to `lo`).
 - [Cocomo](#cocomo) 
     - [Coc.project()](#cocproject--return-a-random-project) : return a random project
@@ -63,9 +63,6 @@ alt="lisp" src="https://img.shields.io/badge/language-lua,bash-blue"> <a
         - [eg(x)](#egx-run-the-test-function-egx-or-if-x-is-nil-run-all) : run the test function `eg_x` or, if `x` is nil, run all.
     - [Unit tests](#unit-tests) 
 - [Main](#main) 
-
-
-
 
 This is a _one file_ system where all the code
 is in a markdown file and extraced using
