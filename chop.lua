@@ -17,5 +17,7 @@ local function loads(files,       lines,f,code,fs)
   if f.main then f.main() end
 end
 
-loads {"src/the.md", "src/lib.md", "src/cocomo.md",
-       "test/testcontrol.md", "test/unittests.md", "src/main.md"}
+loads { "src/the.md", "src/lib.md", "src/cocomo.md",
+        "test/testcontrol.md", "test/unittests.md", 
+        "src/main.md"
+      }
