@@ -36,6 +36,7 @@ Usage:
   sh chop -h      help
   sh chop -C      extract code from $Src
   sh chop -E      enter a tmux dev environment
+  sh chop -H FILE replace para1 of file with para1 from README.md
   sh chop -I      install
   sh chop -R      run code in $Src
   sh chop -T FILE extract table of contents from markdown FILE
@@ -59,6 +60,11 @@ alias gp='git add *; git commit -am saving; git push; git status'
 alias ls='ls -G'
 alias reload='. $Dir/$Sh'
 
+header() {
+  awk 'BEGIN {FS=""; RS=""} {print $0; exit}' $Dir/README.md
+  awk 'BEGIN {FS=""; RS=""} NR==1 && /^<a name=top/ {next} {print "\n"$0}' $1
+  #mv $$txt $1
+}
 color() { awk '
 /FAIL/ {print "\033[31m" $0 "\033[0m";next}
 /PASS/ {print "\033[32m" $0 "\033[0m";next}
@@ -118,6 +124,8 @@ tests() {
 
 if [ "$1" = "-h" ]; then 
   usage
+elif [ "$1" = "-H" ]; then
+  header $2
 elif [ "$1" = "-T" ]; then
   cat $2 | toc 
 elif [ "$1" = "-R" ]; then

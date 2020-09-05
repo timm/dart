@@ -5,9 +5,7 @@
 <a href="https://github.com/timm/chop/issues">issues</a> ::
 <a href="https://github.com/timm/chop/blob/master/README.md#license">&copy;2020<a> by <a href="http://menzies.us">Tim Menzies</a>
 </p>
-
 <h1 align=center> CHOP  v0.1<br>cluster and contrast</h1>
-
 <p align=center>
 <img width=400 src="https://i0.wp.com/studentwork.prattsi.org/infovis/wp-content/uploads/sites/3/2019/04/image-44.png?w=758&ssl=1"><br>
 <img src="https://img.shields.io/badge/purpose-ai%20,%20se-blueviolet"> <a 
