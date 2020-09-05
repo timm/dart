@@ -1,3 +1,8 @@
+## LUA ###
+
+src/*.lua
+test/*.lua
+
 ## VIM ###
 
 # Swap

@@ -341,7 +341,9 @@ elif [ "$1" = "-I" ]; then
 	
 	want=$Dir/.gitignore
 	[ -f "$want" ] || cat<<-'EOF'>$want
-	## VIM ###
+	## Lua ###
+	src/*.lua
+	test/*.lua
 	
 	# Swap
 	[._]*.s[a-v][a-z]

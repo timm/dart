@@ -1,16 +1,13 @@
-## Modelling
-### Variables
-#### Cache : compute and cache a value from some equation
+-- ## Modelling
+-- ### Variables
+-- #### Cache : compute and cache a value from some equation
 
-`Cache`s can compute a value.
-```lua
 Cache={}
 function cache(eq, new) new=ako(Cache); new.eq = eq;  return new    end
 function Cache:__call() self.x = self.x or self.eq(); return self.x end
 function Cache:again()  self.x = nil;                 return self.__call() end
-```
 
-#### Var : compute and cache one variable.
+--[[ #### Var : compute and cache one variable.
 
 `Var`s are objects that can be `__call`ed to compute, then cache,
 some value.  If `__call`ed again then the cached value will be returned
@@ -22,7 +19,7 @@ bounded to some upper to lower range (denoted `lo0,hi0`).  This
 control range which can be squeezed into some sub-range `lo,hi` (as
 long as the squeeze does not extensive beyond `lo0,hi0`).
 
-```lua
+--]]
 Var={}
 
 function var(inits,new, type) 
@@ -51,8 +48,7 @@ function Var:squeeze(lo,hi)
   self.x  = nil
 end
 
-```
-### MX : compute and cache two variables.
+--[[ ### MX : compute and cache two variables.
 
 `MX`s are a more complex kind of `Var` where two values (`m,x`) are cached
 and the computation is controlled by some lambda body `eq`. 
@@ -60,7 +56,8 @@ and the computation is controlled by some lambda body `eq`.
 Apart from that,
 like `Var`s, these objects can be `__call`ed, `again()`, and `squeeze`d.
 
-```lua
+--]]
+
 MX={}
 
 function mx(inits) return var(inits,new,MX) end
@@ -78,12 +75,10 @@ function MX:squeeze(lo,hi)
   self.m  = nil
   self.x  = nil
 end
-```
 
-## Cocomo
-### Coc.project() : return a random project
+-- ## Cocomo
+-- ### Coc.project() : return a random project
 
-```lua
 Coc={}
 function Coc.eq1(m,x) return m*(x-3)+1 end
 function Coc.eq2(m,x) return math.max(0,m*(x-6))  end
@@ -109,11 +104,9 @@ function Coc.sf()     return var{eq=Coc.eq2,lo=1,     hi=6,     m1=-1.56,m2=-1.0
 --        p.pcon() *  p.aexp() *  p.lex() *  p.ltex() *  p. tool() * \
 --        p.site() *  p.sced()
 --    return p.a*p.loc() ^ (p.b() + 0.01*sf) * em
-```
 
-### Coc.Risk
+-- ### Coc.Risk
 
-```lua
 function Coc.risk(    _,ne,nw,nw4,sw4,ne46, sw26,sw46)
   _  = 0
   -- bounded by 1..5
@@ -176,13 +169,11 @@ function Coc.risk(    _,ne,nw,nw4,sw4,ne46, sw26,sw46)
     time= {acap=sw46, pcap=sw46, tool=sw26}, --10
     tool= {acap=nw,  pcap=nw,  pmat=nw}} -- 6
 end
-```
 
-## Data
-### Columns
-#### Define column types
+-- ## Data
+-- ### Columns
+-- #### Define column types
 
-```lua
 function c(s,k)   return string.sub(s,1,1)==k end
 function klass(x) return c(x,"!")  end 
 function less(x)  return c(x,"<")  end
@@ -197,6 +188,3 @@ function xnum(z)  return x(z) and  num(z) end
 function cols(all,f)
   return select(all, function(z) return f(z.txt) end)
 end
-```
-
-

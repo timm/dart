@@ -1,6 +1,5 @@
-### Unit tests
+-- ### Unit tests
 
-```lua 
 Eg={}
 
 function Eg.test()   assert(1==2) end
@@ -18,11 +17,9 @@ function Eg.mx(v)
 end
 
 function Eg.Coc(  c) 
-  for _ = 1,10^4 do for k,v in keys(c or Coc.project()) do if type(v) ~= "function" then v:again() end end end
+  for _ = 1,10^4 do 
+    for k,v in keys(c or Coc.project()) do 
+       if type(v) ~= "function" then v:again() end end end
 end
 
 function Eg.Coc1(  c) Eg.Coc( Coc.project()) end
-
-```
-
-
