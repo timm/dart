@@ -1,10 +1,7 @@
---[[ # Chop.lua
+-- # Chop.lu
+-- Optimization == data mining == simple
 
-Optimization == data mining == simple
-
-For demos, see `Eg` (below)
-
-## License
+function license() print [[ 
 
 Copyright 2020, Tim Menzies
 
@@ -25,9 +22,8 @@ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
 ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
---]]
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. ]] 
+end
 
 local the,c,klass,less,goal,num          = nil,nil,nil,nil,nil
 local y,x,sym,xsym,xnum,cols             = nil,nil,nil,nil,nil,nil
@@ -453,11 +449,25 @@ end
 
 function Eg.Coc1(  c) Eg.Coc( Coc.project()) end
 
-function main()
-  if arg[1] == "-U" then 
-    local status = eg(arg[2])
-    rogues() 
-    os.exit((the.test.yes - the.test.no == 1) and 0 or 1)
+local cli={
+  "-U" = {help = "-U [File]  run stuff",
+         act= function(_) 
+                 eg(arg[2]); rogies();
+                 os.exit((the.test.yes - the.test.no == 1) and 0 or 1) end},
+  "-C" = {help= "-C         show copyright",
+          act = function(cli) license() end},
+  "-h" = {help= "-h         show help",
+          act = function(cli)
+                   print("Options:")
+                   for _,s in keys(cli) do print("  "..s) end end}
+}
+
+function main(    j)
+  for j in arg do arg[j] = tonumber(arg[j]) or arg[j] end
+  j=1
+  while j <= #arg do
+    if re.match(arg[j],cli.helparg[j]] then arg[j].act(cli) end
+    j = j +  j<#arg and not cli[arg[j+1]] and 2 or 1
   end
 end
 
