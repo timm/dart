@@ -91,7 +91,12 @@ sub(/^--\[\[[ \t]*/,"")  { print"```"
                   
                    {print}
                    
-'
+' > /tmp/$$code
+lua chop.lua :h > /tmp/$$help
+lua chop.lua :C > /tmp/$$license
+cat /tmp/$$1 /tmp/$$2 > /tmp/$$3
+header /tmp/$$3 > /tmp/$$4
+cat /tmp/$$3 /tmp/$$4
 }
 toc() { awk '
 function ns(n,    s) {
