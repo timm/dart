@@ -1,5 +1,4 @@
-local Opts=[[
-# Name 
+local Help=[[# Name 
   chop
 
 ## Description
@@ -7,31 +6,26 @@ local Opts=[[
   via clustering and contrast data mining methods. 
 
 ## Usage:
-  lua chop.py Group [--group Group]* 
+  lua chop.py Group [::group Group]* 
 
-  Groups start with "--" and contain 1 or more options.
-  Options start with "-" and contain 0 or 1 arguments.
+  Groups start with "::" and contain 1 or more options.
+  Options start with ":" and contain 0 or 1 arguments.
 
 ## Options
   Options have  help text that start with a space then an
   uppercase letter. Optional arguments are 
-
---main
-  -h          Show this screen.
-  -C          Show this copyright.
-  -U=[all]    Run one or more unit test functions 
-  -speed=<kn> Speed in knots [default: 10].
-
- --bayes 
-
---flag:options:default:help                                         : handler : rule 
--- ---:-------:-------:---------------------------------------------:---------:-----
-   U  : [Fun] :       :run tests matching 'Fun' (if musing, run all): eg      : fun
-   h  :       :       :print help                                   : help    : 
-   C  :       :       :Show license                                 : license :
 ]]
+local Options=[[
+    :C       ;; show copyright   
+    :h       ;; show help   
+    :seed 1  ;; set random number seed   
+    ::test   ;; system stuff, set up test engine    
+       :yes 0  
+       :no  0
+]]
+local License=[[
+## License
 
-local function license() print [[ 
 Copyright 2020, Tim Menzies
 
 Permission is hereby granted, free of charge, to any person obtaining
@@ -51,8 +45,8 @@ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
 ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. ]] 
-end
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+]]
 
 local the,c,klass,less,goal,num          = nil,nil,nil,nil,nil
 local y,x,sym,xsym,xnum,cols             = nil,nil,nil,nil,nil,nil
@@ -484,44 +478,42 @@ function Eg.Coc1(  c) Eg.Coc( Coc.project()) end
 
 -- -------------------------------------------------------------------
 
-function help()
-  print("\nOptions:")
-  for k,v in options() do
-    if k > 2 then
-      print("   -"..v.flag.."\t"..(v.options or "").."\t"..v.help)
-end end end
-
-
-for s in Opts:gmatch("--") do
+function argparse(str,     t,group,flag)
+  t, group,flag = {}, "all","flag"
+  t[group] = {}
+  str = "::" .. group .. " " .. (str or table.concat(arg," "))
+  for line in str:gmatch("([^\n]+)") do
+    line = line:gsub("%;%;.*","")       
+    for x in line:gmatch("([^ ]+)") do
+      if x:sub(1,2) == "::" then   
+        group = x:gsub("%:%:","")
+        t[group] = t[group] or {}
+      elseif x:sub(1,1) == ":" then 
+        flag = x:gsub("%:","")
+        t[group] = t[group] or {}
+        t[group][flag] = false
+      else
+        t[group] = t[group] or {}
+        t[group][flag] = tonumber(x) or x end end end
+  return t
 end
 
-function options(    k,t,u)
-  u = {}
-  for s in Opts:gmatch("[^\r\n]+") do
-    if s:sub(1,2) ~= "--" then
-      t = words(s,":") 
-      k            = "-" .. t[1]
-      u[k]         = {}
-      u[k].key     = t[1]
-      u[k].options = t[2]
-      u[k].default = t[3]
-      u[k].help    = t[4]
-      u[k].ok      = _ENV[t[5]] or function(z) return z end
-      u[k].act     = _ENV[t[6]] or function(z) return z end
-  end end
-  return u
+function update(now,b4)
+  for group,t in pairs(now) do
+    for flag,val in pairs(t) do
+      assert(b4[group]       ~= nil,"group not defined ["..group.."]")
+      assert(b4[group][flag] ~= nil,"flag not defined [" ..flag .."]")
+      old = b4[group][flag]
+      assert(type(old) == type(val))
+      if type(old) == "boolean" then val = not old end
+      b4[group][flag] = val end end
+  return b4
 end
 
-function cli(j,opt,     com) 
-  j, opt = j or 1, opt or options()
-  if j <= #arg then
-    com = opt[arg[j]]
-    if com.options then
-      com.act(com.ok(arg[j+1]) )
-      cli(j+2, opt)
-    else
-      com.act()
-      cli(j+1, opt) end end 
+function cli()
+  the = update( argparse(), argparse(Opt) )
+  if the.all.C then print(License) end
+  if the.all.h then print(Help);print(Options) end
 end
 
 if not pcall(debug.getlocal,4,1) then cli() end
