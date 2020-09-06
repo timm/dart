@@ -1,8 +1,37 @@
--- # Chop.lu
--- Optimization == data mining == simple
+local Opts=[[
+# Name 
+  chop
 
-function license() print [[ 
+## Description
+  Implement optimization over discrete and numeric attributes
+  via clustering and contrast data mining methods. 
 
+## Usage:
+  lua chop.py Group [--group Group]* 
+
+  Groups start with "--" and contain 1 or more options.
+  Options start with "-" and contain 0 or 1 arguments.
+
+## Options
+  Options have  help text that start with a space then an
+  uppercase letter. Optional arguments are 
+
+--main
+  -h          Show this screen.
+  -C          Show this copyright.
+  -U=[all]    Run one or more unit test functions 
+  -speed=<kn> Speed in knots [default: 10].
+
+ --bayes 
+
+--flag:options:default:help                                         : handler : rule 
+-- ---:-------:-------:---------------------------------------------:---------:-----
+   U  : [Fun] :       :run tests matching 'Fun' (if musing, run all): eg      : fun
+   h  :       :       :print help                                   : help    : 
+   C  :       :       :Show license                                 : license :
+]]
+
+local function license() print [[ 
 Copyright 2020, Tim Menzies
 
 Permission is hereby granted, free of charge, to any person obtaining
@@ -32,6 +61,7 @@ local map, copy,select,any,anys,keys,csv = nil,nil,nil,nil,nil,nil
 local within,rogues,eg,eg1,Eg,main       = nil,nil,nil,nil,nil,nil
 local from,ako,var                       = nil,nil,nil
 local Mx,mx,Coc                          = nil,nil
+
 
 the = {aka={},
       id=0,
@@ -245,7 +275,6 @@ end
 
 -- ### Strings
 -- #### o(t,pre) : return `t` as a string, with `pre`fix
-
 function o(z,pre,   s,sep) 
   s, sep = (pre or "")..'{', ""
   for _,v in pairs(z or {}) do s = s..sep..tostring(v); sep=", " end
@@ -253,11 +282,9 @@ function o(z,pre,   s,sep)
 end
 
 -- #### oo(t,pre) : print `t` as a string, with `pre`fix
-
 function oo(z,pre) print(o(z,pre)) end
 
 -- #### ooo(t,pre) : return a string representing `t`'s recursive contents.
-
 function ooo(t,pre,    indent,fmt)
   pre=pre or ""
   indent = indent or 0
@@ -274,18 +301,18 @@ end
 
 -- ### Meta
 -- #### id(x) : ensure `x` has a unique if
-
 function id (x)
 	if not x._id then the.id=the.id+1; x._id= the.id end
 	return x._id 
 end
 
 -- #### same(z) : return z
-
 function same(z) return z end
 
--- #### map(t,f) : apply `f` to everything in `t` and return the result
+-- #### fun(x): returns true if `x` is a function
+function fun(x) return assert(type(_ENV[x]) == "function", "not function") and x end
 
+-- #### map(t,f) : apply `f` to everything in `t` and return the result
 function map(t,f, u)
   u, f = {}, f or same
   for i,v in pairs(t or {}) do u[i] = f(v) end  
@@ -357,18 +384,25 @@ function csv(file,     stream,tmp,row)
   tmp    = io.read()
   return function()
     if tmp then
-      tmp= tmp:gsub("[\t\r ]*","") -- no whitespace
-      row={}
-      for y in string.gmatch(tmp,"([^,]+)") do 
-         row[#row+1] = tonumber(y) or y 
-      end
+      row = words( tmp:gsub("[\t\r ]*","") )-- no whitespace
       tmp= io.read()
       if #row > 0 then return row end
     else
     io.close(stream) end end   
 end
 
+-- #### words(s,c,fun) : split `str` on `ch` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
+function words(str, ch, fun,  t,pat)
+  t,f = {}, f or tonumber
+  pat = "([^".. (ch or ",") .."]+)"
+  for x in str:gmatch(pat) do t[#t+1] = f(x) or trim(x) end
+  return t
+end
 
+-- #### trim(str) : remove leading and trailing blanks
+function trim(str) return (str:gsub("^%s*(.-)%s*$", "%1")) end
+
+-- -------------------------------------------------------------------
 -- ## Testing
 -- ### Support code
 
@@ -422,9 +456,8 @@ function rogues(   no)
         print("-- ROGUE ["..k.."]") end end end
 end
 
-
+-- -------------------------------------------------------------------
 -- ### Unit tests
-
 Eg={}
 
 function Eg.test()   assert(1==2) end
@@ -449,28 +482,49 @@ end
 
 function Eg.Coc1(  c) Eg.Coc( Coc.project()) end
 
-local cli={
-  "-U" = {help = "-U [File]  run stuff",
-         act= function(_) 
-                 eg(arg[2]); rogies();
-                 os.exit((the.test.yes - the.test.no == 1) and 0 or 1) end},
-  "-C" = {help= "-C         show copyright",
-          act = function(cli) license() end},
-  "-h" = {help= "-h         show help",
-          act = function(cli)
-                   print("Options:")
-                   for _,s in keys(cli) do print("  "..s) end end}
-}
+-- -------------------------------------------------------------------
 
-function main(    j)
-  for j in arg do arg[j] = tonumber(arg[j]) or arg[j] end
-  j=1
-  while j <= #arg do
-    if re.match(arg[j],cli.helparg[j]] then arg[j].act(cli) end
-    j = j +  j<#arg and not cli[arg[j+1]] and 2 or 1
-  end
+function help()
+  print("\nOptions:")
+  for k,v in options() do
+    if k > 2 then
+      print("   -"..v.flag.."\t"..(v.options or "").."\t"..v.help)
+end end end
+
+
+for s in Opts:gmatch("--") do
 end
 
-if not pcall(debug.getlocal,4,1) then main() end
+function options(    k,t,u)
+  u = {}
+  for s in Opts:gmatch("[^\r\n]+") do
+    if s:sub(1,2) ~= "--" then
+      t = words(s,":") 
+      k            = "-" .. t[1]
+      u[k]         = {}
+      u[k].key     = t[1]
+      u[k].options = t[2]
+      u[k].default = t[3]
+      u[k].help    = t[4]
+      u[k].ok      = _ENV[t[5]] or function(z) return z end
+      u[k].act     = _ENV[t[6]] or function(z) return z end
+  end end
+  return u
+end
 
+function cli(j,opt,     com) 
+  j, opt = j or 1, opt or options()
+  if j <= #arg then
+    com = opt[arg[j]]
+    if com.options then
+      com.act(com.ok(arg[j+1]) )
+      cli(j+2, opt)
+    else
+      com.act()
+      cli(j+1, opt) end end 
+end
+
+if not pcall(debug.getlocal,4,1) then cli() end
+
+-- -------------------------------------------------------------------
 return {the=the,main=main}

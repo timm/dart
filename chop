@@ -54,6 +54,7 @@ tput sgr0
 }
 
 alias chop='sh $Dir/$Sh '   
+alias ch='lua chop.lua '   
 alias gs='git status'   
 alias gg='git pull'   
 alias gp='git add *; git commit -am saving; git push; git status'
@@ -341,10 +342,6 @@ elif [ "$1" = "-I" ]; then
 	
 	want=$Dir/.gitignore
 	[ -f "$want" ] || cat<<-'EOF'>$want
-	## Lua ###
-	src/*.lua
-	test/*.lua
-	
 	# Swap
 	[._]*.s[a-v][a-z]
 	!*.svg  # comment out if you don't need vector files
