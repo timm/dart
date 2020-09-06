@@ -76,7 +76,9 @@ PROMPT_COMMAND='echo -ne " 🪓 $(git branch 2>/dev/null | grep '^*' | colrm 1 2
 
 vims() { vim +PluginInstall +qall; }
 
-lua2md() { awk -v com="$Comment" '
+lua2md() {
+F=/tmp/$$
+ cat $1 | awk -v com="$Comment" '
 BEGIN {while(!sub(/^--Code.*/,"")) { getline }; print"```lua"} 
 sub(/^-- /,"")    {print"```" 
                    do {print; getline} while (sub(/^-- /,"")) 
@@ -91,12 +93,13 @@ sub(/^--\[\[[ \t]*/,"")  { print"```"
                   
                    {print}
                    
-' > /tmp/$$code
-lua chop.lua :h > /tmp/$$help
-lua chop.lua :C > /tmp/$$license
-cat /tmp/$$1 /tmp/$$2 > /tmp/$$3
-header /tmp/$$3 > /tmp/$$4
-cat /tmp/$$3 /tmp/$$4
+END {print "```\n"}
+'> ${F}2code
+lua chop.lua :h > ${F}1help
+lua chop.lua :C > ${F}3license
+cat ${F}1help ${F}2code ${F}3license > ${F}all
+header ${F}all
+cat ${F}all
 }
 toc() { awk '
 function ns(n,    s) {
