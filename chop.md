@@ -1,53 +1,4 @@
-local Help=[[# Name 
-  chop
-
-## Description
-  Implement optimization over discrete and numeric attributes
-  via clustering and contrast data mining methods. 
-
-## Usage:
-  lua chop.py Group [::group Group]* 
-
-  Groups start with "::" and contain 1 or more options.
-  Options start with ":" and contain 0 or 1 arguments.
-
-## Options
-  Options have  help text that start with a space then an
-  uppercase letter. Optional arguments are 
-]]
-local Options=[[
-    :C       ;; show copyright   
-    :h       ;; show help   
-    :seed 1  ;; set random number seed   
-    ::test   ;; system stuff, set up test engine    
-       :yes 0  
-       :no  0
-]]
-local License=[[
-## License
-
-Copyright 2020, Tim Menzies
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject
-to the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
-ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
-CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
-]]
---Code----------------------------------------------------
+```lua
 
 local the,c,klass,less,goal,num          = nil,nil,nil,nil,nil
 local y,x,sym,xsym,xnum,cols             = nil,nil,nil,nil,nil,nil
@@ -64,16 +15,19 @@ the = {aka={},
       test= {yes=0,no=0}
 }
 
--- ## Modelling
--- ### Variables
--- #### Cache : compute and cache a value from some equation
+```
+## Modelling
+### Variables
+#### Cache : compute and cache a value from some equation
+```lua
 
 Cache={}
 function cache(eq, new) new=ako(Cache); new.eq = eq;  return new    end
 function Cache:__call() self.x = self.x or self.eq(); return self.x end
 function Cache:again()  self.x = nil;                 return self.__call() end
 
---[[ #### Var : compute and cache one variable.
+```
+#### Var : compute and cache one variable.
 
 `Var`s are objects that can be `__call`ed to compute, then cache,
 some value.  If `__call`ed again then the cached value will be returned
@@ -85,7 +39,8 @@ bounded to some upper to lower range (denoted `lo0,hi0`).  This
 control range which can be squeezed into some sub-range `lo,hi` (as
 long as the squeeze does not extensive beyond `lo0,hi0`).
 
---]]
+```lua
+
 Var={}
 
 function var(inits,new, type) 
@@ -114,7 +69,8 @@ function Var:squeeze(lo,hi)
   self.x  = nil
 end
 
---[[ ### MX : compute and cache two variables.
+```
+### MX : compute and cache two variables.
 
 `MX`s are a more complex kind of `Var` where two values (`m,x`) are cached
 and the computation is controlled by some lambda body `eq`. 
@@ -122,7 +78,8 @@ and the computation is controlled by some lambda body `eq`.
 Apart from that,
 like `Var`s, these objects can be `__call`ed, `again()`, and `squeeze`d.
 
---]]
+```lua
+
 
 MX={}
 
@@ -142,8 +99,10 @@ function MX:squeeze(lo,hi)
   self.x  = nil
 end
 
--- ## Cocomo
--- ### Coc.project() : return a random project
+```
+## Cocomo
+### Coc.project() : return a random project
+```lua
 
 Coc={}
 function Coc.eq1(m,x) return m*(x-3)+1 end
@@ -152,26 +111,30 @@ function Coc.p(x,y)   return var{eq=Coc.eq1,lo=x or 1,hi=y or 5,m1= .073,m2= .21
 function Coc.n(x,y)   return var{eq=Coc.eq1,lo=x or 1,hi=y or 5,m1=-.178,m2=-.078} end
 function Coc.sf()     return var{eq=Coc.eq2,lo=1,     hi=6,     m1=-1.56,m2=-1.014} end
 
--- function Coc.project(    a,sf,p,n,out)
---   a = from(2.2, 9.18)
---   sf,p,n= Coc.sf, Coc.p, Coc.n
---   out = {}
---   out={  a   = var {lo = 2.2, high = 9.18},
---     b   = function () return (.85-1.1)/(9.18-2.2)*out.a()+1.1 + (1.1-.8)/2 end,
---     prec=sf(), flex=sf(),   arch=sf(),   team=sf(),   pmat=sf(),
---     rely=p(),  data=p(2,5), cplx=p(1,6), ruse=p(2,6), 
---     docu=p(),  time=p(3,6), stor=p(3,6), pvol=p(2,5),
---     acap=n(),  pcap=n(),    pcon=n(),    aexp=n(),    
---     plex=n(),  ltex=n(),    tool=n(),    site=n(1,6), sced=n()
---   }
---   sf = p.prec() +  p.flex() + p.arch() + p.team() + p.pmat() 
---   em = p.rely() *  p.data() *  p.cplx() *  p.ruse() * p.docu() * \
---        p.time() *  p.stor() *  p.pvol() * p.acap() *  p.pcap() *  \   
---        p.pcon() *  p.aexp() *  p.lex() *  p.ltex() *  p. tool() * \
---        p.site() *  p.sced()
---    return p.a*p.loc() ^ (p.b() + 0.01*sf) * em
+```
+function Coc.project(    a,sf,p,n,out)
+  a = from(2.2, 9.18)
+  sf,p,n= Coc.sf, Coc.p, Coc.n
+  out = {}
+  out={  a   = var {lo = 2.2, high = 9.18},
+    b   = function () return (.85-1.1)/(9.18-2.2)*out.a()+1.1 + (1.1-.8)/2 end,
+    prec=sf(), flex=sf(),   arch=sf(),   team=sf(),   pmat=sf(),
+    rely=p(),  data=p(2,5), cplx=p(1,6), ruse=p(2,6), 
+    docu=p(),  time=p(3,6), stor=p(3,6), pvol=p(2,5),
+    acap=n(),  pcap=n(),    pcon=n(),    aexp=n(),    
+    plex=n(),  ltex=n(),    tool=n(),    site=n(1,6), sced=n()
+  }
+  sf = p.prec() +  p.flex() + p.arch() + p.team() + p.pmat() 
+  em = p.rely() *  p.data() *  p.cplx() *  p.ruse() * p.docu() * \
+       p.time() *  p.stor() *  p.pvol() * p.acap() *  p.pcap() *  \   
+       p.pcon() *  p.aexp() *  p.lex() *  p.ltex() *  p. tool() * \
+       p.site() *  p.sced()
+   return p.a*p.loc() ^ (p.b() + 0.01*sf) * em
+```lua
 
--- ### Coc.Risk
+```
+### Coc.Risk
+```lua
 
 function Coc.risk(    _,ne,nw,nw4,sw4,ne46, sw26,sw46)
   _  = 0
@@ -236,9 +199,11 @@ function Coc.risk(    _,ne,nw,nw4,sw4,ne46, sw26,sw46)
     tool= {acap=nw,  pcap=nw,  pmat=nw}} -- 6
 end
 
--- ## Data
--- ### Columns
--- #### Define column types
+```
+## Data
+### Columns
+#### Define column types
+```lua
 
 function c(s,k)   return string.sub(s,1,1)==k end
 function klass(x) return c(x,"!")  end 
@@ -255,31 +220,41 @@ function cols(all,f)
   return select(all, function(z) return f(z.txt) end)
 end
 
--- ## Lib
--- ### Maths
--- #### from(lo,hi) : return a number from `lo` to `hi`
+```
+## Lib
+### Maths
+#### from(lo,hi) : return a number from `lo` to `hi`
+```lua
 
 function from(lo,hi) return lo+(hi-lo)*math.random() end
 
--- #### round(n,places) : round `n` to some decimal `places`.
+```
+#### round(n,places) : round `n` to some decimal `places`.
+```lua
 
 function round(num, places)
   local mult = 10^(places or 0)
   return math.floor(num * mult + 0.5) / mult
 end
 
--- ### Strings
--- #### o(t,pre) : return `t` as a string, with `pre`fix
+```
+### Strings
+#### o(t,pre) : return `t` as a string, with `pre`fix
+```lua
 function o(z,pre,   s,sep) 
   s, sep = (pre or "")..'{', ""
   for _,v in pairs(z or {}) do s = s..sep..tostring(v); sep=", " end
   return s..'}'
 end
 
--- #### oo(t,pre) : print `t` as a string, with `pre`fix
+```
+#### oo(t,pre) : print `t` as a string, with `pre`fix
+```lua
 function oo(z,pre) print(o(z,pre)) end
 
--- #### ooo(t,pre) : return a string representing `t`'s recursive contents.
+```
+#### ooo(t,pre) : return a string representing `t`'s recursive contents.
+```lua
 function ooo(t,pre,    indent,fmt)
   pre=pre or ""
   indent = indent or 0
@@ -294,27 +269,37 @@ function ooo(t,pre,    indent,fmt)
   print(fmt .. tostring(v)) end end end end
 end
 
--- ### Meta
--- #### id(x) : ensure `x` has a unique if
+```
+### Meta
+#### id(x) : ensure `x` has a unique if
+```lua
 function id (x)
 	if not x._id then the.id=the.id+1; x._id= the.id end
 	return x._id 
 end
 
--- #### same(z) : return z
+```
+#### same(z) : return z
+```lua
 function same(z) return z end
 
--- #### fun(x): returns true if `x` is a function
+```
+#### fun(x): returns true if `x` is a function
+```lua
 function fun(x) return assert(type(_ENV[x]) == "function", "not function") and x end
 
--- #### map(t,f) : apply `f` to everything in `t` and return the result
+```
+#### map(t,f) : apply `f` to everything in `t` and return the result
+```lua
 function map(t,f, u)
   u, f = {}, f or same
   for i,v in pairs(t or {}) do u[i] = f(v) end  
   return u
 end
 
--- #### copy(t) : return a deep copy of `t`
+```
+#### copy(t) : return a deep copy of `t`
+```lua
 
 function copy(obj, seen)
     -- Handle non-tables and previously-seen tables.
@@ -328,7 +313,9 @@ function copy(obj, seen)
     return setmetatable(res, getmetatable(obj))
 end
 
--- #### select(t,f) : return a table of items in `t` that satisfy function `f`
+```
+#### select(t,f) : return a table of items in `t` that satisfy function `f`
+```lua
 
 function select(t,f,     g,u)
   u, f = {}, f or same
@@ -336,7 +323,9 @@ function select(t,f,     g,u)
   return u
 end
 
--- #### ako(class,has) : create a new instance of `class`, add the `has` slides 
+```
+#### ako(class,has) : create a new instance of `class`, add the `has` slides 
+```lua
 
 function ako(klass,has,      new)
   new = copy(klass or {})
@@ -346,12 +335,16 @@ function ako(klass,has,      new)
   return new
 end
 
--- ### Lists
--- #### any(a) : sample 1 item from `a`
+```
+### Lists
+#### any(a) : sample 1 item from `a`
+```lua
 
 function any(a) return a[1 + math.floor(#a*math.random())] end
 
--- #### anys(a,n) : sample `n` items from `a`
+```
+#### anys(a,n) : sample `n` items from `a`
+```lua
 
 function anys(a,n,   t) 
   t={}
@@ -359,7 +352,9 @@ function anys(a,n,   t)
   return t
 end
 
--- #### keys(t): iterate over key,values (sorted by key)
+```
+#### keys(t): iterate over key,values (sorted by key)
+```lua
 
 function keys(t)
   local i,u = 0,{}
@@ -371,8 +366,10 @@ function keys(t)
       return u[i], t[u[i]] end end 
 end
 
--- ### Files
--- #### csv(file) : iterate through  non-empty rows, divided on comma, coercing numbers
+```
+### Files
+#### csv(file) : iterate through  non-empty rows, divided on comma, coercing numbers
+```lua
 
 function csv(file,     stream,tmp,row)
   stream = file and io.input(file) or io.input()
@@ -386,7 +383,9 @@ function csv(file,     stream,tmp,row)
     io.close(stream) end end   
 end
 
--- #### words(s,c,fun) : split `str` on `ch` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
+```
+#### words(s,c,fun) : split `str` on `ch` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
+```lua
 function words(str, ch, fun,  t,pat)
   t,f = {}, f or tonumber
   pat = "([^".. (ch or ",") .."]+)"
@@ -394,14 +393,20 @@ function words(str, ch, fun,  t,pat)
   return t
 end
 
--- #### trim(str) : remove leading and trailing blanks
+```
+#### trim(str) : remove leading and trailing blanks
+```lua
 function trim(str) return (str:gsub("^%s*(.-)%s*$", "%1")) end
 
--- -------------------------------------------------------------------
--- ## Testing
--- ### Support code
+```
+-------------------------------------------------------------------
+## Testing
+### Support code
+```lua
 
--- #### eg(x): run the test function `eg_x` or, if `x` is nil, run all.
+```
+#### eg(x): run the test function `eg_x` or, if `x` is nil, run all.
+```lua
 function eg(t)
   if not t then print("") end
   for name,f in keys(Eg) do 
@@ -427,7 +432,9 @@ function eg1(name,f,   t1,t2,passed,err,y,n)
     100*y/(y+n))) end 
 end
 
--- #### within
+```
+#### within
+```lua
 function within(x,y,z)
   assert(x <= y and y <= z, 'outside range ['..x..' to '..']')
 end
@@ -451,8 +458,10 @@ function rogues(   no)
         print("-- ROGUE ["..k.."]") end end end
 end
 
--- -------------------------------------------------------------------
--- ### Unit tests
+```
+-------------------------------------------------------------------
+### Unit tests
+```lua
 Eg={}
 
 function Eg.test()   assert(1==2) end
@@ -477,7 +486,9 @@ end
 
 function Eg.Coc1(  c) Eg.Coc( Coc.project()) end
 
--- -------------------------------------------------------------------
+```
+-------------------------------------------------------------------
+```lua
 
 function argparse(str,     t,group,flag)
   t, group,flag = {}, "all","flag"
@@ -519,5 +530,7 @@ end
 
 if not pcall(debug.getlocal,4,1) then cli() end
 
--- -------------------------------------------------------------------
+```
+-------------------------------------------------------------------
+```lua
 return {the=the,main=main}

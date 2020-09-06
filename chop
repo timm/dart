@@ -10,7 +10,7 @@ Needs="lua awk bash"
 
 Dir=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
 Sh=$(basename ${BASH_SOURCE[0]})
-Src=$(basename $Sh).md
+Src=$(basename $Sh).lua
 
 hello() {
 clear
@@ -76,10 +76,21 @@ PROMPT_COMMAND='echo -ne " 🪓 $(git branch 2>/dev/null | grep '^*' | colrm 1 2
 
 vims() { vim +PluginInstall +qall; }
 
-md2code() { awk -v com="$Comment" '
-sub(/```.+$/,"") { In = 1 }
-sub(/```/,   "") { In = 0 }
-                 { print (In?"":com) $0 }
+lua2md() { awk -v com="$Comment" '
+BEGIN {while(!sub(/^--Code.*/,"")) { getline }; print"```lua"} 
+sub(/^-- /,"")    {print"```" 
+                   do {print; getline} while (sub(/^-- /,"")) 
+                   print "```lua"}
+sub(/^--\[\[[ \t]*/,"")  { print"```"
+                     while (! sub(/^--\]\][ \t]*/,"") ) {
+                        print
+                       getline} 
+                      
+                     print "```lua"
+                    }
+                  
+                   {print}
+                   
 '
 }
 toc() { awk '
@@ -138,7 +149,7 @@ elif [ "$1" = "-U" ]; then
   chop -C > /tmp/$$$Src
   lua /tmp/$$$Src  -U  $2 | color
 elif [ "$1" = "-C" ]; then
-  cat $Dir/$Src | md2code
+  cat $Dir/$Src | lua2md
 elif [ "$1" = "-E" ]; then
   session=$RANDOM
   tmux start-server
