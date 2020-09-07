@@ -19,10 +19,7 @@ alt="lisp" src="https://img.shields.io/badge/language-lua,bash-blue"> <a
    src="https://travis-ci.org/timm/lump.svg?branch=master"></a>
 </p> 
 
-#Code
-- [Description](#description) 
-- [Usage:](#usage) 
-- [Options](#options) 
+
     - [Modelling](#modelling) 
         - [Variables](#variables) 
             - [Cache](#cache--compute-and-cache-a-value-from-some-equation) : compute and cache a value from some equation
@@ -65,29 +62,8 @@ alt="lisp" src="https://img.shields.io/badge/language-lua,bash-blue"> <a
         - [Unit tests](#unit-tests) 
 - [License](#license) 
 
-# Name 
-  chop
 
-## Description
-  Implement optimization over discrete and numeric attributes
-  via clustering and contrast data mining methods. 
-
-## Usage:
-  lua chop.py Group [::group Group]* 
-
-  Groups start with "::" and contain 1 or more options.
-  Options start with ":" and contain 0 or 1 arguments.
-
-## Options
-  Options have  help text that start with a space then an
-  uppercase letter. Optional arguments are 
-
-    :C       ;; show copyright   
-    :h       ;; show help   
-    :seed 1  ;; set random number seed   
-    ::test   ;; system stuff, set up test engine    
-       :yes 0  
-       :no  0
+# Code
 
 ```lua
 
