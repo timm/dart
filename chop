@@ -62,8 +62,8 @@ alias ls='ls -G'
 alias reload='. $Dir/$Sh'
 
 header() {
-  awk 'BEGIN {FS=""; RS=""} {print $0; exit}' $Dir/README.md
-  awk 'BEGIN {FS=""; RS=""} NR==1 && /^<a name=top/ {next} {print "\n"$0}' $1
+  awk 'BEGIN {print "\n"; FS=""; RS=""} {print $0; exit}' $Dir/README.md
+  #awk 'BEGIN {FS=""; RS=""} NR==1 && /^<a name=top/ {next} {print "\n"$0}' $1
   #mv $$txt $1
 }
 color() { awk '
@@ -99,6 +99,7 @@ lua chop.lua :h > ${F}1help
 lua chop.lua :C > ${F}3license
 cat ${F}1help ${F}2code ${F}3license > ${F}all
 header ${F}all
+cat ${F}all | toc
 cat ${F}all
 }
 toc() { awk '
@@ -142,7 +143,9 @@ tests() {
   done
 }
 
-if [ "$1" = "-h" ]; then 
+if [ "$1" = "-M" ]; then 
+  lua2md $Dir/$Src > $Dir/$Sh.md
+elif [ "$1" = "-h" ]; then 
   usage
 elif [ "$1" = "-H" ]; then
   header $2
