@@ -49,9 +49,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ]]
 --Code----------------------------------------------------
 
---
 -- # Code
---
 
 local the,c,klass,less,goal,num          = nil,nil,nil,nil,nil
 local y,x,sym,xsym,xnum,cols             = nil,nil,nil,nil,nil,nil
