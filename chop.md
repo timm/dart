@@ -23,46 +23,46 @@ alt="lisp" src="https://img.shields.io/badge/language-lua,bash-blue"> <a
 - [Description](#description) 
 - [Usage:](#usage) 
 - [Options](#options) 
-    - [Modelling](#modelling) 
-        - [Variables](#variables) 
-            - [Cache](#cache--compute-and-cache-a-value-from-some-equation) : compute and cache a value from some equation
-            - [Var](#var--compute-and-cache-one-variable) : compute and cache one variable.
-        - [MX](#mx--compute-and-cache-two-variables) : compute and cache two variables.
-    - [Cocomo](#cocomo) 
-        - [Coc.project()](#cocproject--return-a-random-project) : return a random project
-        - [Coc.Risk](#cocrisk) 
-    - [Data](#data) 
-        - [Columns](#columns) 
-            - [Define column types](#define-column-types) 
-    - [Lib](#lib) 
-        - [Maths](#maths) 
-            - [from(lo,hi)](#fromlohi--return-a-number-from-lo-to-hi) : return a number from `lo` to `hi`
-            - [round(n,places)](#roundnplaces--round-n-to-some-decimal-places) : round `n` to some decimal `places`.
-        - [Strings](#strings) 
-            - [o(t,pre)](#otpre--return-t-as-a-string-with-prefix) : return `t` as a string, with `pre`fix
-            - [oo(t,pre)](#ootpre--print-t-as-a-string-with-prefix) : print `t` as a string, with `pre`fix
-            - [ooo(t,pre)](#oootpre--return-a-string-representing-ts-recursive-contents) : return a string representing `t`'s recursive contents.
-        - [Meta](#meta) 
-            - [id(x)](#idx--ensure-x-has-a-unique-if) : ensure `x` has a unique if
-            - [same(z)](#samez--return-z) : return z
-            - [fun(x)](#funx-returns-true-if-x-is-a-function) : returns true if `x` is a function
-            - [map(t,f)](#maptf--apply-f-to-everything-in-t-and-return-the-result) : apply `f` to everything in `t` and return the result
-            - [copy(t)](#copyt--return-a-deep-copy-of-t) : return a deep copy of `t`
-            - [select(t,f)](#selecttf--return-a-table-of-items-in-t-that-satisfy-function-f) : return a table of items in `t` that satisfy function `f`
-            - [ako(class,has)](#akoclasshas--create-a-new-instance-of-class-add-the-has-slides) : create a new instance of `class`, add the `has` slides
-        - [Lists](#lists) 
-            - [any(a)](#anya--sample-1-item-from-a) : sample 1 item from `a`
-            - [anys(a,n)](#anysan--sample-n-items-from-a) : sample `n` items from `a`
-            - [keys(t)](#keyst-iterate-over-keyvalues-sorted-by-key) : iterate over key,values (sorted by key)
-        - [Files](#files) 
-            - [csv(file)](#csvfile--iterate-through--non-empty-rows-divided-on-comma-coercing-numbers) : iterate through  non-empty rows, divided on comma, coercing numbers
-            - [words(s,c,fun)](#wordsscfun--split-str-on-ch-default-coerce-using-fun-defaults-tonumiber) : split `str` on `ch` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
-            - [trim(str)](#trimstr--remove-leading-and-trailing-blanks) : remove leading and trailing blanks
-    - [Testing](#testing) 
-        - [Support code](#support-code) 
-            - [eg(x)](#egx-run-the-test-function-egx-or-if-x-is-nil-run-all) : run the test function `eg_x` or, if `x` is nil, run all.
-            - [within](#within) 
-        - [Unit tests](#unit-tests) 
+- [Modelling](#modelling) 
+    - [Variables](#variables) 
+        - [Cache](#cache--compute-and-cache-a-value-from-some-equation) : compute and cache a value from some equation
+        - [Var](#var--compute-and-cache-one-variable) : compute and cache one variable.
+    - [MX](#mx--compute-and-cache-two-variables) : compute and cache two variables.
+- [Cocomo](#cocomo) 
+    - [Coc.project()](#cocproject--return-a-random-project) : return a random project
+    - [Coc.Risk](#cocrisk) 
+- [Data](#data) 
+    - [Columns](#columns) 
+        - [Define column types](#define-column-types) 
+- [Lib](#lib) 
+    - [Maths](#maths) 
+        - [from(lo,hi)](#fromlohi--return-a-number-from-lo-to-hi) : return a number from `lo` to `hi`
+        - [round(n,places)](#roundnplaces--round-n-to-some-decimal-places) : round `n` to some decimal `places`.
+    - [Strings](#strings) 
+        - [o(t,pre)](#otpre--return-t-as-a-string-with-prefix) : return `t` as a string, with `pre`fix
+        - [oo(t,pre)](#ootpre--print-t-as-a-string-with-prefix) : print `t` as a string, with `pre`fix
+        - [ooo(t,pre)](#oootpre--return-a-string-representing-ts-recursive-contents) : return a string representing `t`'s recursive contents.
+    - [Meta](#meta) 
+        - [id(x)](#idx--ensure-x-has-a-unique-if) : ensure `x` has a unique if
+        - [same(z)](#samez--return-z) : return z
+        - [fun(x)](#funx-returns-true-if-x-is-a-function) : returns true if `x` is a function
+        - [map(t,f)](#maptf--apply-f-to-everything-in-t-and-return-the-result) : apply `f` to everything in `t` and return the result
+        - [copy(t)](#copyt--return-a-deep-copy-of-t) : return a deep copy of `t`
+        - [select(t,f)](#selecttf--return-a-table-of-items-in-t-that-satisfy-function-f) : return a table of items in `t` that satisfy function `f`
+        - [ako(class,has)](#akoclasshas--create-a-new-instance-of-class-add-the-has-slides) : create a new instance of `class`, add the `has` slides
+    - [Lists](#lists) 
+        - [any(a)](#anya--sample-1-item-from-a) : sample 1 item from `a`
+        - [anys(a,n)](#anysan--sample-n-items-from-a) : sample `n` items from `a`
+        - [keys(t)](#keyst-iterate-over-keyvalues-sorted-by-key) : iterate over key,values (sorted by key)
+    - [Files](#files) 
+        - [csv(file)](#csvfile--iterate-through--non-empty-rows-divided-on-comma-coercing-numbers) : iterate through  non-empty rows, divided on comma, coercing numbers
+        - [words(s,c,fun)](#wordsscfun--split-str-on-ch-default-coerce-using-fun-defaults-tonumiber) : split `str` on `ch` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
+        - [trim(str)](#trimstr--remove-leading-and-trailing-blanks) : remove leading and trailing blanks
+- [Testing](#testing) 
+    - [Support code](#support-code) 
+        - [eg(x)](#egx-run-the-test-function-egx-or-if-x-is-nil-run-all) : run the test function `eg_x` or, if `x` is nil, run all.
+        - [within](#within) 
+    - [Unit tests](#unit-tests) 
 - [License](#license) 
 
 # Name 
@@ -89,9 +89,10 @@ alt="lisp" src="https://img.shields.io/badge/language-lua,bash-blue"> <a
        :yes 0  
        :no  0
 
+```lua
 
+```
 # Code
-
 ```lua
 
 local the,c,klass,less,goal,num          = nil,nil,nil,nil,nil
@@ -110,9 +111,9 @@ the = {aka={},
 }
 
 ```
-### Modelling
-#### Variables
-##### Cache : compute and cache a value from some equation
+## Modelling
+### Variables
+#### Cache : compute and cache a value from some equation
 ```lua
 
 Cache={}
@@ -121,7 +122,7 @@ function Cache:__call() self.x = self.x or self.eq(); return self.x end
 function Cache:again()  self.x = nil;                 return self.__call() end
 
 ```
-##### Var : compute and cache one variable.
+#### Var : compute and cache one variable.
 
 `Var`s are objects that can be `__call`ed to compute, then cache,
 some value.  If `__call`ed again then the cached value will be returned
@@ -164,7 +165,7 @@ function Var:squeeze(lo,hi)
 end
 
 ```
-#### MX : compute and cache two variables.
+### MX : compute and cache two variables.
 
 `MX`s are a more complex kind of `Var` where two values (`m,x`) are cached
 and the computation is controlled by some lambda body `eq`. 
@@ -194,8 +195,8 @@ function MX:squeeze(lo,hi)
 end
 
 ```
-### Cocomo
-#### Coc.project() : return a random project
+## Cocomo
+### Coc.project() : return a random project
 ```lua
 
 Coc={}
@@ -227,7 +228,7 @@ function Coc.project(    a,sf,p,n,out)
 ```lua
 
 ```
-#### Coc.Risk
+### Coc.Risk
 ```lua
 
 function Coc.risk(    _,ne,nw,nw4,sw4,ne46, sw26,sw46)
@@ -294,9 +295,9 @@ function Coc.risk(    _,ne,nw,nw4,sw4,ne46, sw26,sw46)
 end
 
 ```
-### Data
-#### Columns
-##### Define column types
+## Data
+### Columns
+#### Define column types
 ```lua
 
 function c(s,k)   return string.sub(s,1,1)==k end
@@ -315,15 +316,15 @@ function cols(all,f)
 end
 
 ```
-### Lib
-#### Maths
-##### from(lo,hi) : return a number from `lo` to `hi`
+## Lib
+### Maths
+#### from(lo,hi) : return a number from `lo` to `hi`
 ```lua
 
 function from(lo,hi) return lo+(hi-lo)*math.random() end
 
 ```
-##### round(n,places) : round `n` to some decimal `places`.
+#### round(n,places) : round `n` to some decimal `places`.
 ```lua
 
 function round(num, places)
@@ -332,8 +333,8 @@ function round(num, places)
 end
 
 ```
-#### Strings
-##### o(t,pre) : return `t` as a string, with `pre`fix
+### Strings
+#### o(t,pre) : return `t` as a string, with `pre`fix
 ```lua
 function o(z,pre,   s,sep) 
   s, sep = (pre or "")..'{', ""
@@ -342,12 +343,12 @@ function o(z,pre,   s,sep)
 end
 
 ```
-##### oo(t,pre) : print `t` as a string, with `pre`fix
+#### oo(t,pre) : print `t` as a string, with `pre`fix
 ```lua
 function oo(z,pre) print(o(z,pre)) end
 
 ```
-##### ooo(t,pre) : return a string representing `t`'s recursive contents.
+#### ooo(t,pre) : return a string representing `t`'s recursive contents.
 ```lua
 function ooo(t,pre,    indent,fmt)
   pre=pre or ""
@@ -364,8 +365,8 @@ function ooo(t,pre,    indent,fmt)
 end
 
 ```
-#### Meta
-##### id(x) : ensure `x` has a unique if
+### Meta
+#### id(x) : ensure `x` has a unique if
 ```lua
 function id (x)
 	if not x._id then the.id=the.id+1; x._id= the.id end
@@ -373,17 +374,17 @@ function id (x)
 end
 
 ```
-##### same(z) : return z
+#### same(z) : return z
 ```lua
 function same(z) return z end
 
 ```
-##### fun(x): returns true if `x` is a function
+#### fun(x): returns true if `x` is a function
 ```lua
 function fun(x) return assert(type(_ENV[x]) == "function", "not function") and x end
 
 ```
-##### map(t,f) : apply `f` to everything in `t` and return the result
+#### map(t,f) : apply `f` to everything in `t` and return the result
 ```lua
 function map(t,f, u)
   u, f = {}, f or same
@@ -392,7 +393,7 @@ function map(t,f, u)
 end
 
 ```
-##### copy(t) : return a deep copy of `t`
+#### copy(t) : return a deep copy of `t`
 ```lua
 
 function copy(obj, seen)
@@ -408,7 +409,7 @@ function copy(obj, seen)
 end
 
 ```
-##### select(t,f) : return a table of items in `t` that satisfy function `f`
+#### select(t,f) : return a table of items in `t` that satisfy function `f`
 ```lua
 
 function select(t,f,     g,u)
@@ -418,7 +419,7 @@ function select(t,f,     g,u)
 end
 
 ```
-##### ako(class,has) : create a new instance of `class`, add the `has` slides 
+#### ako(class,has) : create a new instance of `class`, add the `has` slides 
 ```lua
 
 function ako(klass,has,      new)
@@ -430,14 +431,14 @@ function ako(klass,has,      new)
 end
 
 ```
-#### Lists
-##### any(a) : sample 1 item from `a`
+### Lists
+#### any(a) : sample 1 item from `a`
 ```lua
 
 function any(a) return a[1 + math.floor(#a*math.random())] end
 
 ```
-##### anys(a,n) : sample `n` items from `a`
+#### anys(a,n) : sample `n` items from `a`
 ```lua
 
 function anys(a,n,   t) 
@@ -447,7 +448,7 @@ function anys(a,n,   t)
 end
 
 ```
-##### keys(t): iterate over key,values (sorted by key)
+#### keys(t): iterate over key,values (sorted by key)
 ```lua
 
 function keys(t)
@@ -461,8 +462,8 @@ function keys(t)
 end
 
 ```
-#### Files
-##### csv(file) : iterate through  non-empty rows, divided on comma, coercing numbers
+### Files
+#### csv(file) : iterate through  non-empty rows, divided on comma, coercing numbers
 ```lua
 
 function csv(file,     stream,tmp,row)
@@ -478,7 +479,7 @@ function csv(file,     stream,tmp,row)
 end
 
 ```
-##### words(s,c,fun) : split `str` on `ch` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
+#### words(s,c,fun) : split `str` on `ch` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
 ```lua
 function words(str, ch, fun,  t,pat)
   t,f = {}, f or tonumber
@@ -488,18 +489,18 @@ function words(str, ch, fun,  t,pat)
 end
 
 ```
-##### trim(str) : remove leading and trailing blanks
+#### trim(str) : remove leading and trailing blanks
 ```lua
 function trim(str) return (str:gsub("^%s*(.-)%s*$", "%1")) end
 
 ```
 -------------------------------------------------------------------
-### Testing
-#### Support code
+## Testing
+### Support code
 ```lua
 
 ```
-##### eg(x): run the test function `eg_x` or, if `x` is nil, run all.
+#### eg(x): run the test function `eg_x` or, if `x` is nil, run all.
 ```lua
 function eg(t)
   if not t then print("") end
@@ -527,7 +528,7 @@ function eg1(name,f,   t1,t2,passed,err,y,n)
 end
 
 ```
-##### within
+#### within
 ```lua
 function within(x,y,z)
   assert(x <= y and y <= z, 'outside range ['..x..' to '..']')
@@ -554,7 +555,7 @@ end
 
 ```
 -------------------------------------------------------------------
-#### Unit tests
+### Unit tests
 ```lua
 Eg={}
 
