@@ -1,5 +1,4 @@
-local Help={
-main=[[
+local Help=[[
 # Name 
   chop
 
@@ -14,17 +13,24 @@ main=[[
   Options belong to different Groups (which start with --).
 
 Options:
-]],
-options=[[
-    -C       ;; show copyright   
-    -h       ;; show help   
-    -seed 1  ;; set random number seed   
-    --test   ;; system stuff, set up test engine    
+
+    -C           ;; show copyright   
+    -h           ;; show help   
+    -seed 1      ;; set random number seed   
+    --test       ;; system stuff, set up test engine    
        -yes 0  
        -no  0
-]],
-license=[[
-# License
+
+## Author
+
+Tim Menzies, timm@ieee.org, http://menzies.us  
+
+## Citation
+
+T. Menzies, _CHOP: optimize = cluster  and contrast_,
+http://github.com/timm/chop, 2020
+
+## License
 
 Copyright 2020, Tim Menzies
 
@@ -46,22 +52,7 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
 ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
-]],
-also=[[
-## Author
-
-Tim Menzies   
-timm@ieee.org   
-http://menzies.us  
-
-## Citation
-
-T. Menzies   
-_CHOP: optimize = cluster  and contrast_   
-http://github.com/timm/chop  
-2020
-
-]]}
+]]
 --Code----------------------------------------------------
 
 -- # Code
@@ -75,11 +66,7 @@ local from,ako,var                       = nil,nil,nil
 local Mx,mx,Coc                          = nil,nil
 
 
-the = {aka={},
-      id=0,
-      seed=1,
-      test= {yes=0,no=0}
-}
+--the = {aka={}, id=0, seed=1, test= {yes=0,no=0} }
 
 -- ## Modelling
 -- ### Variables
@@ -533,14 +520,15 @@ function optupdate(now,b4)
 end
 
 function cli()
-  the = optupdate( optparse(table.concat(arg," ")), optparse(Help.options))
-  if the.all.C then print(Help.license) end
-  if the.all.h then 
-    print(Help.main.."\n"..Help.options.."\n"..Help.also) end
+  local options     = Help:match("\nOptions[^\n]*\n\n([^#]+)#")
+  local commandLine = table.concat(arg," ")
+  the = optupdate( optparse(commandLine), optparse(options))
+  if the.all.C then print(Help:match("\n## License[%s]*(.*)")) end
+  if the.all.h then print(Help) end
   ooo(the)
 end
 
 if not pcall(debug.getlocal,4,1) then cli() end
 
 -- -------------------------------------------------------------------
-return {the=the,main=main}
+--return {the=the,main=main}

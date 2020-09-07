@@ -25,6 +25,7 @@ alt="lisp" src="https://img.shields.io/badge/language-lua,bash-blue"> <a
     - [Usage:](#usage) 
     - [Author](#author) 
     - [Citation](#citation) 
+    - [License](#license) 
 - [Code](#code) 
     - [Modelling](#modelling) 
         - [Variables](#variables) 
@@ -66,7 +67,6 @@ alt="lisp" src="https://img.shields.io/badge/language-lua,bash-blue"> <a
             - [eg(x)](#egx-run-the-test-function-egx-or-if-x-is-nil-run-all) : run the test function `eg_x` or, if `x` is nil, run all.
             - [within](#within) 
         - [Unit tests](#unit-tests) 
-- [License](#license) 
 
 # Name 
   chop
@@ -83,34 +83,52 @@ alt="lisp" src="https://img.shields.io/badge/language-lua,bash-blue"> <a
 
 Options:
 
-    -C       ;; show copyright   
-    -h       ;; show help   
-    -seed 1  ;; set random number seed   
-    --test   ;; system stuff, set up test engine    
+    -C           ;; show copyright   
+    -h           ;; show help   
+    -seed 1      ;; set random number seed   
+    --test       ;; system stuff, set up test engine    
        -yes 0  
        -no  0
 
 ## Author
 
-Tim Menzies   
-timm@ieee.org   
-http://menzies.us  
+Tim Menzies, timm@ieee.org, http://menzies.us  
 
 ## Citation
 
-T. Menzies   
-_CHOP: optimize = cluster  and contrast_   
-http://github.com/timm/chop  
-2020
+T. Menzies, _CHOP: optimize = cluster  and contrast_,
+http://github.com/timm/chop, 2020
 
+## License
+
+Copyright 2020, Tim Menzies
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject
+to the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 
 all: 
+|  C: false
 |  seed: 1
 |  h: true
-|  C: false
 test: 
-|  no: 0
 |  yes: 0
+|  no: 0
 ```lua
 
 ```
@@ -126,11 +144,7 @@ local from,ako,var                       = nil,nil,nil
 local Mx,mx,Coc                          = nil,nil
 
 
-the = {aka={},
-      id=0,
-      seed=1,
-      test= {yes=0,no=0}
-}
+--the = {aka={}, id=0, seed=1, test= {yes=0,no=0} }
 
 ```
 ## Modelling
@@ -607,41 +621,48 @@ function Eg.Coc1(  c) Eg.Coc( Coc.project()) end
 -------------------------------------------------------------------
 ```lua
 
-function optparse(str,     t,group,flag)
-  t, group,flag = {}, "all","flag"
+function optparse(str,     t,group,option)
+  t, group,option = {}, "all", "option"
   t[group] = {}
-  str = "--" .. group .. " " .. (str or table.concat(arg," "))
+  str = "--" .. group .. " " .. str
   for line in str:gmatch("([^\n]+)") do
     line = line:gsub("%;%;.*","")       
     for x in line:gmatch("([^ ]+)") do
-      if x:match("^%-%-")  then   
-        group = x:gsub("%-%-","")
+      local tmp1 = x:match("^%-%-(.*)")
+      if tmp1 then
+        group    = tmp1
         t[group] = t[group] or {}
-      elseif x:match("^%-[^0-9]")  then 
-        flag = x:gsub("%-","")
-        t[group][flag] = false
       else
-        t[group][flag] = tonumber(x) or x end end end
+        local tmp2= x:match("^%-([^0-9].*)")
+        if tmp2 then
+          option           = tmp2
+          t[group][option] = false
+        else
+          t[group][option] = tonumber(x) or x end end end end
   return t
 end
 
 function optupdate(now,b4)
   for group,t in pairs(now) do
-    for flag,val in pairs(t) do
-      assert(b4[group]       ~= nil,"group not defined ["..group.."]")
-      assert(b4[group][flag] ~= nil,"flag not defined [" ..flag .."]")
-      old = b4[group][flag]
-      assert(type(old) == type(val))
-      if type(old) == "boolean" then val = not old end
-      b4[group][flag] = val end end
+    for option,new in pairs(t) do
+      if b4[group] ~= nil then
+        old = b4[group][option]
+        if old ~= nil then
+          if type(old) == type(new) then
+            if type(old) == "boolean" then new = not old end
+            b4[group][option] = new 
+          else print("Warning: option "..option.." expected "..type(old)) end
+        else print("Warning: option "..option.." not defined") end
+      else print("Warning: group "..group.." not defined") end end end
   return b4
 end
 
 function cli()
-  the = optupdate( optparse(), optparse(Help.options) )
-  if the.all.C then print(Help.license) end
-  if the.all.h then 
-    print(Help.main.."\n"..Help.options.."\n"..Help.also) end
+  local options     = Help:match("\nOptions[^\n]*\n\n([^#]+)#")
+  local commandLine = table.concat(arg," ")
+  the = optupdate( optparse(commandLine), optparse(options))
+  if the.all.C then print(Help:match("\n## License[%s]*(.*)")) end
+  if the.all.h then print(Help) end
   ooo(the)
 end
 
@@ -650,36 +671,6 @@ if not pcall(debug.getlocal,4,1) then cli() end
 ```
 -------------------------------------------------------------------
 ```lua
-return {the=the,main=main}
+--return {the=the,main=main}
 ```
 
-# License
-
-Copyright 2020, Tim Menzies
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject
-to the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
-ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
-CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
-
-test: 
-|  no: 0
-|  yes: 0
-all: 
-|  seed: 1
-|  C: true
-|  h: false
