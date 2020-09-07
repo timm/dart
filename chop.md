@@ -21,51 +21,51 @@ alt="lisp" src="https://img.shields.io/badge/language-lua,bash-blue"> <a
 
 
 - [Name](#name) 
-- [Description](#description) 
-- [Usage:](#usage) 
-- [Options](#options) 
+    - [Description](#description) 
+    - [Usage:](#usage) 
+    - [Options](#options) 
 - [Code](#code) 
-- [Modelling](#modelling) 
-    - [Variables](#variables) 
-        - [Cache](#cache--compute-and-cache-a-value-from-some-equation) : compute and cache a value from some equation
-        - [Var](#var--compute-and-cache-one-variable) : compute and cache one variable.
-    - [MX](#mx--compute-and-cache-two-variables) : compute and cache two variables.
-- [Cocomo](#cocomo) 
-    - [Coc.project()](#cocproject--return-a-random-project) : return a random project
-    - [Coc.Risk](#cocrisk) 
-- [Data](#data) 
-    - [Columns](#columns) 
-        - [Define column types](#define-column-types) 
-- [Lib](#lib) 
-    - [Maths](#maths) 
-        - [from(lo,hi)](#fromlohi--return-a-number-from-lo-to-hi) : return a number from `lo` to `hi`
-        - [round(n,places)](#roundnplaces--round-n-to-some-decimal-places) : round `n` to some decimal `places`.
-    - [Strings](#strings) 
-        - [o(t,pre)](#otpre--return-t-as-a-string-with-prefix) : return `t` as a string, with `pre`fix
-        - [oo(t,pre)](#ootpre--print-t-as-a-string-with-prefix) : print `t` as a string, with `pre`fix
-        - [ooo(t,pre)](#oootpre--return-a-string-representing-ts-recursive-contents) : return a string representing `t`'s recursive contents.
-    - [Meta](#meta) 
-        - [id(x)](#idx--ensure-x-has-a-unique-if) : ensure `x` has a unique if
-        - [same(z)](#samez--return-z) : return z
-        - [fun(x)](#funx-returns-true-if-x-is-a-function) : returns true if `x` is a function
-        - [map(t,f)](#maptf--apply-f-to-everything-in-t-and-return-the-result) : apply `f` to everything in `t` and return the result
-        - [copy(t)](#copyt--return-a-deep-copy-of-t) : return a deep copy of `t`
-        - [select(t,f)](#selecttf--return-a-table-of-items-in-t-that-satisfy-function-f) : return a table of items in `t` that satisfy function `f`
-        - [ako(class,has)](#akoclasshas--create-a-new-instance-of-class-add-the-has-slides) : create a new instance of `class`, add the `has` slides
-    - [Lists](#lists) 
-        - [any(a)](#anya--sample-1-item-from-a) : sample 1 item from `a`
-        - [anys(a,n)](#anysan--sample-n-items-from-a) : sample `n` items from `a`
-        - [keys(t)](#keyst-iterate-over-keyvalues-sorted-by-key) : iterate over key,values (sorted by key)
-    - [Files](#files) 
-        - [csv(file)](#csvfile--iterate-through--non-empty-rows-divided-on-comma-coercing-numbers) : iterate through  non-empty rows, divided on comma, coercing numbers
-        - [words(s,c,fun)](#wordsscfun--split-str-on-ch-default-coerce-using-fun-defaults-tonumiber) : split `str` on `ch` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
-        - [trim(str)](#trimstr--remove-leading-and-trailing-blanks) : remove leading and trailing blanks
-- [Testing](#testing) 
-    - [Support code](#support-code) 
-        - [eg(x)](#egx-run-the-test-function-egx-or-if-x-is-nil-run-all) : run the test function `eg_x` or, if `x` is nil, run all.
-        - [within](#within) 
-    - [Unit tests](#unit-tests) 
-- [License](#license) 
+    - [Modelling](#modelling) 
+        - [Variables](#variables) 
+            - [Cache](#cache--compute-and-cache-a-value-from-some-equation) : compute and cache a value from some equation
+            - [Var](#var--compute-and-cache-one-variable) : compute and cache one variable.
+        - [MX](#mx--compute-and-cache-two-variables) : compute and cache two variables.
+    - [Cocomo](#cocomo) 
+        - [Coc.project()](#cocproject--return-a-random-project) : return a random project
+        - [Coc.Risk](#cocrisk) 
+    - [Data](#data) 
+        - [Columns](#columns) 
+            - [Define column types](#define-column-types) 
+    - [Lib](#lib) 
+        - [Maths](#maths) 
+            - [from(lo,hi)](#fromlohi--return-a-number-from-lo-to-hi) : return a number from `lo` to `hi`
+            - [round(n,places)](#roundnplaces--round-n-to-some-decimal-places) : round `n` to some decimal `places`.
+        - [Strings](#strings) 
+            - [o(t,pre)](#otpre--return-t-as-a-string-with-prefix) : return `t` as a string, with `pre`fix
+            - [oo(t,pre)](#ootpre--print-t-as-a-string-with-prefix) : print `t` as a string, with `pre`fix
+            - [ooo(t,pre)](#oootpre--return-a-string-representing-ts-recursive-contents) : return a string representing `t`'s recursive contents.
+        - [Meta](#meta) 
+            - [id(x)](#idx--ensure-x-has-a-unique-if) : ensure `x` has a unique if
+            - [same(z)](#samez--return-z) : return z
+            - [fun(x)](#funx-returns-true-if-x-is-a-function) : returns true if `x` is a function
+            - [map(t,f)](#maptf--apply-f-to-everything-in-t-and-return-the-result) : apply `f` to everything in `t` and return the result
+            - [copy(t)](#copyt--return-a-deep-copy-of-t) : return a deep copy of `t`
+            - [select(t,f)](#selecttf--return-a-table-of-items-in-t-that-satisfy-function-f) : return a table of items in `t` that satisfy function `f`
+            - [ako(class,has)](#akoclasshas--create-a-new-instance-of-class-add-the-has-slides) : create a new instance of `class`, add the `has` slides
+        - [Lists](#lists) 
+            - [any(a)](#anya--sample-1-item-from-a) : sample 1 item from `a`
+            - [anys(a,n)](#anysan--sample-n-items-from-a) : sample `n` items from `a`
+            - [keys(t)](#keyst-iterate-over-keyvalues-sorted-by-key) : iterate over key,values (sorted by key)
+        - [Files](#files) 
+            - [csv(file)](#csvfile--iterate-through--non-empty-rows-divided-on-comma-coercing-numbers) : iterate through  non-empty rows, divided on comma, coercing numbers
+            - [words(s,c,fun)](#wordsscfun--split-str-on-ch-default-coerce-using-fun-defaults-tonumiber) : split `str` on `ch` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
+            - [trim(str)](#trimstr--remove-leading-and-trailing-blanks) : remove leading and trailing blanks
+    - [Testing](#testing) 
+        - [Support code](#support-code) 
+            - [eg(x)](#egx-run-the-test-function-egx-or-if-x-is-nil-run-all) : run the test function `eg_x` or, if `x` is nil, run all.
+            - [within](#within) 
+        - [Unit tests](#unit-tests) 
+    - [License](#license) 
 
 # Name 
   chop
