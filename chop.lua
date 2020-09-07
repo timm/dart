@@ -1,5 +1,5 @@
-local Help={main="",options="",license="",also=""}
-Help.main=[[
+local Help={
+main=[[
 # Name 
   chop
 
@@ -14,16 +14,16 @@ Help.main=[[
   Options belong to different Groups (which start with --).
 
 Options:
-]]
-Help.options=[[
+]],
+options=[[
     -C       ;; show copyright   
     -h       ;; show help   
     -seed 1  ;; set random number seed   
     --test   ;; system stuff, set up test engine    
        -yes 0  
        -no  0
-]]
-Help.license=[[
+]],
+license=[[
 # License
 
 Copyright 2020, Tim Menzies
@@ -46,8 +46,8 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
 ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
-]]
-Help.also=[[
+]],
+also=[[
 ## Author
 
 Tim Menzies   
@@ -61,7 +61,7 @@ _CHOP: optimize = cluster  and contrast_
 http://github.com/timm/chop  
 2020
 
-]]
+]]}
 --Code----------------------------------------------------
 
 -- # Code
@@ -496,42 +496,51 @@ function Eg.Coc1(  c) Eg.Coc( Coc.project()) end
 
 -- -------------------------------------------------------------------
 
-function optparse(str,     t,group,flag)
-  t, group,flag = {}, "all","flag"
+function optparse(str,     t,group,option)
+  t, group,option = {}, "all", "option"
   t[group] = {}
-  str = "--" .. group .. " " .. (str or table.concat(arg," "))
+  str = "--" .. group .. " " .. str
   for line in str:gmatch("([^\n]+)") do
     line = line:gsub("%;%;.*","")       
     for x in line:gmatch("([^ ]+)") do
-      if x:match("^%-%-")  then   
-        group = x:gsub("%-%-","")
+      local tmp1 = x:match("^%-%-(.*)")
+      if tmp1 then
+        group    = tmp1
         t[group] = t[group] or {}
-      elseif x:match("^%-[^0-9]")  then 
-        flag = x:gsub("%-","")
-        t[group][flag] = false
       else
-        t[group][flag] = tonumber(x) or x end end end
+        local tmp2= x:match("^%-([^0-9].*)")
+        if tmp2 then
+          option           = tmp2
+          t[group][option] = false
+        else
+          t[group][option] = tonumber(x) or x end end end end
+  ooo(t)
   return t
 end
 
 function optupdate(now,b4)
   for group,t in pairs(now) do
-    for flag,val in pairs(t) do
-      assert(b4[group]       ~= nil,"group not defined ["..group.."]")
-      assert(b4[group][flag] ~= nil,"flag not defined [" ..flag .."]")
-      old = b4[group][flag]
-      assert(type(old) == type(val))
-      if type(old) == "boolean" then val = not old end
-      b4[group][flag] = val end end
+    for option,new in pairs(t) do
+      if b4[group] then
+        old = b4[group][option]
+        if old then
+          if type(old) == type(new) then
+            if type(old) == "boolean" then new = not old end
+            b4[group][option] = new 
+          else print("Warning: option "..option.." expected "..type(old)) end
+        else print("Warning: option "..option.." not defined") end
+      else print("Warning: group "..group.." not defined") end end end
   return b4
 end
 
 function cli()
-  the = optupdate( optparse(), optparse(Help.options) )
+  the = optupdate( optparse(table.concat(arg," ")), 
+                   optparse(Help.options))
+  --ooo(the)
   if the.all.C then print(Help.license) end
   if the.all.h then 
     print(Help.main.."\n"..Help.options.."\n"..Help.also) end
-  ooo(the)
+  --ooo(the)
 end
 
 if not pcall(debug.getlocal,4,1) then cli() end

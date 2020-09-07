@@ -104,13 +104,13 @@ http://github.com/timm/chop
 2020
 
 
+all: 
+|  seed: 1
+|  h: true
+|  C: false
 test: 
 |  no: 0
 |  yes: 0
-all: 
-|  h: true
-|  C: false
-|  seed: 1
 ```lua
 
 ```
@@ -676,10 +676,10 @@ ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 
-all: 
-|  h: false
-|  C: true
-|  seed: 1
 test: 
 |  no: 0
 |  yes: 0
+all: 
+|  seed: 1
+|  C: true
+|  h: false
