@@ -14,10 +14,10 @@ local Help=[[
 
 Options:
 
-    -C       ;; show copyright   
-    -h       ;; show help   
-    -seed 1  ;; set random number seed   
-    --test   ;; system stuff, set up test engine    
+    -C           ;; show copyright   
+    -h           ;; show help   
+    -seed 1      ;; set random number seed   
+    --test       ;; system stuff, set up test engine    
        -yes 0  
        -no  0
 

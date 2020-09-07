@@ -83,10 +83,10 @@ alt="lisp" src="https://img.shields.io/badge/language-lua,bash-blue"> <a
 
 Options:
 
-    -C       ;; show copyright   
-    -h       ;; show help   
-    -seed 1  ;; set random number seed   
-    --test   ;; system stuff, set up test engine    
+    -C           ;; show copyright   
+    -h           ;; show help   
+    -seed 1      ;; set random number seed   
+    --test       ;; system stuff, set up test engine    
        -yes 0  
        -no  0
 
@@ -122,13 +122,13 @@ ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 
-test: 
-|  no: 0
-|  yes: 0
 all: 
 |  C: false
-|  h: true
 |  seed: 1
+|  h: true
+test: 
+|  yes: 0
+|  no: 0
 ```lua
 
 ```
