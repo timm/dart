@@ -1,4 +1,6 @@
-local Help=[[# Name 
+local Help={main="",options="",license="",also=""}
+Help.main=[[
+# Name 
   chop
 
 ## Description
@@ -6,24 +8,22 @@ local Help=[[# Name
   via clustering and contrast data mining methods. 
 
 ## Usage:
-  lua chop.py Group [::group Group]* 
+  lua chop.py [Options] [--Group Options]* 
 
-  Groups start with "::" and contain 1 or more options.
-  Options start with ":" and contain 0 or 1 arguments.
+  Options start with "-" and contain 0 or 1 arguments.
+  Options belong to different Groups (which start with --).
 
-## Options
-  Options have  help text that start with a space then an
-  uppercase letter. Optional arguments are 
+Options:
 ]]
-local Options=[[
-    :C       ;; show copyright   
-    :h       ;; show help   
-    :seed 1  ;; set random number seed   
-    ::test   ;; system stuff, set up test engine    
-       :yes 0  
-       :no  0
+Help.options=[[
+    -C       ;; show copyright   
+    -h       ;; show help   
+    -seed 1  ;; set random number seed   
+    --test   ;; system stuff, set up test engine    
+       -yes 0  
+       -no  0
 ]]
-local License=[[
+Help.license=[[
 # License
 
 Copyright 2020, Tim Menzies
@@ -46,6 +46,21 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
 ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+]]
+Help.also=[[
+## Author
+
+Tim Menzies   
+timm@ieee.org   
+http://menzies.us  
+
+## Citation
+
+T. Menzies   
+_CHOP: optimize = cluster  and contrast_   
+http://github.com/timm/chop  
+2020
+
 ]]
 --Code----------------------------------------------------
 
@@ -481,27 +496,25 @@ function Eg.Coc1(  c) Eg.Coc( Coc.project()) end
 
 -- -------------------------------------------------------------------
 
-function argparse(str,     t,group,flag)
+function optparse(str,     t,group,flag)
   t, group,flag = {}, "all","flag"
   t[group] = {}
-  str = "::" .. group .. " " .. (str or table.concat(arg," "))
+  str = "--" .. group .. " " .. (str or table.concat(arg," "))
   for line in str:gmatch("([^\n]+)") do
     line = line:gsub("%;%;.*","")       
     for x in line:gmatch("([^ ]+)") do
-      if x:sub(1,2) == "::" then   
-        group = x:gsub("%:%:","")
+      if x:match("^%-%-")  then   
+        group = x:gsub("%-%-","")
         t[group] = t[group] or {}
-      elseif x:sub(1,1) == ":" then 
-        flag = x:gsub("%:","")
-        t[group] = t[group] or {}
+      elseif x:match("^%-[^0-9]")  then 
+        flag = x:gsub("%-","")
         t[group][flag] = false
       else
-        t[group] = t[group] or {}
         t[group][flag] = tonumber(x) or x end end end
   return t
 end
 
-function update(now,b4)
+function optupdate(now,b4)
   for group,t in pairs(now) do
     for flag,val in pairs(t) do
       assert(b4[group]       ~= nil,"group not defined ["..group.."]")
@@ -514,9 +527,11 @@ function update(now,b4)
 end
 
 function cli()
-  the = update( argparse(), argparse(Opt) )
-  if the.all.C then print(License) end
-  if the.all.h then print(Help);print(Options) end
+  the = optupdate( optparse(), optparse(Help.options) )
+  if the.all.C then print(Help.license) end
+  if the.all.h then 
+    print(Help.main.."\n"..Help.options.."\n"..Help.also) end
+  ooo(the)
 end
 
 if not pcall(debug.getlocal,4,1) then cli() end

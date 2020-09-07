@@ -95,8 +95,8 @@ sub(/^--\[\[[ \t]*/,"")  { print"```"
                    
 END {print "```\n"}
 '  > ${F}2code
-lua chop.lua :h > ${F}1help
-lua chop.lua :C > ${F}3license
+lua chop.lua -h > ${F}1help
+lua chop.lua -C > ${F}3license
 cat ${F}1help ${F}2code ${F}3license > ${F}all
 header ${F}all
 cat ${F}all | toc
