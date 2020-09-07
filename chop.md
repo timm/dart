@@ -20,9 +20,11 @@ alt="lisp" src="https://img.shields.io/badge/language-lua,bash-blue"> <a
 </p> 
 
 
+- [Name](#name) 
 - [Description](#description) 
 - [Usage:](#usage) 
 - [Options](#options) 
+- [Code](#code) 
 - [Modelling](#modelling) 
     - [Variables](#variables) 
         - [Cache](#cache--compute-and-cache-a-value-from-some-equation) : compute and cache a value from some equation
@@ -91,11 +93,9 @@ alt="lisp" src="https://img.shields.io/badge/language-lua,bash-blue"> <a
 
 ```lua
 
---
 ```
 # Code
 ```lua
---
 
 local the,c,klass,less,goal,num          = nil,nil,nil,nil,nil
 local y,x,sym,xsym,xnum,cols             = nil,nil,nil,nil,nil,nil

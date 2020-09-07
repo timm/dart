@@ -112,7 +112,7 @@ function trim(s) {
   gsub(/[ \t]*$/,"",s)
   return s
 }
-/^#[#]+[ \t]/ { 
+/^#[#]*[ \t]/ { 
      new = split($1,a,"#") - 3
      s = $0
      gsub(/^[#]+[ \t]*/,"",s) #asada() : asdadsa
