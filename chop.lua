@@ -514,16 +514,15 @@ function optparse(str,     t,group,option)
           t[group][option] = false
         else
           t[group][option] = tonumber(x) or x end end end end
-  ooo(t)
   return t
 end
 
 function optupdate(now,b4)
   for group,t in pairs(now) do
     for option,new in pairs(t) do
-      if b4[group] then
+      if b4[group] ~= nil then
         old = b4[group][option]
-        if old then
+        if old ~= nil then
           if type(old) == type(new) then
             if type(old) == "boolean" then new = not old end
             b4[group][option] = new 
@@ -534,13 +533,11 @@ function optupdate(now,b4)
 end
 
 function cli()
-  the = optupdate( optparse(table.concat(arg," ")), 
-                   optparse(Help.options))
-  --ooo(the)
+  the = optupdate( optparse(table.concat(arg," ")), optparse(Help.options))
   if the.all.C then print(Help.license) end
   if the.all.h then 
     print(Help.main.."\n"..Help.options.."\n"..Help.also) end
-  --ooo(the)
+  ooo(the)
 end
 
 if not pcall(debug.getlocal,4,1) then cli() end
