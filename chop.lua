@@ -23,16 +23,12 @@ Options:
 
 ## Author
 
-Tim Menzies   
-timm@ieee.org   
-http://menzies.us  
+Tim Menzies, timm@ieee.org, http://menzies.us  
 
 ## Citation
 
-T. Menzies   
-_CHOP: optimize = cluster  and contrast_   
-http://github.com/timm/chop  
-2020
+T. Menzies, _CHOP: optimize = cluster  and contrast_,
+http://github.com/timm/chop, 2020
 
 ## License
 
