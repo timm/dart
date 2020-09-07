@@ -65,7 +65,7 @@ alt="lisp" src="https://img.shields.io/badge/language-lua,bash-blue"> <a
             - [eg(x)](#egx-run-the-test-function-egx-or-if-x-is-nil-run-all) : run the test function `eg_x` or, if `x` is nil, run all.
             - [within](#within) 
         - [Unit tests](#unit-tests) 
-    - [License](#license) 
+- [License](#license) 
 
 # Name 
   chop
@@ -633,7 +633,7 @@ if not pcall(debug.getlocal,4,1) then cli() end
 return {the=the,main=main}
 ```
 
-## License
+# License
 
 Copyright 2020, Tim Menzies
 

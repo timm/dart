@@ -24,7 +24,7 @@ local Options=[[
        :no  0
 ]]
 local License=[[
-## License
+# License
 
 Copyright 2020, Tim Menzies
 
