@@ -1,6 +1,0 @@
--C
--h
--seed 1
---test
-  -yes 0
-  -no 1
