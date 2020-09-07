@@ -1,5 +1,3 @@
-
-
 <a name=top></a>
 <p align=center>
 <a href="https://github.com/timm/chop/blob/master/README.md#top">home</a> ::
@@ -20,6 +18,8 @@ alt="lisp" src="https://img.shields.io/badge/language-lua,bash-blue"> <a
  href="https://travis-ci.org/github/timm/lump"><img alt="tests" 
    src="https://travis-ci.org/timm/lump.svg?branch=master"></a>
 </p> 
+
+
 - [Description](#description) 
 - [Usage:](#usage) 
 - [Options](#options) 

@@ -62,7 +62,7 @@ alias ls='ls -G'
 alias reload='. $Dir/$Sh'
 
 header() {
-  awk 'BEGIN {print "\n"; FS=""; RS=""} {print $0; exit}' $Dir/README.md
+  awk 'BEGIN { FS=""; RS=""} {print $0 "\n\n"; exit}' $Dir/README.md
   #awk 'BEGIN {FS=""; RS=""} NR==1 && /^<a name=top/ {next} {print "\n"$0}' $1
   #mv $$txt $1
 }
