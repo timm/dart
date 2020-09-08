@@ -14,25 +14,18 @@ local Help=[[
 
 Options:
 
-    -C           ;; show copyright   
-    -h           ;; show help   
-    -seed 1      ;; set random number seed   
-    --test       ;; system stuff, set up test engine    
+    -C              ;; show copyright   
+    -h              ;; show help   
+    -seed 1         ;; set random number seed   
+    --test          ;; system stuff, set up test engine    
        -yes 0  
        -no  0
 
-## Author
-
-Tim Menzies, timm@ieee.org, http://menzies.us  
-
-## Citation
-
-T. Menzies, _CHOP: optimize = cluster  and contrast_,
-http://github.com/timm/chop, 2020
-
 ## License
 
-Copyright 2020, Tim Menzies
+Copyright 2020,  
+Tim Menzies,   
+timm@ieee.org
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
