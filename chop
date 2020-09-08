@@ -79,7 +79,9 @@ vims() { vim +PluginInstall +qall; }
 lua2md() {
 F=/tmp/$$
  cat $1 | awk -v com="$Comment" '
-BEGIN {while(!sub(/^--Code.*/,"")) { getline }; print"```lua"} 
+BEGIN {while(!sub(/^-- # Code.*/,"")) { getline }; 
+       print "\n\n# Code \n\n"
+       print"```lua"} 
 sub(/^-- /,"")    {print"```" 
                    do {print; getline} while (sub(/^-- /,"")) 
                    print "```lua"}
@@ -95,13 +97,12 @@ sub(/^--\[\[[ \t]*/,"")  { print"```"
                    
 END {print "```\n"}
 '  > ${F}2code
-lua chop.lua -h > ${F}1help
-cat ${F}1help ${F}2code > ${F}all
-header ${F}all
-cat ${F}all | toc
-cat ${F}all
+  [ -f "$Dir/etc/header.md" ] && (cat $Dir/etc/header.md > ${F}1head)
+  lua chop.lua -h >> ${F}1head
+  cat  ${F}1head ${F}2code | toc > ${F}2toc
+  cat ${F}1head ${F}2toc ${F}2code 
 }
-toc() { awk '
+toc() {  awk '
 function ns(n,    s) {
    while(n-- > 0) s= s "    "
    return s
@@ -143,7 +144,7 @@ tests() {
 }
 
 if [ "$1" = "-M" ]; then 
-  lua2md $Dir/$Src > $Dir/$Sh.md
+  lua2md $Dir/$Src > $Dir/README.md
 elif [ "$1" = "-h" ]; then 
   usage
 elif [ "$1" = "-H" ]; then
@@ -341,9 +342,9 @@ elif [ "$1" = "-I" ]; then
 	hi NonText guibg=NONE ctermbg=NONE
 	set fillchars=vert:\|
 	hi VertSplit cterm=NONE
-	set ts=2
-	set sw=2
-	set sts=2
+	set ts=3
+	set sw=3
+	set sts=3
 	set et
 	autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
 	set hidden
