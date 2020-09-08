@@ -98,7 +98,7 @@ sub(/^--\[\[[ \t]*/,"")  { print"```"
 END {print "```\n"}
 '  > ${F}2code
   [ -f "$Dir/etc/header.md" ] && (cat $Dir/etc/header.md > ${F}1head)
-  lua chop.lua -h >> ${F}1head
+  lua chop.lua -H >> ${F}1head
   cat  ${F}1head ${F}2code | toc > ${F}2toc
   cat ${F}1head ${F}2toc ${F}2code 
 }

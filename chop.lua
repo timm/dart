@@ -16,6 +16,7 @@ Options:
 
     -C              ;; show copyright   
     -h              ;; show help   
+    -H              ;; show help (long version) 
     -seed 1         ;; set random number seed   
     --test          ;; system stuff, set up test engine    
        -yes 0  
@@ -569,7 +570,8 @@ function cli()
   local commandLine = table.concat(arg," ")
   the = optupdate( optparse(commandLine), optparse(options))
   if the.all.C then print(Help:match("\n## License[%s]*(.*)")) end
-  if the.all.h then print(Help:match("(.*)\n# Details")) end
+  if the.all.C then print(Help:match("\n## License[%s]*(.*)")) end
+  if the.all.H then print(Help) end
 end
 
 if not pcall(debug.getlocal,4,1) then cli() end

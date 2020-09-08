@@ -38,14 +38,98 @@ Options:
 
     -C              ;; show copyright   
     -h              ;; show help   
+    -H              ;; show help (long version) 
     -seed 1         ;; set random number seed   
     --test          ;; system stuff, set up test engine    
        -yes 0  
        -no  0
 
+# Details
+
+## Requirements
+
+- Lua >= 5.3
+
+## Install
+
+- Install Lua 5.3
+- Download [chop.lua](chop.lua)
+- Run and execute the unit tests 
+
+     lua chop.lua -U
+
+If that all works then you see one failing test
+(when we test the test engine) and everything else passing.
+
+## Contribute
+
+Please follow these _Lua-isa-simple-language-so-lets-keep-it-simple_ conventions:
+
+- Source code
+  - All source code in one file.
+    - All locals listed at top;
+    - Application specific code at top;
+    - General utilities at bottom,
+    - Unit tests under nearly everything  else,  inside the `Eg` variable.
+    - Second last is the main function to be called if this code is _not_ included into
+      another library:
+      - And I test for that using `not pcall(debug.getlocal, 4, 1)`.
+    - Finally, there  is a return statement that exports the more useful parts of the code.
+  - No globals (so keep the list of `local`s at top of file up to date).
+  - The `the` local handles information and defaults shared across all functions and classes.
+    - And this variable is initialized by parsing the [Usage](#usage) section of this help
+      text/
+  - Minimize use of the `local` keyword (so ugly)
+    - Use it once at top of file.
+    - Then (usually) define function locals as extra input arguments.
+  - Indent code with 2 characters for tabs.
+  - Using classes to divide the code. 
+    - Update the non-class library code rarely (since that is functions global to the module).
+    - Update the class code a lot.
+  - Classes:
+    - Use classes for polymorphism. 
+    - Don't use inheritance (adds to debugging effort).
+    - Classes are created by assigning some defaults to a global value;    
+      e.g. `Emp={lname="", fname="", add=address() }`
+    - Class constructors are lower case functions that call `isa(X)` 
+      (where `X` is some class).
+      - Typically for some `Klass`, the constrictor is the same name, starting with lower case (e.g. `klass`).
+      - Constructors often use the idiom `new.x = y or the.zzz.y` where `y` is a parameter- S
+    
+
+## License
+
+Copyright 2020,  
+Tim Menzies,   
+timm@ieee.org
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject
+to the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+
 - [Name](#name) 
     - [Description](#description) 
     - [Usage](#usage) 
+- [Details](#details) 
+    - [Requirements](#requirements) 
+    - [Install](#install) 
+    - [Contribute](#contribute) 
+    - [License](#license) 
 - [Code](#code) 
     - [Modelling](#modelling) 
         - [Variables](#variables) 
@@ -622,7 +706,8 @@ function cli()
   local commandLine = table.concat(arg," ")
   the = optupdate( optparse(commandLine), optparse(options))
   if the.all.C then print(Help:match("\n## License[%s]*(.*)")) end
-  if the.all.h then print(Help:match("(.*)\n# Details")) end
+  if the.all.C then print(Help:match("\n## License[%s]*(.*)")) end
+  if the.all.H then print(Help) end
 end
 
 if not pcall(debug.getlocal,4,1) then cli() end
