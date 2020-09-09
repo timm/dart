@@ -18,6 +18,7 @@ Options:
     -h              ;; show help   
     -H              ;; show help (long version) 
     -seed 1         ;; set random number seed   
+    -U 
     --test          ;; system stuff, set up test engine    
        -yes 0  
        -no  0
@@ -41,7 +42,9 @@ If that all works then you see one failing test
 
 ## Contribute
 
-Please follow these _Lua-isa-simple-language-so-lets-keep-it-simple_ conventions:
+Please follow these 
+_Lua-isa-simple-language-so-lets-keep-it-simple_ c
+onventions:
 
 - Source code
   - All source code in one file.
@@ -138,7 +141,7 @@ long as the squeeze does not extensive beyond `lo0,hi0`).
 --]]
 Var={}
 
-function var(inits,new, type) 
+function var(initsG,new, type) 
    new     = ako(type or Var, inits)
    new.lo0 = new.lo or 0
    new.hi0 = new.hi or 1
@@ -314,16 +317,16 @@ function from(lo,hi) return lo+(hi-lo)*math.random() end
 -- #### round(n,places) : round `n` to some decimal `places`.
 
 function round(num, places)
-   local mult = 10^(places or 0)
-   return math.floor(num * mult + 0.5) / mult
+  local mult = 10^(places or 0)
+  return math.floor(num * mult + 0.5) / mult
 end
 
 -- ### Strings
 -- #### o(t,pre) : return `t` as a string, with `pre`fix
 function o(z,pre,   s,sep) 
-   s, sep = (pre or "")..'{', ""
-   for _,v in pairs(z or {}) do s = s..sep..tostring(v); sep=", " end
-   return s..'}'
+  s, sep = (pre or "")..'{', ""
+  for _,v in pairs(z or {}) do s = s..sep..tostring(v); sep=", " end
+  return s..'}'
 end
 
 -- #### oo(t,pre) : print `t` as a string, with `pre`fix
@@ -331,24 +334,24 @@ function oo(z,pre) print(o(z,pre)) end
 
 -- #### ooo(t,pre) : return a string representing `t`'s recursive contents.
 function ooo(t,pre,    indent,fmt)
-   pre=pre or ""
-   indent = indent or 0
-   if indent < 10 then
-      for k, v in pairs(t or {}) do
-         if not (type(k)=='string' and k:match("^_")) then
-            fmt= pre..string.rep("|  ",indent)..tostring(k)..": "
-            if type(v) == "table" then
-               print(fmt)
-               ooo(v, pre, indent+1)
-            else
-   print(fmt .. tostring(v)) end end end end
+  pre=pre or ""
+  indent = indent or 0
+  if indent < 10 then
+    for k, v in pairs(t or {}) do
+      if not (type(k)=='string' and k:match("^_")) then
+        fmt= pre..string.rep("|  ",indent)..tostring(k)..": "
+        if type(v) == "table" then
+          print(fmt)
+          ooo(v, pre, indent+1)
+        else
+  print(fmt .. tostring(v)) end end end end
 end
 
 -- ### Meta
 -- #### id(x) : ensure `x` has a unique if
 function id (x)
-   if not x._id then the.id=the.id+1; x._id= the.id end
-   return x._id 
+  if not x._id then the.id=the.id+1; x._id= the.id end
+  return x._id 
 end
 
 -- #### same(z) : return z
@@ -359,22 +362,22 @@ function fun(x) return assert(type(_ENV[x]) == "function", "not function") and x
 
 -- #### map(t,f) : apply `f` to everything in `t` and return the result
 function map(t,f, u)
-   u, f = {}, f or same
-   for i,v in pairs(t or {}) do u[i] = f(v) end  
-   return u
+  u, f = {}, f or same
+  for i,v in pairs(t or {}) do u[i] = f(v) end  
+  return u
 end
 
 -- #### copy(t) : return a deep copy of `t`
 function copy(obj, seen)
-    -- Handle non-tables and previously-seen tables.
-    if type(obj) ~= 'table' then return obj end
-    if seen and seen[obj] then return seen[obj] end
-    -- New table; mark it as seen and copy recursively.
-    local s = seen or {}
-    local res = {}
-    s[obj] = res
-    for k, v in pairs(obj) do res[copy(k, s)] = copy(v, s) end
-    return setmetatable(res, getmetatable(obj))
+  -- Handle non-tables and previously-seen tables.
+  if type(obj) ~= 'table' then return obj end
+  if seen and seen[obj] then return seen[obj] end
+  -- New table; mark it as seen and copy recursively.
+  local s = seen or {}
+  local res = {}
+  s[obj] = res
+  for k, v in pairs(obj) do res[copy(k, s)] = copy(v, s) end
+  return setmetatable(res, getmetatable(obj))
 end
 
 -- #### select(t,f) : return a table of items in `t` that satisfy function `f`
@@ -399,50 +402,50 @@ function any(a) return a[1 + math.floor(#a*math.random())] end
 
 -- #### anys(a,n) : sample `n` items from `a`
 function anys(a,n,   t) 
-   t={}
-   for i=1,n do t[#t+1] = any(a) end
-   return t
+  t={}
+  for i=1,n do t[#t+1] = any(a) end
+  return t
 end
 
 -- #### keys(t): iterate over key,values (sorted by key)
 function keys(t)
-   local i,u = 0,{}
-   for k,_ in pairs(t) do u[#u+1] = k end
-   table.sort(u)
-   return function () 
-      if i < #u then 
-         i = i+1
-   return u[i], t[u[i]] end end 
+  local i,u = 0,{}
+  for k,_ in pairs(t) do u[#u+1] = k end
+  table.sort(u)
+  return function () 
+    if i < #u then 
+      i = i+1
+  return u[i], t[u[i]] end end 
 end
 
 -- ### Files
 -- #### csv(file) : iterate through  non-empty rows, divided on comma, coercing numbers
 function csv(file,     stream,tmp,row)
-   stream = file and io.input(file) or io.input()
-   tmp    = io.read()
-   return function()
-      if tmp then
-         row = words( tmp:gsub("[\t\r ]*","") )-- no whitespace
-         tmp= io.read()
-         if #row > 0 then return row end
-      else
-   io.close(stream) end end   
+  stream = file and io.input(file) or io.input()
+  tmp    = io.read()
+  return function()
+    if tmp then
+      row = words( tmp:gsub("[\t\r ]*","") )-- no whitespace
+      tmp= io.read()
+      if #row > 0 then return row end
+    else
+  io.close(stream) end end   
 end
 
 -- #### words(s,c,fun) : split `str` on `ch` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
 function words(str, ch, fun,  t,pat)
-   t,f = {}, f or tonumber
-   pat = "([^".. (ch or ",") .."]+)"
-   for x in str:gmatch(pat) do t[#t+1] = f(x) or trim(x) end
-   return t
+  t,f = {}, f or tonumber
+  pat = "([^".. (ch or ",") .."]+)"
+  for x in str:gmatch(pat) do t[#t+1] = f(x) or trim(x) end
+  return t
 end
 
 -- #### trim(str) : remove leading and trailing blanks
 function trim(str) return (str:gsub("^%s*(.-)%s*$", "%1")) end
 
 do local cols={red=31,green=32,eplain=0}
-   function color(col,str)
-      return '\27[1m\27['..cols[col]..'m'..str..'\27[0m' end
+  function color(col,str)
+  return '\27[1m\27['..cols[col]..'m'..str..'\27[0m' end
 end
 -- -------------------------------------------------------------------
 -- ## Testing
@@ -450,33 +453,33 @@ end
 
 -- #### eg(x): run the test function `eg_x` or, if `x` is nil, run all.
 function eg(t)
-   if not t then print("") end
-   for name,f in keys(Eg) do 
-      if t then
-         if name:match(t) then eg1(name,f) end
-      else
-   eg1(name,f) end end
+  if not t then print("") end
+  for name,f in keys(Eg) do 
+    if t then
+      if name:match(t) then eg1(name,f) end
+    else
+  eg1(name,f) end end
 end  
 
 function eg1(name,f,   t1,t2,passed,err,y,n)
-   the.test.yes = the.test.yes + 1
-   t1 = os.clock()
-   math.randomseed(the.seed)
-   passed,err = pcall(f) 
-   if passed then
-      t2= os.clock()
-      print(string.format("PASS! "..name.." \t: %8.6f secs", t2-t1))
-   else
-      the.test.no = the.test.no + 1
-      y,n = the.test.yes,  the.test.no
-      print(color("red",string.format("FAIL! "..name.." \t: %s [%.0f] %%",
-                                      err:gsub("^.*: ",""), 
-                                      100*y/(y+n)))) end 
+  the.test.yes = the.test.yes + 1
+  t1 = os.clock()
+  math.randomseed(the.seed)
+  passed,err = pcall(f) 
+  if passed then
+    t2= os.clock()
+    print(string.format("PASS! "..name.." \t: %8.6f secs", t2-t1))
+  else
+    the.test.no = the.test.no + 1
+    y,n = the.test.yes,  the.test.no
+    print(color("red",string.format("FAIL! "..name.." \t: %s [%.0f] %%",
+          err:gsub("^.*: ",""), 
+    100*y/(y+n)))) end 
 end
 
 -- #### within
 function within(x,y,z)
-   assert(x <= y and y <= z, 'outside range ['..x..' to '..']')
+  assert(x <= y and y <= z, 'outside range ['..x..' to '..']')
 end
 
 --- #### rogues(): report escaped local variables
@@ -526,49 +529,45 @@ function Eg.Coc1(  c) Eg.Coc( Coc.project()) end
 
 -- -------------------------------------------------------------------
 
-function optparse(str,     t,group,opt)
-   t, group,opt = {}, "all", "opt"
-   t[group] = {}
-   str = "--" .. group .. " " .. str
-   for line in str:gmatch("([^\n]+)") do
-      line = line:gsub("%;%;.*","")       
-      for x in line:gmatch("([^ ]+)") do
-         local grouped = x:match("^%-%-(.*)")
-         if grouped then
-            group    = grouped
-            t[group] = t[group] or {}
-         else
-            local opted = x:match("^%-([^%-].*)")
-            if opted then
-               opt = opted
-               t[group][opt] = false
-            else 
-   t[group][opt] = tonumber(x) or x end end end end
-   return t
-end
-
 function options(now,b4)
-   now, b4 = optparse(now), optparse(b4)
-   for group,t in pairs(now) do
-      for opt,new in pairs(t) do
-         if b4[group] ~= nil then
-            old = b4[group][opt]
-            if old ~= nil then
-               if type(old) == type(new) then
-                  if type(old) == "boolean" then new = not old end
-                  b4[group][opt] = new 
-               else print("Warning: opt "..opt.." expected "..type(old)) end
-            else print("Warning: opt "..opt.." not defined") end
-         else print("Warning: group "..group.." not defined") end end end
-   return b4
+  local function parse(str,    t,g,o)
+    t, g, o = {}, "all", "opt"
+    t[g] = {}
+    str = "--" .. g .. " " .. str
+    for line in str:gmatch("([^\n]+)") do
+      line = line:gsub("%;%;.*","")     
+      for x in line:gmatch("([^ ]+)") do
+        local g0 = x:match("^%-%-(.*)")
+        if   g0 
+        then g = g0; t[g] = t[g] or {}
+        else local o0 = x:match("^%-([^%-].*)")
+             if   o0 
+             then o = o0; t[g][o] = false
+             else t[g][o] = tonumber(x) or x end end end end
+    return t
+  end
+  -------------------------------
+  now, b4 = parse(now), parse(b4)
+  for g,t in pairs(now) do
+    for o,new in pairs(t) do
+      if b4[g] ~= nil then
+        old = b4[g][o]
+        if old ~= nil then
+          if type(old) == type(new) then
+            if type(old) == "boolean" then new = not old end
+            b4[g][o] = new 
+          else print("Oops: option "..o.." wanted "..type(old)) end
+        else   print("Oops: option "..o.." undefined") end
+      else     print("Oops: group " ..g.." undefined") end end end
+  return b4
 end
 
 function cli()
-   the = options( table.concat(arg," "),
-                  Help:match("\nOptions[^\n]*\n\n([^#]+)#"))
-   if the.all.C then print(Help:match("\n## License[%s]*(.*)")) end
-   if the.all.h then print(Help:match("(.*)\n# Details")) end
-   if the.all.H then print(Help) end
+  the = options( table.concat(arg," "),
+                 Help:match("\nOptions[^\n]*\n\n([^#]+)#"))
+  if the.all.C then print(Help:match("\n## License[%s]*(.*)")) end
+  if the.all.h then print(Help:match("(.*)\n# Details")) end
+  if the.all.H then print(Help) end
 end
 
 if not pcall(debug.getlocal,4,1) then cli() end

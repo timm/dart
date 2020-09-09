@@ -342,9 +342,9 @@ elif [ "$1" = "-I" ]; then
 	hi NonText guibg=NONE ctermbg=NONE
 	set fillchars=vert:\|
 	hi VertSplit cterm=NONE
-	set ts=3
-	set sw=3
-	set sts=3
+	set ts=2
+	set sw=2
+	set sts=2
 	set et
 	autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
 	set hidden

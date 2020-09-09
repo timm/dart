@@ -1,5 +1,6 @@
-function int(x)      return math.floor(round(x)) end
-function from(lo,hi) return lo + (hi-lo)*math.random() end
+function int(x)         return math.floor(round(x)) end
+function from(lo,hi)    return lo + (hi-lo)*math.random() end
+function fromint(lo,hi) return int(from(lo,hi)) end
 
 function round(n,p, m) m=m or 10^(p or 0); return math.floor(n*m+0.5)/m end
 function ooo(t,pre,    indent,fmt)
@@ -16,44 +17,61 @@ function ooo(t,pre,    indent,fmt)
   print(fmt .. tostring(v)) end end end end
 end
 
-do
-  local x,p,n,sf,eq0,eq1,eq2,cache = nil,nil,nil,nil,nil,nil,nil,nil
-
-  function lohi(lo,hi,f)
+function cocomos(   eq1,eq2,pem,nem,sf,lohi)
+  function eq1(x,m,n) return (x-3)*from(m,n)+1 end 
+  function eq2(x,m,n) return (x-6)*from(m,n) end 
+  function pem(a,b)   return posints(a or 1, b or 5, 
+                        function(x) return eq1(x, 0.073, 0.21) end) end
+  function nem(a,b)   return posints(a or 1, b or 5, 
+                        function(x) return eq1(x, -0.187, -0.078) end) end
+  function sf()       return posints(1, 6, 
+                        function(x,y) return eq2(x, -1.58, -1.014) end) end
+  -------------------------------------------------------------------------
+  function posints(lo,hi,f,       t,ok)
     lo,hi    = lo or 0, hi or 1
     t        = {lo0=lo, hi0=hi, lo=lo, hi=hi}
-    ok       = function (z) assert(t.lo <= z and z <= t.hi); return z end
-    t.squeeze= function (lo,hi) t.lo,t.hi=ok(lo),ok(hi or lo) end
-    return setmetatable(t, {__call= function () return f(t.lo,t.hi) end})
-   end
-
-## get ridof thistworetrn crap
-  function x(lo,hi)   return int(from(lo,hi)) end
-  function eq1(m1,m2) return function(lo,hi) return (x(lo,hi)-3)*from(m1,m2)+1  end end
-  function eq2(m1,m2) return function(lo,hi) return (x(lo,hi)-6)*from(m1,m2)    end end
-
-  function p(a,b)   return lohi(a or 1, b or 5,eq1( .073,   .21))  end
-  function n(a,b)   return lohi(a or 1, b or 5,eq1( -.187,  -.078)) end
-  function sf()     return lohi(1,      6,     eq2(-1.58, -1.014))  end
-
-  function project() 
-    return  {
-      ab= function(a,b)
-              a= from(2.3, 9.18)
-              b= (.85-1.1)/(9.18-2.2)*a+0.9 + (1.2-.8)/2 
-              return a,b
-           end,
-      all={ prec=sf(), flex=sf(),   arch=sf(),   team=sf(),   pmat=sf(),
-            rely=p(),  data=p(2,5), cplx=p(1,6), ruse=p(2,6), 
-            docu=p(),  time=p(3,6), stor=p(3,6), pvol=p(2,5),
-            acap=n(),  pcap=n(),    pcon=n(),    aexp=n(),    
-            plex=n(),  ltex=n(),    tool=n(),    site=n(1,6), sced=n() }
-    }
+    ok       = function (z) 
+                 assert(t.lo <= z and z <= t.hi); return z end
+    t.squeeze= function (lo,hi) 
+                  t.lo,t.hi=ok(lo),ok(hi or lo) end
+    return setmetatable(t, {
+             __call= function (    x) 
+                       x= math.floor(from(t.lo,t.hi)+0.5)
+                       return x, f(x) end})
   end
-  for i=1,10 do xx=project(); print(xx.a(),xx.b(),xx.a()) end
-
-  ---ooo(xx.a)
+  ---------------------------------------------------------
+  return  {
+    ab= function(   a,b)
+            a= from(2.3, 9.18)
+            b= (.85-1.1)/(9.18-2.2)*a+0.9 + (1.2-.8)/2 
+            return a,b
+         end,
+    all={ prec=sf(),     flex=sf(),     arch=sf(),  team=sf(),   
+          pmat=sf(),     rely=pem(),    data=pem(2,5), 
+          cplx=pem(1,6), ruse=pem(2,6), docu=pem(),    
+          time=pem(3,6), stor=pem(3,6), pvol=pem(2,5),
+          acap=nem(),    pcap=nem(),    pcon=nem(),    
+          aexp=nem(),    plex=nem(),    ltex=nem(),    
+          tool=nem(),    site=nem(1,6), sced=nem() }
+  }
 end
+
+function cocomo1(      c,    t,x,y)
+  c=cocomo()
+  t={x={},y={}}
+  t.y.a, t.y.b = c.ab()
+  for k,v in pairs(c.all) do
+    x1,y1 = v()
+    v.squeeze(3)
+    x2,y2 = v()
+    print(k,x1,x2,y1,y2)
+    t.x[k] = x
+    t.y[k] = y
+  end
+  return t
+end
+
+for _ = 1,40 do cocomo1() end
 
 -- 
 --   sf = p.prec() +  p.flex() + p.arch() + p.team() + p.pmat() 
