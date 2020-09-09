@@ -467,7 +467,6 @@ end
 ```
 #### copy(t) : return a deep copy of `t`
 ```lua
-
 function copy(obj, seen)
     -- Handle non-tables and previously-seen tables.
     if type(obj) ~= 'table' then return obj end
@@ -483,7 +482,6 @@ end
 ```
 #### select(t,f) : return a table of items in `t` that satisfy function `f`
 ```lua
-
 function select(t,f,     g,u)
    u, f = {}, f or same
    for _,v in pairs(t) do if f(v) then u[#u+1] = v  end end
@@ -493,7 +491,6 @@ end
 ```
 #### ako(class,has) : create a new instance of `class`, add the `has` slides 
 ```lua
-
 function ako(klass,has,      new)
    new = copy(klass or {})
    for k,v in pairs(has or {}) do new[k] = v end
@@ -506,13 +503,11 @@ end
 ### Lists
 #### any(a) : sample 1 item from `a`
 ```lua
-
 function any(a) return a[1 + math.floor(#a*math.random())] end
 
 ```
 #### anys(a,n) : sample `n` items from `a`
 ```lua
-
 function anys(a,n,   t) 
    t={}
    for i=1,n do t[#t+1] = any(a) end
@@ -522,7 +517,6 @@ end
 ```
 #### keys(t): iterate over key,values (sorted by key)
 ```lua
-
 function keys(t)
    local i,u = 0,{}
    for k,_ in pairs(t) do u[#u+1] = k end
@@ -537,7 +531,6 @@ end
 ### Files
 #### csv(file) : iterate through  non-empty rows, divided on comma, coercing numbers
 ```lua
-
 function csv(file,     stream,tmp,row)
    stream = file and io.input(file) or io.input()
    tmp    = io.read()
@@ -565,6 +558,10 @@ end
 ```lua
 function trim(str) return (str:gsub("^%s*(.-)%s*$", "%1")) end
 
+do local cols={red=31,green=32,eplain=0}
+   function color(col,str)
+      return '\27[1m\27['..cols[col]..'m'..str..'\27[0m' end
+end
 ```
 -------------------------------------------------------------------
 ## Testing
@@ -594,9 +591,9 @@ function eg1(name,f,   t1,t2,passed,err,y,n)
    else
       the.test.no = the.test.no + 1
       y,n = the.test.yes,  the.test.no
-      print(string.format("FAIL! "..name.." \t: %s [%.0f] %%",
-            err:gsub("^.*: ",""), 
-      100*y/(y+n))) end 
+      print(color("red",string.format("FAIL! "..name.." \t: %s [%.0f] %%",
+                                      err:gsub("^.*: ",""), 
+                                      100*y/(y+n)))) end 
 end
 
 ```
@@ -657,49 +654,49 @@ function Eg.Coc1(  c) Eg.Coc( Coc.project()) end
 -------------------------------------------------------------------
 ```lua
 
-function optparse(str,     t,group,option)
-  t, group,option = {}, "all", "option"
-  t[group] = {}
-  str = "--" .. group .. " " .. str
-  for line in str:gmatch("([^\n]+)") do
-    line = line:gsub("%;%;.*","")       
-    for x in line:gmatch("([^ ]+)") do
-      local tmp1 = x:match("^%-%-(.*)")
-      if tmp1 then
-        group    = tmp1
-        t[group] = t[group] or {}
-      else
-        local tmp2= x:match("^%-([^0-9].*)")
-        if tmp2 then
-          option           = tmp2
-          t[group][option] = false
-        else
-          t[group][option] = tonumber(x) or x end end end end
-  return t
+function optparse(str,     t,group,opt)
+   t, group,opt = {}, "all", "opt"
+   t[group] = {}
+   str = "--" .. group .. " " .. str
+   for line in str:gmatch("([^\n]+)") do
+      line = line:gsub("%;%;.*","")       
+      for x in line:gmatch("([^ ]+)") do
+         local grouped = x:match("^%-%-(.*)")
+         if grouped then
+            group    = grouped
+            t[group] = t[group] or {}
+         else
+            local opted = x:match("^%-([^%-].*)")
+            if opted then
+               opt = opted
+               t[group][opt] = false
+            else 
+   t[group][opt] = tonumber(x) or x end end end end
+   return t
 end
 
-function optupdate(now,b4)
-  for group,t in pairs(now) do
-    for option,new in pairs(t) do
-      if b4[group] ~= nil then
-        old = b4[group][option]
-        if old ~= nil then
-          if type(old) == type(new) then
-            if type(old) == "boolean" then new = not old end
-            b4[group][option] = new 
-          else print("Warning: option "..option.." expected "..type(old)) end
-        else print("Warning: option "..option.." not defined") end
-      else print("Warning: group "..group.." not defined") end end end
-  return b4
+function options(now,b4)
+   now, b4 = optparse(now), optparse(b4)
+   for group,t in pairs(now) do
+      for opt,new in pairs(t) do
+         if b4[group] ~= nil then
+            old = b4[group][opt]
+            if old ~= nil then
+               if type(old) == type(new) then
+                  if type(old) == "boolean" then new = not old end
+                  b4[group][opt] = new 
+               else print("Warning: opt "..opt.." expected "..type(old)) end
+            else print("Warning: opt "..opt.." not defined") end
+         else print("Warning: group "..group.." not defined") end end end
+   return b4
 end
 
 function cli()
-  local options     = Help:match("\nOptions[^\n]*\n\n([^#]+)#")
-  local commandLine = table.concat(arg," ")
-  the = optupdate( optparse(commandLine), optparse(options))
-  if the.all.C then print(Help:match("\n## License[%s]*(.*)")) end
-  if the.all.C then print(Help:match("\n## License[%s]*(.*)")) end
-  if the.all.H then print(Help) end
+   the = options( table.concat(arg," "),
+                  Help:match("\nOptions[^\n]*\n\n([^#]+)#"))
+   if the.all.C then print(Help:match("\n## License[%s]*(.*)")) end
+   if the.all.h then print(Help:match("(.*)\n# Details")) end
+   if the.all.H then print(Help) end
 end
 
 if not pcall(debug.getlocal,4,1) then cli() end
