@@ -1,13 +1,13 @@
 local Help=[[
 # Name 
-  chop
+  dart
 
 ## Description
   Implement optimization over discrete and numeric attributes
   via clustering and contrast data mining methods. 
 
 ## Usage
-  lua chop.py [Options] [--Group Options]* 
+  lua dart.lua [Options] [--Group Options]* 
 
   Options start with "-" and contain 0 or 1 arguments.
   Options belong to different Groups (which start with --).
@@ -40,10 +40,10 @@ Options:
 ## Install
 
 - Install Lua 5.3
-- Download [chop.lua](chop.lua)
+- Download [dart.lua](dart.lua)
 - Run and execute the unit tests 
 
-     lua chop.lua -U
+     lua dart.lua -U
 
 If that all works then you see one failing test
 (when we test the test engine) and everything else passing.

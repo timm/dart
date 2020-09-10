@@ -8,37 +8,37 @@ Tmux=$(which tmux)
 
 #### end config ##################
 
-clear
-tput bold; tput setaf 32; cat <<'EOF'
- _,-,
- T_  |   CHOP v1
- ||`-'
- ||
- ||
- ~~
+hello() {
+  clear
+  tput bold; tput setaf 32; cat <<-'EOF'
+                       ___
+                      /\ _ /\  
+  >>>----            / /\ /\ \
+>>>----             |---(*)---| DART v1
+                     \ \/_\/ /  timm@ieee.org
+         >>>----      \/___\/   
 
 EOF
-tput sgr0
+  tput sgr0
+  tput bold; tput setaf 0
+  awk '/^alias/ {print $0}'   $Dir/$Sh
+  tput sgr0
+}
 
 Dir=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
 Sh=$(basename ${BASH_SOURCE[0]})
 Src=$(basename $Sh).lua
 
-alias ch='lua chop.lua '                           # run code
-alias doco="lua2md $Dir/$Src > $Dir/README.md"     # rebuild README.md
-alias gg='git pull'                                # update code from web
+alias ch='lua $Dir/$Src '                           # run code
+alias readme="lua2md $Dir/$Src > $Dir/README.md"   # rebuild README.md
 alias ga='git add *'                               # add to local repo
+alias gg='git pull'                                # update code from web
 alias gp='ga; git commit -am saving; git push; gs' # end-of-day actions
 alias gs='git status'                              # status 
 alias ls='ls -G'                                   # ls
 alias reload='. $Dir/$Sh'                          # reload these tools
-alias tmux=mymux                                   # 2-pane tmux environment
+alias tmux=mytmux                                  # 2-pane tmux environment
 alias vims="vim +PluginInstall +qall"              # ensure vim plugins are installed
-
-tput sgr0
-tput bold; tput setaf 0
-awk '/^alias/ {print $0}'   $Dir/$Sh
-tput sgr0
 
 color() { awk '
 /FAIL/ {print "\033[31m" $0 "\033[0m";next}
@@ -46,12 +46,12 @@ color() { awk '
        {print}'
 }
 here() { cd $1; basename `pwd`; }    
-PROMPT_COMMAND='echo -ne "🪓 $(git branch 2>/dev/null | grep '^*' | colrm 1 2):";PS1="$(here ..)/$(here .):\!\e[m ▶ "'     
+PROMPT_COMMAND='echo -ne "🎯 $(git branch 2>/dev/null | grep '^*' | colrm 1 2):";PS1="$(here ..)/$(here .):\!\e[m ▶ "'     
 
 lua2md() {
 F=/tmp/$$
  cat $1 | awk  '
-BEGIN {while(!sub(/^-- # Code.*/,"")) { getline }; 
+BEGIN {while(!sub(/^\]\].*/,"")) { getline }; 
        print "\n\n# Code \n\n"
        print"```lua"} 
 sub(/^-- /,"")    {print"```" 
@@ -70,7 +70,7 @@ sub(/^--\[\[[ \t]*/,"")  { print"```"
 END {print "```\n"}
 '  > ${F}2code
   [ -f "$Dir/etc/header.md" ] && (cat $Dir/etc/header.md > ${F}1head)
-  lua chop.lua -H >> ${F}1head
+  lua $Dir/$Src -H >> ${F}1head
   cat  ${F}2code | toc > ${F}2toc
   cat ${F}1head ${F}2toc ${F}2code 
 }
@@ -104,25 +104,31 @@ END {print ""}'
 tests() {
   local LAST=`ls -l "$Dir/$Src"`
   echo "Control-C to exit "
-  lua chop.lua -U all
+  lua $Dir/$Src -U all
   while true; do
     sleep 1
     local NEW=`ls -l "$Dir/$Src"`
     if [ "$NEW" != "$LAST" ]; then 
-      lua chop.lua -U all
+      lua $Dir/$Src -U all
       LAST="$NEW"
     fi
   done
 }
-mymux() {
+mytmux() {
   session=$RANDOM
   $Tmux start-server
+  sleep 1
   $Tmux new-session -d -s $session  
-  $Tmux send-keys ". $Dir/$Sh"  C-m  hello C-m
+  $Tmux send-keys ". $Dir/$Sh"  C-m  "hello" C-m
+
   $Tmux splitw -h -p 50
   $Tmux selectp -t 1
-  $Tmux send-keys ". $Dir/$Sh"  C-m  "hello" C-m
-  sleep 1
+  $Tmux send-keys ".  $Dir/$Sh"  C-m  "clear; ls -Gl" C-m
+
+  $Tmux splitw -v -p 5
+  $Tmux selectp -t 2
+  $Tmux send-keys ".  $Dir/$Sh"  C-m  "htop"  C-m
+
   $Tmux attach-session -t $session
 }
 
@@ -177,7 +183,7 @@ want=$Dir/.travis.yml
 	
 	script:
 	  - pwd
-	  - sh chop -U
+	  - lua dart.lua -U all
 EOF
 	 
 want=$HOME/.vimrc
@@ -436,3 +442,5 @@ want=$HOME/.tmux.conf
 	setw -g monitor-activity on
 	set -g visual-activity on
 EOF
+
+[ -z "$TMUX" ] && mytmux
