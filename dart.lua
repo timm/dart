@@ -538,6 +538,7 @@ function cli()
   rogues()
 end
 
+print(1)
 -- --------------------------------------------------------------------
 -- ## start-up
 -- If called at top level, run `cli()`.

@@ -11,12 +11,12 @@ Tmux=$(which tmux)
 hello() {
   clear
   tput bold; tput setaf 32; cat <<-'EOF'
-                       ___
-                      /\ _ /\  
-  >>>----            / /\ /\ \
->>>----             |---(*)---| DART v1
-                     \ \/_\/ /  timm@ieee.org
-         >>>----      \/___\/   
+                          ___
+  DART v1 timm@ieee.org /\_/\  
+    >>>----            / /\ /\ \
+   >>>----             |---(*)---| DART v1
+                       \ \/_\/ /  timm@ieee.org
+           >>>----      \/___\/   
 
 EOF
   tput sgr0
@@ -29,7 +29,7 @@ Dir=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
 Sh=$(basename ${BASH_SOURCE[0]})
 Src=$(basename $Sh).lua
 
-alias ch='lua $Dir/$Src '                           # run code
+alias ch="lua $Dir/$Src "     # run code
 alias readme="lua2md $Dir/$Src > $Dir/README.md"   # rebuild README.md
 alias ga='git add *'                               # add to local repo
 alias gg='git pull'                                # update code from web
