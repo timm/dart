@@ -14,12 +14,13 @@ local Help=[[
 
 Options:
 
-    -C              ;; show copyright   
-    -h              ;; show help   
-    -H              ;; show help (long version) 
-    -seed 1         ;; set random number seed   
-    -U 
-    --test          ;; system stuff, set up test engine    
+    -C          ;; show copyright   
+    -h          ;; show help   
+    -H          ;; show help (long version) 
+    -seed 1     ;; set random number seed   
+    -U fun      ;; run unit test 'fun' (and `all` runs everything)
+    -id 0       ;; counter for object ids
+    --test      ;; system stuff, set up test engine    
        -yes 0  
        -no  0
 
@@ -114,179 +115,137 @@ local within,rogues,eg,eg1,Eg,main       = nil,nil,nil,nil,nil,nil
 local from,ako,var                       = nil,nil,nil
 local Mx,mx,Coc                          = nil,nil
 
-
---the = {aka={}, id=0, seed=1, test= {yes=0,no=0} }
-
--- ## Modelling
--- ### Variables
--- #### Cache : compute and cache a value from some equation
-
-Cache={}
-function cache(eq, new) new=ako(Cache); new.eq = eq;  return new    end
-function Cache:__call() self.x = self.x or self.eq(); return self.x end
-function Cache:again()  self.x = nil;                 return self.__call() end
-
---[[ #### Var : compute and cache one variable.
-
-`Var`s are objects that can be `__call`ed to compute, then cache,
-some value.  If `__call`ed again then the cached value will be returned
-(but if sent the message `again()` then the computation will be repeated
-and a new value will be cached).
-
-The computation is controlled by some other value
-bounded to some upper to lower range (denoted `lo0,hi0`).  This
-control range which can be squeezed into some sub-range `lo,hi` (as
-long as the squeeze does not extensive beyond `lo0,hi0`).
-
---]]
-Var={}
-
-function var(initsG,new, type) 
-   new     = ako(type or Var, inits)
-   new.lo0 = new.lo or 0
-   new.hi0 = new.hi or 1
-   return new
-end
-
-function Var:__call()
-   self.x = self.x or from(self.lo, self.hi)
-   return self.x
-end
-
-function Var:again()
-   self.x = nil
-   return self:__call() 
-end
-
-function Var:squeeze(lo,hi)
-   hi = hi or lo
-   assert(self.lo0 <= lo and lo <= self.hi0)
-   assert(self.lo0 <= hi and hi <= self.hi0)
-   self.lo = lo
-   self.hi = hi 
-   self.x  = nil
-end
-
---[[ ### MX : compute and cache two variables.
-
-`MX`s are a more complex kind of `Var` where two values (`m,x`) are cached
-and the computation is controlled by some lambda body `eq`. 
-
-Apart from that,
-like `Var`s, these objects can be `__call`ed, `again()`, and `squeeze`d.
-
---]]
-
-MX={}
-
-function mx(inits) return var(inits,new,MX) end
-
-function MX:__call()
-  self.m = self.m or from(self.m1,self.m2)
-  self.x = self.x or math.floor(round(from(self.lo,self.hi)))
-  return self.eq(self.m,self.x)
-end
-
-function MX:again() self.m = nil; return Var.again(self) end
-
-function MX:squeeze(lo,hi)
-  Var.squeeze(self,lo,hi)
-  self.m  = nil
-  self.x  = nil
-end
-
--- ## Cocomo
--- ### Coc.project() : return a random project
-
 Coc={}
-function Coc.eq1(m,x) return m*(x-3)+1 end
-function Coc.eq2(m,x) return math.max(0,m*(x-6))  end
-function Coc.p(x,y)   return var{eq=Coc.eq1,lo=x or 1,hi=y or 5,m1= .073,m2= .21} end
-function Coc.n(x,y)   return var{eq=Coc.eq1,lo=x or 1,hi=y or 5,m1=-.178,m2=-.078} end
-function Coc.sf()     return var{eq=Coc.eq2,lo=1,     hi=6,     m1=-1.56,m2=-1.014} end
+function Coc.all(   eq1,eq2,pem,nem,sf,between,lohi)
+  function eq1(x,m,n)   return (x-3)*from(m,n)+1 end 
+  function eq2(x,m,n)   return (x-6)*from(m,n) end 
+  function pem(a,b)     return posints(a or 1, b or 5, 
+                          function(x) return eq1(x, 0.073, 0.21) end) end
+  function nem(a,b)     return posints(a or 1, b or 5, 
+                          function(x) return eq1(x, -0.187, -0.078) end) end
+  function sf()         return posints(1, 6, 
+                          function(x) return eq2(x, -1.58, -1.014) end) end
+  function between(a,b) return posints(a, b, function(x) return x end) end
+  -------------------------------------------------------------------------
+  function posints(lo,hi,f,       t,ok)
+    lo,hi    = lo or 0, hi or 1
+    t        = {lo0=lo, hi0=hi, lo=lo, hi=hi}
+    ok       = function (z) 
+                 assert(t.lo <= z and z <= t.hi); return z end
+    t.squeeze= function (lo,hi) 
+                 t.lo,t.hi=ok(lo),ok(hi or lo) end
+    t.bounce=  function (lo,hi,   x) 
+                 x = math.floor(from(ok(lo),ok(hi or lo))+0.5)
+                 return x, math.max(0, f(x)) end
+    return setmetatable(t,
+             {__call=function() return t.bounce(t.lo,t.hi) end})
+  end
+  ---------------------------------------------------------
+  return  {
+    ab= function(   a,b)
+            a= from(2.3, 9.18)
+            b= (.85-1.1)/(9.18-2.2)*a+0.9 + (1.2-.8)/2 
+            return a,b       
+         end,
+    all= {loc = between(2,2000),
+          prec=sf(),     flex=sf(),     arch=sf(),  team=sf(),   
+          pmat=sf(),     rely=pem(),    data=pem(2,5), 
+          cplx=pem(1,6), ruse=pem(2,6), docu=pem(),    
+          time=pem(3,6), stor=pem(3,6), pvol=pem(2,5),
+          acap=nem(),    pcap=nem(),    pcon=nem(),    
+          aexp=nem(),    plex=nem(),    ltex=nem(),    
+          tool=nem(),    site=nem(1,6), sced=nem() }
+  }
+end
 
--- function Coc.project(    a,sf,p,n,out)
---   a = from(2.2, 9.18)
---   sf,p,n= Coc.sf, Coc.p, Coc.n
---   out = {}
---   out={  a   = var {lo = 2.2, high = 9.18},
---     b   = function () return (.85-1.1)/(9.18-2.2)*out.a()+1.1 + (1.1-.8)/2 end,
---     prec=sf(), flex=sf(),   arch=sf(),   team=sf(),   pmat=sf(),
---     rely=p(),  data=p(2,5), cplx=p(1,6), ruse=p(2,6), 
---     docu=p(),  time=p(3,6), stor=p(3,6), pvol=p(2,5),
---     acap=n(),  pcap=n(),    pcon=n(),    aexp=n(),    
---     plex=n(),  ltex=n(),    tool=n(),    site=n(1,6), sced=n()
---   }
---   sf = p.prec() +  p.flex() + p.arch() + p.team() + p.pmat() 
---   em = p.rely() *  p.data() *  p.cplx() *  p.ruse() * p.docu() * \
---        p.time() *  p.stor() *  p.pvol() * p.acap() *  p.pcap() *  \   
---        p.pcon() *  p.aexp() *  p.lex() *  p.ltex() *  p. tool() * \
---        p.site() *  p.sced()
---    return p.a*p.loc() ^ (p.b() + 0.01*sf) * em
+function Coc.one(      r,c,    x,y)
+  c = Coc.all()
+  x,y = {},{}
+  y.a, y.b = c.ab()
+  for k,v in pairs(c.all) do x[k],y[k] = v() end
+  sf = y.prec + y.flex + y.arch + y.team + y.pmat
+  em = y.rely * y.data * y.cplx * y.ruse * y.docu * 
+       y.time * y.stor * y.pvol * y.acap * y.pcap * 
+       y.pcon * y.aexp *  y.plex * y.ltex * y.tool * y.site * y.sced
+  y.effort = y.a*y.loc^(y.b + 0.01*sf) * em
+  risk=0
+  for a1,a2s in pairs(Coc.risk()) do 
+    for a2,m in pairs(a2s) do
+       risk  = risk  + m[x[a1]][x[a2]] end end
+  y.risk = risk/108
+  return x,y,risk/108
+end
+
+
 
 -- ### Coc.Risk
 
-function Coc.risk(    _,ne,nw,nw4,sw4,ne46, sw26,sw46)
-   _  = 0
-   -- bounded by 1..5
-   ne={{_,_,_,1,2,_}, -- bad if lohi 
-      {_,_,_,_,1,_},
-      {_,_,_,_,_,_},
-      {_,_,_,_,_,_},
-      {_,_,_,_,_,_},
-      {_,_,_,_,_,_}}
-   nw={{2,1,_,_,_,_}, -- bad if lolo 
-      {1,_,_,_,_,_},
-      {_,_,_,_,_,_},
-      {_,_,_,_,_,_},
-      {_,_,_,_,_,_},
-      {_,_,_,_,_,_}}
-   nw4={{4,2,1,_,_,_}, -- very bad if  lolo 
-      {2,1,_,_,_,_},
-      {1,_,_,_,_,_},
-      {_,_,_,_,_,_},
-      {_,_,_,_,_,_},
-   {_,_,_,_,_,_}}
-   sw4={{_,_,_,_,_,_}, -- very bad if  hilo 
-      {_,_,_,_,_,_},
-      {1,_,_,_,_,_},
-      {2,1,_,_,_,_},
-      {4,2,1,_,_,_},
-      {_,_,_,_,_,_}}
+function Coc.risk(    _,ne,nw,nw4,sw,sw4,ne46, sw26,sw46)
+  _  = 0
+  -- bounded by 1..5
+  ne={{_,_,_,1,2,_}, -- bad if lohi 
+    {_,_,_,_,1,_},
+    {_,_,_,_,_,_},
+    {_,_,_,_,_,_},
+    {_,_,_,_,_,_},
+    {_,_,_,_,_,_}}
+  nw={{2,1,_,_,_,_}, -- bad if lolo 
+    {1,_,_,_,_,_},
+    {_,_,_,_,_,_},
+    {_,_,_,_,_,_},
+    {_,_,_,_,_,_},
+    {_,_,_,_,_,_}}
+  nw4={{4,2,1,_,_,_}, -- very bad if  lolo 
+    {2,1,_,_,_,_},
+    {1,_,_,_,_,_},
+    {_,_,_,_,_,_},
+    {_,_,_,_,_,_},
+    {_,_,_,_,_,_}}
+  sw={{_,_,_,_,_,_}, -- bad if  hilo 
+    {_,_,_,_,_,_},
+    {_,_,_,_,_,_},
+    {1,_,_,_,_,_},
+    {2,1,_,_,_,_},
+    {_,_,_,_,_,_}}
+  sw4={{_,_,_,_,_,_}, -- very bad if  hilo 
+    {_,_,_,_,_,_},
+    {1,_,_,_,_,_},
+    {2,1,_,_,_,_},
+    {4,2,1,_,_,_},
+    {_,_,_,_,_,_}}
 
-   -- bounded by 1..6
-   ne46={{_,_,_,1,2,4}, -- very bad if lohi
-      {_,_,_,_,1,2},
-      {_,_,_,_,_,1},
-      {_,_,_,_,_,_},
-      {_,_,_,_,_,_},
-      {_,_,_,_,_,_}}
-   sw26={{_,_,_,_,_,_}, -- bad if hilo
-      {_,_,_,_,_,_},
-      {_,_,_,_,_,_},
-      {_,_,_,_,_,_},
-      {1,_,_,_,_,_},
-      {2,1,_,_,_,_}}
-   sw46={{_,_,_,_,_,_}, -- very bad if hilo
-      {_,_,_,_,_,_},
-      {_,_,_,_,_,_},
-      {1,_,_,_,_,_},
-      {2,1,_,_,_,_},
-      {4,2,1,_,_,_}}
-   return { 
-      cplx= {acap=sw46, pcap=sw46, tool=sw46}, --12
-      ltex= {pcap=nw4},  -- 4
-      pmat= {acap=nw,  pcap=sw46}, -- 6
-      pvol= {plex=sw2}, --2
-      rely= {acap=sw4,  pcap=sw4,  pmat=sw4}, -- 12
-      ruse= {aexp=sw46, ltex=sw46},  --8
-      sced= {
-         cplx=ne46, time=ne46, pcap=nw4, aexp=nw4, acap=nw4,  
-          plex=nw4, ltex=nw, pmat=nw, rely=ne, pvol=ne, tool=nw}, -- 34
-      stor= {acap=sw46, pcap=sw46}, --8
-      team= {aexp=nw,  sced=nw,  site=nw}, --6
-      time= {acap=sw46, pcap=sw46, tool=sw26}, --10
-   tool= {acap=nw,  pcap=nw,  pmat=nw}} -- 6
+  -- bounded by 1..6
+  ne46={{_,_,_,1,2,4}, -- very bad if lohi
+    {_,_,_,_,1,2},
+    {_,_,_,_,_,1},
+    {_,_,_,_,_,_},
+    {_,_,_,_,_,_},
+    {_,_,_,_,_,_}}
+  sw26={{_,_,_,_,_,_}, -- bad if hilo
+    {_,_,_,_,_,_},
+    {_,_,_,_,_,_},
+    {_,_,_,_,_,_},
+    {1,_,_,_,_,_},
+    {2,1,_,_,_,_}}
+  sw46={{_,_,_,_,_,_}, -- very bad if hilo
+    {_,_,_,_,_,_},
+    {_,_,_,_,_,_},
+    {1,_,_,_,_,_},
+    {2,1,_,_,_,_},
+    {4,2,1,_,_,_}}
+  return { 
+    cplx= {acap=sw46, pcap=sw46, tool=sw46}, --12
+    ltex= {pcap=nw4},  -- 4
+    pmat= {acap=nw,  pcap=sw46}, -- 6
+    pvol= {plex=sw}, --2
+    rely= {acap=sw4,  pcap=sw4,  pmat=sw4}, -- 12
+    ruse= {aexp=sw46, ltex=sw46},  --8
+    sced= {cplx=ne46, time=ne46, pcap=nw4, aexp=nw4, acap=nw4,  
+           plex=nw4, ltex=nw, pmat=nw, rely=ne, pvol=ne, tool=nw}, -- 34
+    stor= {acap=sw46, pcap=sw46}, --8
+    team= {aexp=nw,  sced=nw,  site=nw}, --6
+    time= {acap=sw46, pcap=sw46, tool=sw26}, --10
+    tool= {acap=nw,  pcap=nw,  pmat=nw}} -- 6
 end
 
 -- ## Data
@@ -311,11 +270,9 @@ end
 -- ## Lib
 -- ### Maths
 -- #### from(lo,hi) : return a number from `lo` to `hi`
-
 function from(lo,hi) return lo+(hi-lo)*math.random() end
 
 -- #### round(n,places) : round `n` to some decimal `places`.
-
 function round(num, places)
   local mult = 10^(places or 0)
   return math.floor(num * mult + 0.5) / mult
@@ -350,7 +307,7 @@ end
 -- ### Meta
 -- #### id(x) : ensure `x` has a unique if
 function id (x)
-  if not x._id then the.id=the.id+1; x._id= the.id end
+  if not x._id then the.all.id = the.all.id+1; x._id= the.all.id end
   return x._id 
 end
 
@@ -452,28 +409,24 @@ end
 -- ### Support code
 
 -- #### eg(x): run the test function `eg_x` or, if `x` is nil, run all.
-function eg(t)
-  if not t then print("") end
-  for name,f in keys(Eg) do 
-    if t then
-      if name:match(t) then eg1(name,f) end
-    else
-  eg1(name,f) end end
-end  
-
-function eg1(name,f,   t1,t2,passed,err,y,n)
+Eg={}
+function eg(name,   t1,t2,passed,err,y,n)
+  f= Eg[name]
   the.test.yes = the.test.yes + 1
   t1 = os.clock()
-  math.randomseed(the.seed)
+  math.randomseed(the.all.seed)
   passed,err = pcall(f) 
   if passed then
     t2= os.clock()
-    print(string.format("PASS! "..name.." \t: %8.6f secs", t2-t1))
+    print(color("green",
+                string.format("PASS! "..name.." \t: %8.6f secs",
+                              t2-t1)))
   else
     the.test.no = the.test.no + 1
     y,n = the.test.yes,  the.test.no
-    print(color("red",string.format("FAIL! "..name.." \t: %s [%.0f] %%",
-          err:gsub("^.*: ",""), 
+    print(color("red",
+                 string.format("FAIL! "..name.." \t: %s [%.0f] %%",
+                               err:gsub("^.*: ",""), 
     100*y/(y+n)))) end 
 end
 
@@ -503,32 +456,34 @@ end
 
 -- -------------------------------------------------------------------
 -- ### Unit tests
-Eg={}
+function Eg.fun()   return true end
+function Eg.all()   print("")
+                    for k,_ in keys(Eg) do
+                      if k~="all" and k~="fun" then  
+                        eg(k) end end end
+function Eg.test()  assert(1==2) end
+function Eg.rnd()   assert(3.2==round(3.2222,1)) end
+function Eg.o()     assert("{1, aa, 3}" == o({1,"aa",3})) end
+function Eg.id(  a) a={}; id(a); id(a); assert(1==a._id) end
+function Eg.map( t) assert(30 == map({1,2,3}, function (z) return z*10 end)[3]) end
 
-function Eg.test()   assert(1==2) end
-function Eg.rnd()    assert(3.2==round(3.2222,1)) end
-function Eg.o()      assert("{1, aa, 3}" == o({1,"aa",3})) end
-function Eg.id(  a)  a={}; id(a); id(a); assert(1==a._id) end
-function Eg.map( t)  assert(30 == map({1,2,3}, function (z) return z*10 end)[3]) end
-
-function Eg.mx(v)
-  v=mx({lo=1,hi=5,m1=.073,m2=.21, eq=function (m,x) return m*x end})
-  print(1,5,v())
-  v:squeeze(1)
-  print(1,v(),v())
-  ooo(v)
+function Eg.coc(    x,y,z,s,sep)
+  x,y,z = Coc.one()
+  print("::",y.effort,z)
+  s,sep="",""
+  for k,_ in keys(y) do 
+    s= s..sep..k; sep="," end 
+  print(s)
+  s,sep="",""
+  for k,y1 in keys(y) do 
+     s=s .. sep.. round(y1 or 0,3); sep=","
+  end 
+  print(s)
 end
-
-function Eg.Coc(  c) 
-  for _ = 1,10^4 do 
-    for k,v in keys(c or Coc.project()) do 
-       if type(v) ~= "function" then v:again() end end end
-end
-
-function Eg.Coc1(  c) Eg.Coc( Coc.project()) end
 
 -- -------------------------------------------------------------------
-
+-- ## Command Line
+-- ### options(now,b4) : return a tree with options from `b4` updated with `now`
 function options(now,b4)
   local function parse(str,    t,g,o)
     t, g, o = {}, "all", "opt"
@@ -562,15 +517,20 @@ function options(now,b4)
   return b4
 end
 
+-- ### cli() : initialize the `the` variable and run command-line options.
 function cli()
   the = options( table.concat(arg," "),
                  Help:match("\nOptions[^\n]*\n\n([^#]+)#"))
   if the.all.C then print(Help:match("\n## License[%s]*(.*)")) end
   if the.all.h then print(Help:match("(.*)\n# Details")) end
   if the.all.H then print(Help) end
+  eg(the.all.U) 
 end
 
+-- --------------------------------------------------------------------
+-- ## start-up
+-- If called at top level, run `cli()`.
 if not pcall(debug.getlocal,4,1) then cli() end
 
--- -------------------------------------------------------------------
---return {the=the,main=main}
+-- Return the names that external people can access
+return {the=the,main=main}

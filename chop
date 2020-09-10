@@ -132,12 +132,12 @@ END {print ""}'
 tests() {
   local LAST=`ls -l "$Dir/$Src"`
   echo "Control-C to exit "
-  chop -U $1
+  lua chop.lua -U all
   while true; do
     sleep 1
     local NEW=`ls -l "$Dir/$Src"`
     if [ "$NEW" != "$LAST" ]; then 
-      chop -U $1
+      lua chop.lua -U all
       LAST="$NEW"
     fi
   done
