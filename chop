@@ -3,16 +3,11 @@
 
 #### CONFIGURATION ###############
 
-Comment="-- "
 Needs="lua awk bash"
+Tmux=$(which tmux)
 
 #### end config ##################
 
-Dir=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
-Sh=$(basename ${BASH_SOURCE[0]})
-Src=$(basename $Sh).lua
-
-hello() {
 clear
 tput bold; tput setaf 32; cat <<'EOF'
  _,-,
@@ -24,48 +19,27 @@ tput bold; tput setaf 32; cat <<'EOF'
 
 EOF
 tput sgr0
-}
 
-usage() { 
-tput bold; tput setaf 3; 
-echo; echo sh chop [options]
-tput sgr0
-tput bold; tput setaf 0; cat <<EOF
+Dir=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
+Sh=$(basename ${BASH_SOURCE[0]})
+Src=$(basename $Sh).lua
 
-Usage:
-  sh chop -h      help
-  sh chop -C      extract code from $Src
-  sh chop -E      enter a tmux dev environment
-  sh chop -H FILE replace para1 of file with para1 from README.md
-  sh chop -I      install
-  sh chop -R      run code in $Src
-  sh chop -T FILE extract table of contents from markdown FILE
-  sh chop -U [X]  run test X (or, if X is missing, run all tests)
-  sh chop -W [X]  rerun "-U" when code is changed.
-
-Inside tmux:
-  reload     = alias for . chop
-  vims       (re)install all vim packages
-
-Alias
-EOF
-awk '/^alias/ {print "  " $0}'   $Dir/$Sh
-tput sgr0
-}
-
-alias chop='sh $Dir/$Sh '   
 alias ch='lua chop.lua '   
-alias gs='git status'   
+alias doco="lua2md $Dir/$Src > $Dir/README.md"   # rebuild README.md
 alias gg='git pull'   
 alias gp='git add *; git commit -am saving; git push; git status'
+alias gs='git status'   
 alias ls='ls -G'
-alias reload='. $Dir/$Sh'
+alias reload='. $Dir/$Sh'                        # reload these tools
+alias tmux=mymux                                 # 2-pane tmux environment
+alias vims="vim +PluginInstall +qall"            # ensure vim plugins are installed
 
-header() {
-  awk 'BEGIN { FS=""; RS=""} {print $0 "\n\n"; exit}' $Dir/README.md
-  #awk 'BEGIN {FS=""; RS=""} NR==1 && /^<a name=top/ {next} {print "\n"$0}' $1
-  #mv $$txt $1
-}
+tput sgr0
+tput bold; tput setaf 0
+awk '/^alias/ {print $0}'   $Dir/$Sh
+tput sgr0
+
+
 color() { awk '
 /FAIL/ {print "\033[31m" $0 "\033[0m";next}
 /PASS/ {print "\033[32m" $0 "\033[0m";next}
@@ -74,11 +48,10 @@ color() { awk '
 here() { cd $1; basename `pwd`; }    
 PROMPT_COMMAND='echo -ne " 🪓 $(git branch 2>/dev/null | grep '^*' | colrm 1 2):";PS1="$(here ..)/$(here .):\!\e[m ▶ "'     
 
-vims() { vim +PluginInstall +qall; }
 
 lua2md() {
 F=/tmp/$$
- cat $1 | awk -v com="$Comment" '
+ cat $1 | awk  '
 BEGIN {while(!sub(/^-- # Code.*/,"")) { getline }; 
        print "\n\n# Code \n\n"
        print"```lua"} 
@@ -142,45 +115,27 @@ tests() {
     fi
   done
 }
-
-if [ "$1" = "-M" ]; then 
-  lua2md $Dir/$Src > $Dir/README.md
-elif [ "$1" = "-h" ]; then 
-  usage
-elif [ "$1" = "-H" ]; then
-  header $2
-elif [ "$1" = "-T" ]; then
-  cat $2 | toc 
-elif [ "$1" = "-R" ]; then
-  chop -C > /tmp/$$$Src
-  lua /tmp/$$$Src
-elif [ "$1" = "-W" ]; then
-  tests $2
-elif [ "$1" = "-U" ]; then
-  chop -C > /tmp/$$$Src
-  lua /tmp/$$$Src  -U  $2 | color
-elif [ "$1" = "-C" ]; then
-  cat $Dir/$Src | lua2md
-elif [ "$1" = "-E" ]; then
+mymux() {
   session=$RANDOM
-  tmux start-server
-  tmux new-session -d -s $session  
-  tmux send-keys ". $Dir/$Sh"  C-m  hello C-m
-  tmux splitw -h -p 50
-  tmux selectp -t 1
-  tmux send-keys ". $Dir/$Sh"  C-m  "hello" C-m
+  $Tmux start-server
+  $Tmux new-session -d -s $session  
+  $Tmux send-keys ". $Dir/$Sh"  C-m  hello C-m
+  $Tmux splitw -h -p 50
+  $Tmux selectp -t 1
+  $Tmux send-keys ". $Dir/$Sh"  C-m  "hello" C-m
   sleep 1
-  tmux attach-session -t $session
-elif [ "$1" = "-I" ]; then
-    for c in $Needs; do
-       if [ -z `which $c` ]; then
-         >&2 echo "# W: please install $c"
-       fi
-    done
+  $Tmux attach-session -t $session
+}
 
-	want=$HOME/.config/htop/htoprc
-	mkdir -p $(dirname $want)
-	[ -f "$want" ] || cat<<-'EOF'>$want
+for c in $Needs; do
+  if [ -z `which $c` ]; then
+     >&2 echo "# W: please install $c"
+  fi
+done
+
+want=$HOME/.config/htop/htoprc
+mkdir -p $(dirname $want)
+[ -f "$want" ] || cat<<-'EOF'>$want
 	# Beware! This file is rewritten by htop when settings are changed in the interface.
 	# The parser is also very primitive, and not human-friendly.
 	fields=0 48 17 18 38 39 2 46 47 49 1
@@ -207,10 +162,10 @@ elif [ "$1" = "-I" ]; then
 	left_meter_modes=1 1
 	right_meters=Clock Memory Swap
 	right_meter_modes=4 1 1
-	EOF
+EOF
 	 
-	want=$Dir/.travis.yml
-	[ -f "$want" ] || cat<<-'EOF'>$want
+want=$Dir/.travis.yml
+[ -f "$want" ] || cat<<-'EOF'>$want
 	language: C
 	
 	sudo: true
@@ -224,10 +179,10 @@ elif [ "$1" = "-I" ]; then
 	script:
 	  - pwd
 	  - sh chop -U
-	EOF
+EOF
 	 
-	want=$HOME/.vimrc
-	[ -f "$want" ] || cat<<-'EOF'>$want
+want=$HOME/.vimrc
+[ -f "$want" ] || cat<<-'EOF'>$want
 	set list
 	set listchars=tab:>-
 	set backupdir-=.
@@ -354,16 +309,16 @@ elif [ "$1" = "-I" ]; then
 	set nowrap
 	" Markdown
 	let g:markdown_fenced_languages = ['lua','awk','py=python']
-	EOF
+EOF
 	
-	if [ ! -d "$HOME/.vim/bundle" ]; then
-	   git clone https://github.com/VundleVim/Vundle.vim.git \
-	         ~/.vim/bundle/Vundle.vim
-	   vims
-	fi
+if [ ! -d "$HOME/.vim/bundle" ]; then
+   git clone https://github.com/VundleVim/Vundle.vim.git \
+         ~/.vim/bundle/Vundle.vim
+   vims
+fi
 	
-	want=$Dir/.gitignore
-	[ -f "$want" ] || cat<<-'EOF'>$want
+want=$Dir/.gitignore
+[ -f "$want" ] || cat<<-'EOF'>$want
 	# Swap
 	[._]*.s[a-v][a-z]
 	!*.svg  # comment out if you don't need vector files
@@ -412,10 +367,10 @@ elif [ "$1" = "-I" ]; then
 	Network Trash Folder
 	Temporary Items
 	.apdisk
-	EOF
+EOF
 	
-	want=$HOME/.tmux.conf
-	[ -f "$want" ] ||  cat<<-'EOF'> $want
+want=$HOME/.tmux.conf
+[ -f "$want" ] ||  cat<<-'EOF'> $want
 	set -g aggressive-resize on
 	unbind C-b
 	set -g prefix C-Space
@@ -481,7 +436,4 @@ elif [ "$1" = "-I" ]; then
 	bind S source-file $Tnix/.config/tmux-session1
 	setw -g monitor-activity on
 	set -g visual-activity on
-	EOF
-else
-  usage
-fi
+EOF

@@ -45,6 +45,13 @@ Options:
     --test      ;; system stuff, set up test engine    
        -yes 0  
        -no  0
+    --ch
+       -klass !
+       -less  <
+       -more  >
+       -num   $
+       -skip  ?
+
 
 # Details
 
@@ -126,8 +133,12 @@ ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 
+-- ROGUE [old]
 - [Code](#code) 
-        - [Coc.Risk](#cocrisk) 
+    - [Cocomo](#cocomo) 
+        - [Coc.all()](#cocall--return-a-generator-of-cocomo-projects) : return a generator of COCOMO projects
+        - [Coc.all()](#cocall--compute-effort-and-risk-for-one-project) : compute effort and risk for one project
+        - [Coc.Risk](#cocrisk--cocomo-risk-model) : Cocomo risk model
     - [Data](#data) 
         - [Columns](#columns) 
             - [Define column types](#define-column-types) 
@@ -177,9 +188,14 @@ local y,x,sym,xsym,xnum,cols             = nil,nil,nil,nil,nil,nil
 local round,o,oo,ooo,id,same             = nil,nil,nil,nil,nil,nil 
 local map, copy,select,any,anys,keys,csv = nil,nil,nil,nil,nil,nil
 local within,rogues,eg,eg1,Eg,main       = nil,nil,nil,nil,nil,nil
-local from,ako,var                       = nil,nil,nil
-local Mx,mx,Coc                          = nil,nil
+local from,ako,var,words,trim,color      = nil,nil,nil,nil,nil,nil
+local cli, options, fun                  = nil, nil, nil
+local Coc                                = nil
 
+```
+## Cocomo
+### Coc.all() : return a generator of COCOMO projects
+```lua
 Coc={}
 function Coc.all(   eq1,eq2,pem,nem,sf,between,lohi)
   function eq1(x,m,n)   return (x-3)*from(m,n)+1 end 
@@ -223,6 +239,9 @@ function Coc.all(   eq1,eq2,pem,nem,sf,between,lohi)
   }
 end
 
+```
+### Coc.all() : compute effort and risk for one project
+```lua
 function Coc.one(      r,c,    x,y)
   c = Coc.all()
   x,y = {},{}
@@ -241,10 +260,8 @@ function Coc.one(      r,c,    x,y)
   return x,y,risk/108
 end
 
-
-
 ```
-### Coc.Risk
+### Coc.Risk : Cocomo risk model
 ```lua
 
 function Coc.risk(    _,ne,nw,nw4,sw,sw4,ne46, sw26,sw46)
@@ -643,6 +660,7 @@ function cli()
   if the.all.h then print(Help:match("(.*)\n# Details")) end
   if the.all.H then print(Help) end
   eg(the.all.U) 
+  rogues()
 end
 
 ```
