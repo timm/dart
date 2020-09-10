@@ -24,21 +24,21 @@ Dir=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
 Sh=$(basename ${BASH_SOURCE[0]})
 Src=$(basename $Sh).lua
 
-alias ch='lua chop.lua '   
-alias doco="lua2md $Dir/$Src > $Dir/README.md"   # rebuild README.md
-alias gg='git pull'   
-alias gp='git add *; git commit -am saving; git push; git status'
-alias gs='git status'   
-alias ls='ls -G'
-alias reload='. $Dir/$Sh'                        # reload these tools
-alias tmux=mymux                                 # 2-pane tmux environment
-alias vims="vim +PluginInstall +qall"            # ensure vim plugins are installed
+alias ch='lua chop.lua '                           # run code
+alias doco="lua2md $Dir/$Src > $Dir/README.md"     # rebuild README.md
+alias gg='git pull'                                # update code from web
+alias ga='git add *'                               # add to local repo
+alias gp='ga; git commit -am saving; git push; gs' # end-of-day actions
+alias gs='git status'                              # status 
+alias ls='ls -G'                                   # ls
+alias reload='. $Dir/$Sh'                          # reload these tools
+alias tmux=mymux                                   # 2-pane tmux environment
+alias vims="vim +PluginInstall +qall"              # ensure vim plugins are installed
 
 tput sgr0
 tput bold; tput setaf 0
 awk '/^alias/ {print $0}'   $Dir/$Sh
 tput sgr0
-
 
 color() { awk '
 /FAIL/ {print "\033[31m" $0 "\033[0m";next}
@@ -46,8 +46,7 @@ color() { awk '
        {print}'
 }
 here() { cd $1; basename `pwd`; }    
-PROMPT_COMMAND='echo -ne " 🪓 $(git branch 2>/dev/null | grep '^*' | colrm 1 2):";PS1="$(here ..)/$(here .):\!\e[m ▶ "'     
-
+PROMPT_COMMAND='echo -ne "🪓 $(git branch 2>/dev/null | grep '^*' | colrm 1 2):";PS1="$(here ..)/$(here .):\!\e[m ▶ "'     
 
 lua2md() {
 F=/tmp/$$
@@ -310,13 +309,13 @@ want=$HOME/.vimrc
 	" Markdown
 	let g:markdown_fenced_languages = ['lua','awk','py=python']
 EOF
-	
+
 if [ ! -d "$HOME/.vim/bundle" ]; then
    git clone https://github.com/VundleVim/Vundle.vim.git \
          ~/.vim/bundle/Vundle.vim
    vims
 fi
-	
+
 want=$Dir/.gitignore
 [ -f "$want" ] || cat<<-'EOF'>$want
 	# Swap
