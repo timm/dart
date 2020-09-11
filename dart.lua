@@ -340,6 +340,26 @@ function Some:all(   f)
   if self.old then table.sort(self.t,f or lt); self.old=false end
   return self.t
 end
+-- ### Col,ms
+Cols = {x   ={nums={}, syms={}, all={}},
+        y   ={nums={}, syms={}, all={}},
+        cols={nums={}, syms={}, all={}}}
+cols = function(t,   u,ch,new,typ,obj,nump,goalp)
+          function push2(x,nump,a) 
+            push(x,  a.all)
+            push2(x, a[nump and "nums" or "syms"])
+         end
+         new = ako(Cols)
+         ch = the.all.type
+         for pos2,txt in pairs(t) do
+           obj   = txt:find(ch.less) or txt:find(ch.more)
+           nump  = obj or txt:find(ch.num)
+           goalp = obj or txt:find(ch.klass)
+           push2(what, nump, new.cols)
+           push2(what, nump, goalp and new.y or new.x)
+         end
+         return new
+end
 
 -- ## Lib
 -- ### Maths
@@ -486,9 +506,9 @@ end
 -- #### trim(str) : remove leading and trailing blanks
 function trim(str) return (str:gsub("^%s*(.-)%s*$", "%1")) end
 
-do local cols={red=31,green=32,eplain=0}
+do local colors={red=31, green=32,  plain=0}
   function color(col,str)
-  return '\27[1m\27['..cols[col]..'m'..str..'\27[0m' end
+  return '\27[1m\27['..colors[col]..'m'..str..'\27[0m' end
 end
 -- -------------------------------------------------------------------
 -- ## Testing
