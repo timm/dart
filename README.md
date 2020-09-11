@@ -25,8 +25,10 @@ alt="lisp" src="https://img.shields.io/badge/language-lua,bash-blue"> <a
   dart
 
 ## Description
-  Implement optimization over discrete and numeric attributes
-  via clustering and contrast data mining methods. 
+  Optimize = cluster plus sample plus contrast;
+  i.e. divide problem space into chunks;
+  dart, a little, around the chunks;
+  report back anything that jumps you between chunks.
 
 ## Usage
   lua dart.lua [Options] [--Group Options]* 
@@ -141,9 +143,12 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         - [Coc.all()](#cocall--return-a-generator-of-cocomo-projects) : return a generator of COCOMO projects
         - [Coc.all()](#cocall--compute-effort-and-risk-for-one-project) : compute effort and risk for one project
         - [Coc.Risk](#cocrisk--cocomo-risk-model) : Cocomo risk model
-    - [Classes](#classes) 
     - [Data](#data) 
         - [Columns](#columns) 
+            - [Special kinds of colums](#special-kinds-of-colums) 
+                - [`Num`eric Columns](#numeric-columns) 
+                - [`Sym`bolic Columns](#symbolic-columns) 
+                - [`Some` Column](#some-column-resovoir-samplers) : resovoir samplers
     - [Lib](#lib) 
         - [Maths](#maths) 
             - [from(lo,hi)](#fromlohi--return-a-number-from-lo-to-hi) : return a number from `lo` to `hi`
@@ -155,6 +160,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         - [Meta](#meta) 
             - [id(x)](#idx--ensure-x-has-a-unique-if) : ensure `x` has a unique if
             - [same(z)](#samez--return-z) : return z
+            - [lt(x,y)](#ltxy--return-xy) : return `x<y`
             - [fun(x)](#funx-returns-true-if-x-is-a-function) : returns true if `x` is a function
             - [map(t,f)](#maptf--apply-f-to-everything-in-t-and-return-the-result) : apply `f` to everything in `t` and return the result
             - [copy(t)](#copyt--return-a-deep-copy-of-t) : return a deep copy of `t`
@@ -191,7 +197,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ```lua
 
 local the,c,klass,less,goal,num          = nil,nil,nil,nil,nil
-local y,x,sym,xsym,xnum,cols             = nil,nil,nil,nil,nil,nil
+local y,x,sym,xsym,xnum,cols,lt          = nil,nil,nil,nil,nil,nil,nil
 local round,o,oo,ooo,id,same             = nil,nil,nil,nil,nil,nil 
 local map, copy,select,any,anys,keys,csv = nil,nil,nil,nil,nil,nil
 local within,rogues,eg,eg1,Eg,main       = nil,nil,nil,nil,nil,nil
@@ -205,7 +211,7 @@ local Coc,Num,Some,Sym                   = nil,nil,nil,nil
 ### Coc.all() : return a generator of COCOMO projects
 ```lua
 Coc={}
-function Coc.all(   eq1,eq2,pem,nem,sf,between,lohi)
+function Coc.all(   eq1,eq2,pem,nem,sf,between,lohi,posints)
   function eq1(x,m,n)   return (x-3)*from(m,n)+1 end 
   function eq2(x,m,n)   return (x-6)*from(m,n) end 
   function pem(a,b)     return posints(a or 1, b or 5, 
@@ -250,7 +256,7 @@ end
 ```
 ### Coc.all() : compute effort and risk for one project
 ```lua
-function Coc.one(      r,c,    x,y)
+function Coc.one(      r,c,    x,y,em,sf,risk)
   c = Coc.all()
   x,y = {},{}
   y.a, y.b = c.ab()
@@ -341,15 +347,6 @@ function Coc.risk(    _,ne,nw,nw4,sw,sw4,ne46, sw26,sw46)
 end
 
 ```
-## Classes
-```lua
-
-Num = {n=1, pos=0, txt="", mu=0, m2=0, sd=0,
-       lo=math.huge, hi= -math.huge}
-Sym = {n=1, pos=0, txt="", most=0, seen={}}
-Some= {n=1, pos=0, txt="", t={}, sorted=false, max=256}
-
-```
 ## Data
 ### Columns
 ```lua
@@ -368,63 +365,73 @@ function col(c, txt,pos)
   return c
 end
 
-function num(txt,pos) return col(ako(Num),txt,pos) end
-function sym(txt,pos) return col(ako(Sym),txt,pos) end
-function some(txt,pos,max,   c) 
-  return col(ako(Some,{max=max or the.some.max}),txt,pos)
-end
-
-function Some:add(x)
-  if x == the.ch.skip then return x end
-  self.n = self.n + 1
-  if #self.t < self.max then
-    self.t[ #self.t + 1 ] = x
-    self.sorted = false
-  elseif math.random() < self.max/self.n then
-    self.t[ math.random(#self.t)  ] = x  
-    self.sorted=false
-  end 
-  return x
-end
-function Some:all() 
-  if not self.sorted then
-     table.sort(self.t)
-     self.sorted=true
-  end
-  return self.t
-end
+```
+#### Special kinds of colums
+##### `Num`eric Columns
+```lua
+Num = {n=1, pos=0, txt="", mu=0, m2=0, sd=0,
+       lo=math.huge, hi= -math.huge}
+num = function(txt,pos) return col(ako(Num),txt,pos) end
 
 function Num:add(x,    d) 
   if x == the.ch.skip then return x end
   self.n  = self.n + 1
-  self.lo = math.min(x, self.lo)
-  self.hi = math.max(x, self.hi)
   d       = x - self.mu
   self.mu = self.mu + d/self.n
   self.m2 = self.m2 + d*(x - self.mu)
-  if     self.m2 < 0 then self.sd = 0
-  elseif self.n  < 2 then self.sd = 0
-  else   self.sd = (self.m2/(self.n-1))^0.5
-  end
+  self.sd = (self.m2<0 or self.n<2) and 0 or (self.m2/(self.n-1))^0.5
+  self.lo = math.min(x, self.lo)
+  self.hi = math.max(x, self.hi) 
   return x
 end
 
+```
+##### `Sym`bolic Columns
+```lua
+Sym = {n=1, pos=0, txt="", most=0, seen={}}
+sym = function(txt,pos) return col(ako(Sym),txt,pos) end
+
 function Sym:add(x,    new)
   if x == the.ch.skip then return x end
-  self.n = self.n + 1
-  new    = (self.seen[x] or 0) + 1
-  self.seen[x] = new
-  if new > self.most then self.most,self.mode=new,x end
+  self.n       = self.n + 1
+  self.seen[x] = (self.seen[x] or 0) + 1
+  if self.seen[x] > self.most then 
+    self.most,self.mode = self.seen[x],x end
   return x
 end
 
 function Sym:ent(     e,p)
-  e=0
+  e = 0
   for _,v in pairs(self.seen) do
     if v>0 then
       p = v/self.n
       e = e - p*math.log(p,2) end end
   return e
+end
+
+```
+##### `Some` Column: resovoir samplers
+```lua
+Some= {n=1, pos=0, txt="", t={}, old=false, max=256}
+some = function(txt,pos,max,   c) 
+         return col(ako(Some,{max=max or the.some.max}),
+                    txt,pos) end
+
+function Some:add(x,   pos)
+  if x == the.ch.skip then return x end
+  self.n = self.n + 1
+  if #self.t < self.max then 
+    pos = #self.t+1   -- add to end
+  elseif math.random() < self.max/self.n then 
+    pos = math.random(#self.t) -- replace any old thing
+  end
+  if pos then self.t[pos]=x; self.old=true end
+  return x
+end
+
+function Some:all(   f) 
+  if self.old then table.sort(self.t,f or lt); self.old=false end
+  return self.t
 end
 
 ```
@@ -487,6 +494,11 @@ end
 #### same(z) : return z
 ```lua
 function same(z) return z end
+
+```
+#### lt(x,y) : return `x<y`
+```lua
+function lt(x,y) return x<y end
 
 ```
 #### fun(x): returns true if `x` is a function
