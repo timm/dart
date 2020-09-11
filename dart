@@ -8,15 +8,21 @@ Tmux=$(which tmux)
 
 #### end config ##################
 
+for c in $Needs; do
+  if [ -z `which $c` ]; then
+     >&2 echo "# W: please install $c"
+  fi
+done
+
 hello() {
   clear
   tput bold; tput setaf 32; cat <<-'EOF'
-                          ___
-  DART v1 timm@ieee.org /\_/\  
-    >>>----            / /\ /\ \
-   >>>----             |---(*)---| DART v1
-                       \ \/_\/ /  timm@ieee.org
-           >>>----      \/___\/   
+                                        _____   
+              Dart v1                  /\ _ /\  
+ github.com/timm/dart      >>>----    / /\ /\ \
+        timm@ieee.org    >>>----     |---(*)---| 
+             (c) 2020                 \ \/_\/ / 
+          MIT license         >>>----  \/___\/
 
 EOF
   tput sgr0
@@ -29,7 +35,7 @@ Dir=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
 Sh=$(basename ${BASH_SOURCE[0]})
 Src=$(basename $Sh).lua
 
-alias ch="lua $Dir/$Src "     # run code
+alias ch="lua $Dir/$Src "                          # run code
 alias readme="lua2md $Dir/$Src > $Dir/README.md"   # rebuild README.md
 alias ga='git add *'                               # add to local repo
 alias gg='git pull'                                # update code from web
@@ -38,7 +44,7 @@ alias gs='git status'                              # status
 alias ls='ls -G'                                   # ls
 alias reload='. $Dir/$Sh'                          # reload these tools
 alias tmux=mytmux                                  # 2-pane tmux environment
-alias vims="vim +PluginInstall +qall"              # ensure vim plugins are installed
+alias vims="vim +PluginInstall +qall"              # install vim plugins 
 
 color() { awk '
 /FAIL/ {print "\033[31m" $0 "\033[0m";next}
@@ -131,12 +137,6 @@ mytmux() {
 
   $Tmux attach-session -t $session
 }
-
-for c in $Needs; do
-  if [ -z `which $c` ]; then
-     >&2 echo "# W: please install $c"
-  fi
-done
 
 want=$HOME/.config/htop/htoprc
 mkdir -p $(dirname $want)
@@ -316,12 +316,6 @@ want=$HOME/.vimrc
 	let g:markdown_fenced_languages = ['lua','awk','py=python']
 EOF
 
-if [ ! -d "$HOME/.vim/bundle" ]; then
-   git clone https://github.com/VundleVim/Vundle.vim.git \
-         ~/.vim/bundle/Vundle.vim
-   vims
-fi
-
 want=$Dir/.gitignore
 [ -f "$want" ] || cat<<-'EOF'>$want
 	# Swap
@@ -442,5 +436,11 @@ want=$HOME/.tmux.conf
 	setw -g monitor-activity on
 	set -g visual-activity on
 EOF
+
+if [ ! -d "$HOME/.vim/bundle" ]; then
+   git clone https://github.com/VundleVim/Vundle.vim.git \
+         ~/.vim/bundle/Vundle.vim
+   vims
+fi
 
 [ -z "$TMUX" ] && mytmux
