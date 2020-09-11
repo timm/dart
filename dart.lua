@@ -21,15 +21,17 @@ Options:
     -U fun      ;; run unit test 'fun' (and `all` runs everything)
     -id 0       ;; counter for object ids
     --test      ;; system stuff, set up test engine    
-       -yes 0  
-       -no  0
+       -yes   0  
+       -no    0
+    --some
+       -max   256
     --ch
        -klass !
        -less  <
        -more  >
        -num   $
        -skip  ?
-
+  
 
 # Details
 
@@ -120,8 +122,9 @@ local round,o,oo,ooo,id,same             = nil,nil,nil,nil,nil,nil
 local map, copy,select,any,anys,keys,csv = nil,nil,nil,nil,nil,nil
 local within,rogues,eg,eg1,Eg,main       = nil,nil,nil,nil,nil,nil
 local from,ako,var,words,trim,color      = nil,nil,nil,nil,nil,nil
-local cli, options, fun                  = nil, nil, nil
-local Coc                                = nil
+local cli, options, fun                  = nil,nil, nil
+local some,binChop,col,adds              = nil,nil,nil,nil
+local Coc,Num,Some,Sym                   = nil,nil,nil,nil
 
 -- ## Cocomo
 -- ### Coc.all() : return a generator of COCOMO projects
@@ -257,23 +260,87 @@ function Coc.risk(    _,ne,nw,nw4,sw,sw4,ne46, sw26,sw46)
     tool= {acap=nw,  pcap=nw,  pmat=nw}} -- 6
 end
 
+-- ## Classes
+
+Num = {n=1, pos=0, txt="", mu=0, m2=0, sd=0,
+       lo=math.huge, hi= -math.huge}
+Sym = {n=1, pos=0, txt="", most=0, seen={}}
+Some= {n=1, pos=0, txt="", t={}, sorted=false, max=256}
+
 -- ## Data
 -- ### Columns
--- #### Define column types
+function adds(t, klass,thing)
+  klass = klass or num
+  thing = klass()
+  for _,x in pairs(t) do thing:add(x) end
+  return thing
+end
 
-function c(s,k)   return string.sub(s,1,1)==k end
-function klass(x) return c(x,"!")  end 
-function less(x)  return c(x,"<")  end
-function goal(x)  return c(x,">")  or less(x) end
-function num(x)   return c(x,"$")  or goal(x) end
-function y(x)     return klass(x)  or goal(x) end
-function x(x)     return not y(x)   end
-function sym(x)   return not num(x) end
-function xsym(z)  return x(z) and  sym(z) end
-function xnum(z)  return x(z) and  num(z) end
+function col(c, txt,pos)
+  c.n   = 0
+  c.txt = txt or ""
+  c.pos = pos or 0
+  c.w   = c.txt:find(the.ch.less) and -1 or 1
+  return c
+end
 
-function cols(all,f)
-   return select(all, function(z) return f(z.txt) end)
+function num(txt,pos) return col(ako(Num),txt,pos) end
+function sym(txt,pos) return col(ako(Sym),txt,pos) end
+function some(txt,pos,max,   c) 
+  return col(ako(Some,{max=max or the.some.max}),txt,pos)
+end
+
+function Some:add(x)
+  if x == the.ch.skip then return x end
+  self.n = self.n + 1
+  if #self.t < self.max then
+    self.t[ #self.t + 1 ] = x
+    self.sorted = false
+  elseif math.random() < self.max/self.n then
+    self.t[ math.random(#self.t)  ] = x  
+    self.sorted=false
+  end 
+  return x
+end
+function Some:all() 
+  if not self.sorted then
+     table.sort(self.t)
+     self.sorted=true
+  end
+  return self.t
+end
+
+function Num:add(x,    d) 
+  if x == the.ch.skip then return x end
+  self.n  = self.n + 1
+  self.lo = math.min(x, self.lo)
+  self.hi = math.max(x, self.hi)
+  d       = x - self.mu
+  self.mu = self.mu + d/self.n
+  self.m2 = self.m2 + d*(x - self.mu)
+  if     self.m2 < 0 then self.sd = 0
+  elseif self.n  < 1 then self.sd = 0
+  else   self.sd = (self.m2/(self.n-1))^0.5
+  end
+  return x
+end
+
+function Sym:add(x,    new)
+  if x == the.ch.skip then return x end
+  self.n = self.n + 1
+  new    = (self.seen[x] or 0) + 1
+  self.seen[x] = new
+  if new > self.most then self.most,self.mode=new,x end
+  return x
+end
+
+function Sym:ent(     e,p)
+  e=0
+  for _,v in pairs(self.seen) do
+    if v>0 then
+      p = v/self.n
+      e = e - p*math.log(p,2) end end
+  return e
 end
 
 -- ## Lib
@@ -334,32 +401,29 @@ function map(t,f, u)
 end
 
 -- #### copy(t) : return a deep copy of `t`
-function copy(obj, seen)
-  -- Handle non-tables and previously-seen tables.
+function copy(obj,   old,new)
   if type(obj) ~= 'table' then return obj end
-  if seen and seen[obj] then return seen[obj] end
-  -- New table; mark it as seen and copy recursively.
-  local s = seen or {}
-  local res = {}
-  s[obj] = res
-  for k, v in pairs(obj) do res[copy(k, s)] = copy(v, s) end
-  return setmetatable(res, getmetatable(obj))
+  if old and old[obj] then return old[obj] end
+  old, new = old or {}, {}
+  old[obj] = new
+  for k, v in pairs(obj) do new[copy(k, old)]=copy(v, old) end
+  return setmetatable(new, getmetatable(obj))
 end
 
 -- #### select(t,f) : return a table of items in `t` that satisfy function `f`
 function select(t,f,     g,u)
-   u, f = {}, f or same
-   for _,v in pairs(t) do if f(v) then u[#u+1] = v  end end
-   return u
+  u, f = {}, f or same
+  for _,v in pairs(t) do if f(v) then u[#u+1] = v  end end
+  return u
 end
 
 -- #### ako(class,has) : create a new instance of `class`, add the `has` slides 
 function ako(klass,has,      new)
-   new = copy(klass or {})
-   for k,v in pairs(has or {}) do new[k] = v end
-   setmetatable(new, klass)
-   klass.__index = klass
-   return new
+  new = copy(klass or {})
+  for k,v in pairs(has or {}) do new[k] = v end
+  setmetatable(new, klass)
+  klass.__index = klass
+  return new
 end
 
 -- ### Lists
@@ -384,25 +448,37 @@ function keys(t)
   return u[i], t[u[i]] end end 
 end
 
+-- #### binChop(t,x) : return a position very near `x` within `t`
+function binChop (t,x,    lo,hi,mid)
+  lo,hi = 1,#t
+  while lo <= hi do
+    mid = math.floor((lo+hi)/2)
+    if     t[mid] > x then hi = mid - 1
+    elseif t[mid] < x then lo = mid + 1
+    else   break end end
+  return mid
+end
+
 -- ### Files
 -- #### csv(file) : iterate through  non-empty rows, divided on comma, coercing numbers
-function csv(file,     stream,tmp,row)
+function csv(file,     ch,fun,   pat,stream,tmp,row)
   stream = file and io.input(file) or io.input()
   tmp    = io.read()
+  pat    = "([^".. (ch or ",") .."]+)"
+  fun    = tonumber
   return function()
     if tmp then
-      row = words( tmp:gsub("[\t\r ]*","") )-- no whitespace
-      tmp= io.read()
+      row = words(tmp:gsub("[\t\r ]*",""),pat,fun)-- no spaces
+      tmp = io.read()
       if #row > 0 then return row end
     else
   io.close(stream) end end   
 end
 
--- #### words(s,c,fun) : split `str` on `ch` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
-function words(str, ch, fun,  t,pat)
-  t,f = {}, f or tonumber
-  pat = "([^".. (ch or ",") .."]+)"
-  for x in str:gmatch(pat) do t[#t+1] = f(x) or trim(x) end
+-- #### words(s,pat,fun) : split `str` on `pat` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
+function words(str,pat,fun,   t)
+  t = {}
+  for x in str:gmatch(pat) do t[#t+1] = fun(x) or trim(x) end
   return t
 end
 
@@ -418,8 +494,7 @@ end
 -- ### Support code
 
 -- #### eg(x): run the test function `eg_x` or, if `x` is nil, run all.
-Eg={}
-function eg(name,   t1,t2,passed,err,y,n)
+function eg(name,   f,t1,t2,passed,err,y,n)
   if name=="fun" then return 1 end
   f= Eg[name]
   the.test.yes = the.test.yes + 1
@@ -466,6 +541,7 @@ end
 
 -- -------------------------------------------------------------------
 -- ### Unit tests
+Eg={}
 function Eg.fun()   return true end
 function Eg.all()   print("")
                     for k,_ in keys(Eg) do
@@ -491,10 +567,63 @@ function Eg.coc(    x,y,z,s,sep)
   print(s)
 end
 
+function Eg.csv( n) 
+  n=0
+  for row in csv("data/weather.csv") do 
+    n=n+1
+  end
+  assert(n==15)
+end
+
+function Eg.copy(    a,b)
+  a={m=10, n={o=20, p={q=30, r=40}, s=50}}
+  b=copy(a)
+  a.n.p.q=200
+  assert(30 == b.n.p.q)
+end
+
+function Eg.chop(t,n)
+  t={}
+  n=10^4
+  for _ = 1,n do t[#t+1]= math.random() end
+  table.sort(t)
+  print(n*.245 <= binChop(t,0.25) )
+  print(binChop(t,0.25) <= n*.255)
+  print(binChop(t,2)==n)
+  print(binChop(t,-1)==1)
+end
+
+function Eg.some(s)
+  s =some()
+  s.max = 32
+  for i = 1,10^4 do s:add(i) end
+end
+
+function Eg.sym(  s)
+   s=adds({"a","a","a","a","b","b","c"},sym)
+   assert(1.378 <= s:ent() and s:ent() <= 1.379)
+   s=adds({"a","a","a","a","a","a","a"},sym)
+   assert(s:ent()==0)
+end
+
+
+
+function Eg.num()
+  local l,r,c=math.log,math.random, math.cos
+  local function norm(mu,sd)
+    mu, sd = mu or 0, sd or 1
+    return mu + sd*(-2*l(r()))^0.5*c(6.2831853*r()) 
+  end
+  local n=num()
+  local mu, sd=10,3
+  for _ = 1,1000 do n:add(norm(10,3)) end
+  assert(mu*.95<=n.mu and n.mu<=mu*1.05)
+  assert(sd*.95<=n.sd and n.sd<=sd*1.05)
+end
 -- -------------------------------------------------------------------
 -- ## Command Line
 -- ### options(now,b4) : return a tree with options from `b4` updated with `now`
-function options(now,b4)
+function options(now,b4,   old)
   local function parse(str,    t,g,o)
     t, g, o = {}, "all", "opt"
     t[g] = {}
@@ -531,6 +660,8 @@ end
 function cli()
   the = options( table.concat(arg," "),
                  Help:match("\nOptions[^\n]*\n\n([^#]+)#"))
+  math.randomseed(the.all.seed)
+  Eg.num()
   if the.all.C then print(Help:match("\n## License[%s]*(.*)")) end
   if the.all.h then print(Help:match("(.*)\n# Details")) end
   if the.all.H then print(Help) end
@@ -538,11 +669,10 @@ function cli()
   rogues()
 end
 
-print(1)
 -- --------------------------------------------------------------------
 -- ## start-up
 -- If called at top level, run `cli()`.
 if not pcall(debug.getlocal,4,1) then cli() end
 
 -- Return the names that external people can access
-return {the=the,main=main}
+return {the=the,cli=cli,Some=Some,Num=Num,Sym=Sym}
