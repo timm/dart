@@ -16,23 +16,24 @@ local Help=[[
 
 Options:
 
-    -C          ;; show copyright   
-    -h          ;; show help   
-    -H          ;; show help (long version) 
-    -seed 1     ;; set random number seed   
-    -U fun      ;; run unit test 'fun' (and `all` runs everything)
-    -id 0       ;; counter for object ids
-    --test      ;; system stuff, set up test engine    
+    -C           ;; show copyright   
+    -h           ;; show help   
+    -H           ;; show help (long version) 
+    -seed 1      ;; set random number seed   
+    -U fun       ;; run unit test 'fun' (and `all` runs everything)
+    -id 0        ;; counter for object ids
+    --test       ;; system stuff, set up test engine    
        -yes   0  
        -no    0
     --some
        -max   256
-    --ch
-       -klass !
-       -less  <
-       -more  >
-       -num   $
-       -skip  ?
+    --type       ;; when reading csv files, names in row1 have
+                 ;; magic symbols telling us their type.
+       -klass !  ;; symbolic class
+       -less  <  ;; numeric goal to be minimized
+       -more  >  ;; numeric goal to be maximized
+       -num   $  ;; numeric
+       -skip  ?  ;; to be ignored
   
 
 # Details
@@ -115,8 +116,6 @@ ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 ]]
-
--- # Code
 
 local the,c,klass,less,goal,num          = nil,nil,nil,nil,nil
 local y,x,sym,xsym,xnum,cols,lt          = nil,nil,nil,nil,nil,nil,nil
@@ -275,7 +274,7 @@ function col(c, txt,pos)
   c.n   = 0
   c.txt = txt or ""
   c.pos = pos or 0
-  c.w   = c.txt:find(the.ch.less) and -1 or 1
+  c.w   = c.txt:find(the.type.less) and -1 or 1
   return c
 end
 
@@ -286,7 +285,7 @@ Num = {n=1, pos=0, txt="", mu=0, m2=0, sd=0,
 num = function(txt,pos) return col(ako(Num),txt,pos) end
 
 function Num:add(x,    d) 
-  if x == the.ch.skip then return x end
+  if x == the.type.skip then return x end
   self.n  = self.n + 1
   d       = x - self.mu
   self.mu = self.mu + d/self.n
@@ -302,7 +301,7 @@ Sym = {n=1, pos=0, txt="", most=0, seen={}}
 sym = function(txt,pos) return col(ako(Sym),txt,pos) end
 
 function Sym:add(x,    new)
-  if x == the.ch.skip then return x end
+  if x == the.type.skip then return x end
   self.n       = self.n + 1
   self.seen[x] = (self.seen[x] or 0) + 1
   if self.seen[x] > self.most then 
@@ -326,7 +325,7 @@ some = function(txt,pos,max,   c)
                     txt,pos) end
 
 function Some:add(x,   pos)
-  if x == the.ch.skip then return x end
+  if x == the.type.skip then return x end
   self.n = self.n + 1
   if #self.t < self.max then 
     pos = #self.t+1   -- add to end
@@ -607,8 +606,6 @@ function Eg.sym(  s)
    s=adds({"a","a","a","a","a","a","a"},sym)
    assert(s:ent()==0)
 end
-
-
 
 function Eg.num()
   local l,r,c=math.log,math.random, math.cos
