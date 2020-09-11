@@ -35,13 +35,13 @@ Dir=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
 Sh=$(basename ${BASH_SOURCE[0]})
 Src=$(basename $Sh).lua
 
-alias ch="lua $Dir/$Src "                          # run code
-alias readme="lua2md $Dir/$Src > $Dir/README.md"   # rebuild README.md
+alias dart="lua $Dir/$Src "                        # run code
 alias ga='git add *'                               # add to local repo
 alias gg='git pull'                                # update code from web
 alias gp='ga; git commit -am saving; git push; gs' # end-of-day actions
 alias gs='git status'                              # status 
 alias ls='ls -G'                                   # ls
+alias readme="lua2md $Dir/$Src > $Dir/README.md"   # rebuild README.md
 alias reload='. $Dir/$Sh'                          # reload these tools
 alias tmux=mytmux                                  # 2-pane tmux environment
 alias vims="vim +PluginInstall +qall"              # install vim plugins 

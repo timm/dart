@@ -6,7 +6,7 @@ local Help=[[
   Optimize = cluster plus sample plus contrast;
   i.e. divide problem space into chunks;
   dart, a little, around the chunks;
-  report what you find.
+  report back anything that jumps you between chunks.
 
 ## Usage
   lua dart.lua [Options] [--Group Options]* 
