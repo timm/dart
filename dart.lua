@@ -3,8 +3,10 @@ local Help=[[
   dart
 
 ## Description
-  Implement optimization over discrete and numeric attributes
-  via clustering and contrast data mining methods. 
+  Optimize = cluster plus sample plus contrast;
+  i.e. divide problem space into chunks;
+  dart, a little, around the chunks;
+  report what you find.
 
 ## Usage
   lua dart.lua [Options] [--Group Options]* 
