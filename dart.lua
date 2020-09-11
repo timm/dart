@@ -319,7 +319,7 @@ function Num:add(x,    d)
   self.mu = self.mu + d/self.n
   self.m2 = self.m2 + d*(x - self.mu)
   if     self.m2 < 0 then self.sd = 0
-  elseif self.n  < 1 then self.sd = 0
+  elseif self.n  < 2 then self.sd = 0
   else   self.sd = (self.m2/(self.n-1))^0.5
   end
   return x
