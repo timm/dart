@@ -157,11 +157,11 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 - [`Some` Column](#some-column-resovoir-samplers) : resovoir samplers
                     - [Some:add(x)](#someaddx--add-x-to-the-receiver) : add `x` to the receiver
                     - [Some:all()](#someall--return-all-kept-items-sorted) : return all kept items, sorted
-            - [Col,ms](#colms) 
-                - [cols(t)](#colst--return-a-news-cols-with-all-the-nums-and-syms-filled-in) : return a news `cols` with all the `nums` and `syms` filled in
-                - [Column types (string types)](#column-types-string-types) 
-                - [Cols:push2(x)](#colspush2x--add-a-column-to-all-nums-and-syms) : add a column, to `all`, `nums` and `syms`
-                - [Cols:row(t)](#colsrowt--return-a-row-containing-cells-updating-the-summaries) : return a row containing `cells`, updating the summaries.
+        - [Columns](#columns) 
+            - [cols(t)](#colst--return-a-news-cols-with-all-the-nums-and-syms-filled-in) : return a news `cols` with all the `nums` and `syms` filled in
+            - [Column types (string types)](#column-types-string-types) 
+            - [Cols:push2(x)](#colspush2x--add-a-column-to-all-nums-and-syms) : add a column, to `all`, `nums` and `syms`
+            - [Cols:row(t)](#colsrowt--return-a-row-containing-cells-updating-the-summaries) : return a row containing `cells`, updating the summaries.
         - [Rows](#rows--class-a-place-to-store-cols-and-rows) : class; a place to store `cols` and `rows`.
             - [Rows:clone()](#rowsclone--return-a-new-rows-with-the-same-structure-as-the-receiver) : return a new `Rows` with the same structure as the receiver
             - [Rows:read(file)](#rowsreadfile--read-in-data-from-a-csv-file) : read in data from a csv `file`
@@ -469,7 +469,7 @@ function Some:all(   f)
 end
 
 ```
-#### Col,ms
+### Columns
 ```lua
 Cols = {use  = {},
         hdr  = {},
@@ -478,7 +478,7 @@ Cols = {use  = {},
         cols = {nums={}, syms={}, all={}}}
 
 ```
-##### cols(t) : return a news `cols` with all the `nums` and `syms` filled in
+#### cols(t) : return a news `cols` with all the `nums` and `syms` filled in
 ```lua
 function cols(t)         
   local put, new = 0, ako(Cols)
@@ -494,7 +494,7 @@ function cols(t)
 end
 
 ```
-##### Column types (string types)
+#### Column types (string types)
 ```lua
 function Cols:has(s,x) return s:find(the.all.type[x]) end 
 function Cols:skip(s)  return self:has(s,"skip") end
@@ -503,7 +503,7 @@ function Cols:nump(s)  return self:obj(s) or self:has(s,"num") end
 function Cols:goalp(s) return self:obj(s) or self:has(s,"klass") end
 
 ```
-##### Cols:push2(x) : add a column, to `all`, `nums` and `syms`
+#### Cols:push2(x) : add a column, to `all`, `nums` and `syms`
 ```lua
 function Cols:push2(x)
   push(x, a.all)
@@ -511,7 +511,7 @@ function Cols:push2(x)
 end
 
 ```
-##### Cols:row(t) : return a row containing `cells`, updating the summaries.
+#### Cols:row(t) : return a row containing `cells`, updating the summaries.
 ```lua
 function Cols:row(t,     u,col,val)
   u = {}

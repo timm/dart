@@ -348,14 +348,14 @@ function Some:all(   f)
   return self.t
 end
 
--- #### Col,ms
+-- ### Columns
 Cols = {use  = {},
         hdr  = {},
         x    = {nums={}, syms={}, all={}},
         y    = {nums={}, syms={}, all={}},
         cols = {nums={}, syms={}, all={}}}
 
--- ##### cols(t) : return a news `cols` with all the `nums` and `syms` filled in
+-- #### cols(t) : return a news `cols` with all the `nums` and `syms` filled in
 function cols(t)         
   local put, new = 0, ako(Cols)
   for get,txt in pairs(t) do
@@ -369,20 +369,20 @@ function cols(t)
   return new
 end
 
--- ##### Column types (string types)
+-- #### Column types (string types)
 function Cols:has(s,x) return s:find(the.all.type[x]) end 
 function Cols:skip(s)  return self:has(s,"skip") end
 function Cols:obj(s)   return self:has(s,"less") or self:has(s,"more") end
 function Cols:nump(s)  return self:obj(s) or self:has(s,"num") end
 function Cols:goalp(s) return self:obj(s) or self:has(s,"klass") end
 
--- ##### Cols:push2(x) : add a column, to `all`, `nums` and `syms`
+-- #### Cols:push2(x) : add a column, to `all`, `nums` and `syms`
 function Cols:push2(x)
   push(x, a.all)
   push(x, a[self:nump(x.txt) and "nums" or "syms"])  
 end
 
--- ##### Cols:row(t) : return a row containing `cells`, updating the summaries.
+-- #### Cols:row(t) : return a row containing `cells`, updating the summaries.
 function Cols:row(t,     u,col,val)
   u = {}
   for put,get in pairs(self.use) do 
