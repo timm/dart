@@ -138,7 +138,6 @@ ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 
-- [Code](#code) 
 - [Cocomo](#cocomo) 
     - [Coc.all()](#cocall--return-a-generator-of-cocomo-projects) : return a generator of COCOMO projects
     - [Coc.all()](#cocall--compute-effort-and-risk-for-one-project) : compute effort and risk for one project
@@ -203,8 +202,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 - [start-up](#start-up) 
 
 
-
-# Code 
 
 
 ```lua
