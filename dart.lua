@@ -365,7 +365,7 @@ function Cols.new(t)
       put          = put + 1
       new.use[put] = get
       new.hdr[put] = txt
-      what         = (new:nump(txt) and num or sym)(put,txt)
+      what         = (new:nump(txt) and Num or Sym).new(put,txt)
       new:push2(what, new.cols)
       new:push2(what, goalp and new.y or new.x) end end
   return new
@@ -398,13 +398,15 @@ end
 Rows = {cols={},rows={}}
 
 -- #### Rows:clone() : return a new `Rows` with the same structure as the receiver
-function Rows:clone() return ako(Rows,{cols=cols(self.cols.hdr)})   end
+function Rows:clone() 
+  return ako(Rows,{cols=cols(self.cols.hdr)})   
+end
 
 -- #### Rows:read(file) : read in data from a csv `file`
 function Rows:read(file) 
   for t in csv(file) do self:add(t) end
   return self 
- nd
+end
 
 -- #### Rows:add(t) : turn the first row into a columns header, the rest into data rows
 function Rows:add(t)
@@ -693,7 +695,7 @@ function Eg.num()
     mu, sd = mu or 0, sd or 1
     return mu + sd*(-2*l(r()))^0.5*c(6.2831853*r()) 
   end
-  local n=num()
+  local n=Nun.new()
   local mu, sd=10,3
   for _ = 1,1000 do n:add(norm(10,3)) end
   assert(mu*.95<=n.mu and n.mu<=mu*1.05)
