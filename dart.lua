@@ -381,11 +381,9 @@ Rows = {cols={},rows={}}
 
 function Rows:add(t)
   t= t.cells and t.cells or t
-  if self.cols then 
-    push(self.cols:add(t), t.rows) 
-  else 
-    self.cols = cols(t) 
-  end
+  if   self.cols 
+  then t.rows[#t.rows+1] = self.cols:add(t) 
+  else self.cols = cols(t) end
 end
 
 -- ## Lib
