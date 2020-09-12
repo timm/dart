@@ -138,33 +138,33 @@ ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 
-- [Cocomo](#cocomo) 
-    - [Coc.all()](#cocall--return-a-generator-of-cocomo-projects) : return a generator of COCOMO projects
-    - [Coc.all()](#cocall--compute-effort-and-risk-for-one-project) : compute effort and risk for one project
-    - [Coc.Risk](#cocrisk--cocomo-risk-model) : Cocomo risk model
+- [`Coc`omo](#cocomo) 
+    - [`Coc`.all()](#cocall--return-a-generator-of-cocomo-projects) : return a generator of COCOMO projects
+    - [`Coc`.all()](#cocall--compute-effort-and-risk-for-one-project) : compute effort and risk for one project
+    - [`Coc`.Risk](#cocrisk--cocomo-risk-model) : Cocomo risk model
 - [Data](#data) 
-    - [`Col`](#col--managing-single-columns-of-data) : managing single columns of data
+    - [Managing single columns of data](#managing-single-columns-of-data) 
         - [adds(t, klass)](#addst-klass--all-everything-in-t-into-a-column-of-type-klass) : all everything in `t` into a column of type `klass`
         - [col(c,txt="",pos=0)](#colctxtpos0--initialize-a-column) : initialize a column
         - [`Num`eric Columns](#numeric-columns) 
-            - [Num:add(x)](#numaddx--add-x-to-the-receiver) : add `x` to the receiver
+            - [`Num`:add(x)](#numaddx--add-x-to-the-receiver) : add `x` to the receiver
         - [`Sym`bolic Columns](#symbolic-columns) 
-            - [Sym:add(x)](#symaddx--add-x-to-the-receiver) : add `x` to the receiver
-            - [Sym:ent()](#syment--return-the-entropy-of-the-symbols-seen-in-this-column) : return the entropy of the symbols seen in this column
+            - [`Sym`:add(x)](#symaddx--add-x-to-the-receiver) : add `x` to the receiver
+            - [`Sym`:ent()](#syment--return-the-entropy-of-the-symbols-seen-in-this-column) : return the entropy of the symbols seen in this column
         - [`Some` Column](#some-column-resovoir-samplers) : resovoir samplers
-            - [Some:add(x)](#someaddx--add-x-to-the-receiver) : add `x` to the receiver
-            - [Some:all()](#someall--return-all-kept-items-sorted) : return all kept items, sorted
+            - [`Some`:add(x)](#someaddx--add-x-to-the-receiver) : add `x` to the receiver
+            - [`Some`:all()](#someall--return-all-kept-items-sorted) : return all kept items, sorted
     - [`Cols`](#cols--place-to-store-lots-of-columns) : place to store lots of columns
-        - [cols(t)](#colst--return-a-news-cols-with-all-the-nums-and-syms-filled-in) : return a news `cols` with all the `nums` and `syms` filled in
-        - [Column types (string types)](#column-types-string-types) 
-        - [Cols:push2(x)](#colspush2x--add-a-column-to-all-nums-and-syms) : add a column, to `all`, `nums` and `syms`
-        - [Cols:row(t)](#colsrowt--return-a-row-containing-cells-updating-the-summaries) : return a row containing `cells`, updating the summaries.
+        - [`Cols`.new(t)](#colsnewt--return-a-news-cols-with-all-the-nums-and-syms-filled-in) : return a news `cols` with all the `nums` and `syms` filled in
+        - [`Col`umn types (string types)](#column-types-string-types) 
+        - [`Cols`:push2(x)](#colspush2x--add-a-column-to-all-nums-and-syms) : add a column, to `all`, `nums` and `syms`
+        - [`Cols`:row(t)](#colsrowt--return-a-row-containing-cells-updating-the-summaries) : return a row containing `cells`, updating the summaries.
     - [`Rows`](#rows--class-a-place-to-store-cols-and-rows) : class; a place to store `cols` and `rows`.
-        - [Rows:clone()](#rowsclone--return-a-new-rows-with-the-same-structure-as-the-receiver) : return a new `Rows` with the same structure as the receiver
-        - [Rows:read(file)](#rowsreadfile--read-in-data-from-a-csv-file) : read in data from a csv `file`
-        - [Rows:add(t)](#rowsaddt--turn-the-first-row-into-a-columns-header-the-rest-into-data-rows) : turn the first row into a columns header, the rest into data rows
+        - [`Rows`:clone()](#rowsclone--return-a-new-rows-with-the-same-structure-as-the-receiver) : return a new `Rows` with the same structure as the receiver
+        - [`Rows`:read(file)](#rowsreadfile--read-in-data-from-a-csv-file) : read in data from a csv `file`
+        - [`Rows`:add(t)](#rowsaddt--turn-the-first-row-into-a-columns-header-the-rest-into-data-rows) : turn the first row into a columns header, the rest into data rows
     - [`Row`](#row--a-place-to-hold-one-example) : a place to hold one example
-        - [Row.new(t)](#rownewt--initialize-a-new-row) : initialize a new row
+        - [`Row`.new(t)](#rownewt--initialize-a-new-row) : initialize a new row
 - [Miscellaneous Functions](#miscellaneous-functions) 
     - [Maths](#maths) 
         - [from(lo,hi)](#fromlohi--return-a-number-from-lo-to-hi) : return a number from `lo` to `hi`
@@ -219,8 +219,8 @@ local some,binChop,col,adds              = nil,nil,nil,nil
 local Coc,Num,Some,Sym                   = nil,nil,nil,nil
 
 ```
-# Cocomo
-## Coc.all() : return a generator of COCOMO projects
+# `Coc`omo
+## `Coc`.all() : return a generator of COCOMO projects
 ```lua
 Coc={}
 function Coc.all(   eq1,eq2,pem,nem,sf,between,lohi,posints)
@@ -266,7 +266,7 @@ function Coc.all(   eq1,eq2,pem,nem,sf,between,lohi,posints)
 end
 
 ```
-## Coc.all() : compute effort and risk for one project
+## `Coc`.all() : compute effort and risk for one project
 ```lua
 function Coc.one(      r,c,    x,y,em,sf,risk)
   c = Coc.all()
@@ -287,7 +287,7 @@ function Coc.one(      r,c,    x,y,em,sf,risk)
 end
 
 ```
-## Coc.Risk : Cocomo risk model
+## `Coc`.Risk : Cocomo risk model
 ```lua
 
 function Coc.risk(    _,ne,nw,nw4,sw,sw4,ne46, sw26,sw46)
@@ -360,12 +360,12 @@ end
 
 ```
 # Data
-## `Col` : managing single columns of data
+## Managing single columns of data
 ### adds(t, klass) : all everything in `t` into a column of type `klass`
 ```lua
 function adds(t, klass,thing)
-  klass = klass or num
-  thing = klass()
+  klass = klass or (type(t[1]) == "number" and Num or Sym)
+  thing = klass.new()
   for _,x in pairs(t) do thing:add(x) end
   return thing
 end
@@ -390,7 +390,7 @@ Num = {n=1, pos=0, txt="", mu=0, m2=0, sd=0,
 function Num.new(txt,pos) return col(ako(Num),txt,pos) end
 
 ```
-#### Num:add(x) : add `x` to the receiver
+#### `Num`:add(x) : add `x` to the receiver
 ```lua
 function Num:add(x,    d) 
   if x == the.type.skip then return x end
@@ -412,7 +412,7 @@ Sym = {n=1, pos=0, txt="", most=0, seen={}}
 function Sym.new(txt,pos) return col(ako(Sym),txt,pos) end
 
 ```
-#### Sym:add(x) : add `x` to the receiver
+#### `Sym`:add(x) : add `x` to the receiver
 ```lua
 function Sym:add(x,    new)
   if x == the.type.skip then return x end
@@ -424,7 +424,7 @@ function Sym:add(x,    new)
 end
 
 ```
-#### Sym:ent() : return the entropy of the symbols seen in this column
+#### `Sym`:ent() : return the entropy of the symbols seen in this column
 ```lua
 function Sym:ent(     e,p)
   e = 0
@@ -445,7 +445,7 @@ function Some.new(txt,pos,max,   c)
              txt,pos) end
 
 ```
-#### Some:add(x) : add `x` to the receiver
+#### `Some`:add(x) : add `x` to the receiver
 ```lua
 function Some:add(x,   pos)
   if x == the.type.skip then return x end
@@ -460,7 +460,7 @@ function Some:add(x,   pos)
 end
 
 ```
-#### Some:all() : return all kept items, sorted
+#### `Some`:all() : return all kept items, sorted
 ```lua
 function Some:all(   f) 
   if self.old then table.sort(self.t,f or lt); self.old=false end
@@ -477,23 +477,27 @@ Cols = {use  = {},
         cols = {nums={}, syms={}, all={}}}
 
 ```
-### cols(t) : return a news `cols` with all the `nums` and `syms` filled in
+### `Cols`.new(t) : return a news `cols` with all the `nums` and `syms` filled in
 ```lua
 function Cols.new(t)         
-  local put, new = 0, ako(Cols)
+   local put, new = 0, ako(Cols)
+   local function remember(x,a)
+      push(x, a.all)
+      push(x, a[new:nump(x.txt) and "nums" or "syms"])  
+   end
   for get,txt in pairs(t) do
     if new:skip(txt) then
       put          = put + 1
       new.use[put] = get
       new.hdr[put] = txt
       what         = (new:nump(txt) and Num or Sym).new(put,txt)
-      new:push2(what, new.cols)
-      new:push2(what, goalp and new.y or new.x) end end
+      remember(what, new.cols)
+      remember(what, new:goalp(txt) and new.y or new.x) end end
   return new
 end
 
 ```
-### Column types (string types)
+### `Col`umn types (string types)
 ```lua
 function Cols:has(s,x) return s:find(the.all.type[x]) end 
 function Cols:skip(s)  return self:has(s,"skip") end
@@ -502,23 +506,16 @@ function Cols:nump(s)  return self:obj(s) or self:has(s,"num") end
 function Cols:goalp(s) return self:obj(s) or self:has(s,"klass") end
 
 ```
-### Cols:push2(x) : add a column, to `all`, `nums` and `syms`
+### `Cols`:push2(x) : add a column, to `all`, `nums` and `syms`
+### `Cols`:row(t) : return a row containing `cells`, updating the summaries.
 ```lua
-function Cols:push2(x)
-  push(x, a.all)
-  push(x, a[self:nump(x.txt) and "nums" or "syms"])  
-end
-
-```
-### Cols:row(t) : return a row containing `cells`, updating the summaries.
-```lua
-function Cols:row(t,     u,col,val)
-  u = {}
+function Cols:row(cells,     using,col,val)
+  using = {}
   for put,get in pairs(self.use) do 
-    col, val = self.cols.all[put], t[get]
-    u[put]   = col:add(val) 
+    col, val = self.cols.all[put], cells[get]
+    using[put]   = col:add(val) 
   end
-  return Row.new(u)
+  return Row.new(using)
 end
 
 ```
@@ -527,14 +524,14 @@ end
 Rows = {cols={},rows={}}
 
 ```
-### Rows:clone() : return a new `Rows` with the same structure as the receiver
+### `Rows`:clone() : return a new `Rows` with the same structure as the receiver
 ```lua
 function Rows:clone() 
   return ako(Rows,{cols=cols(self.cols.hdr)})   
 end
 
 ```
-### Rows:read(file) : read in data from a csv `file`
+### `Rows`:read(file) : read in data from a csv `file`
 ```lua
 function Rows:read(file) 
   for t in csv(file) do self:add(t) end
@@ -542,7 +539,7 @@ function Rows:read(file)
 end
 
 ```
-### Rows:add(t) : turn the first row into a columns header, the rest into data rows
+### `Rows`:add(t) : turn the first row into a columns header, the rest into data rows
 ```lua
 function Rows:add(t)
   t = t.cells and t.cells or t
@@ -558,7 +555,7 @@ end
 Row = {cells={},cooked={}}
 
 ```
-### Row.new(t) : initialize a new row
+### `Row`.new(t) : initialize a new row
 ```lua
 function Row.new(t) return ako(Row,{cells=t}) end
 
@@ -877,9 +874,9 @@ function Eg.some(s)
 end
 
 function Eg.sym(  s)
-   s=adds({"a","a","a","a","b","b","c"},sym)
+   s=adds({"a","a","a","a","b","b","c"},Sym)
    assert(1.378 <= s:ent() and s:ent() <= 1.379)
-   s=adds({"a","a","a","a","a","a","a"},sym)
+   s=adds({"a","a","a","a","a","a","a"},Sym)
    assert(s:ent()==0)
 end
 
