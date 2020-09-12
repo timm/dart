@@ -359,7 +359,7 @@ end
 function Cols:add(t,     u)
   u = {}
   for put,get in pairs(self.use) do 
-    u[ #u+1 ] = self.cols.all[ put ]:add( t[get] ) end
+    u[put] = self.cols.all[put]:add(t[get]) end
   return row(u)
 end
 
