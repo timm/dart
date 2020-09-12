@@ -341,24 +341,51 @@ function Some:all(   f)
   return self.t
 end
 -- ### Col,ms
-Cols = {x   ={nums={}, syms={}, all={}},
-        y   ={nums={}, syms={}, all={}},
-        cols={nums={}, syms={}, all={}}}
-cols = function(t,   u,ch,new,typ,obj,nump,goalp)
-          function push2(x,nump,a) 
-            push(x,  a.all)
-            push2(x, a[nump and "nums" or "syms"])
-         end
-         new = ako(Cols)
-         ch = the.all.type
-         for pos2,txt in pairs(t) do
-           obj   = txt:find(ch.less) or txt:find(ch.more)
-           nump  = obj or txt:find(ch.num)
-           goalp = obj or txt:find(ch.klass)
-           push2(what, nump, new.cols)
-           push2(what, nump, goalp and new.y or new.x)
-         end
-         return new
+Cols = {use  = {},
+        head = {},
+        x    = {nums={}, syms={}, all={}},
+        y    = {nums={}, syms={}, all={}},
+        cols = {nums={}, syms={}, all={}}}
+
+function Cols:has(s,x) return s:find(the.all.type[x]) end 
+function Cols:skip(s)  return self:has(s,"skip") end
+function Cols:obj(s)   return self:has(s,"less") or self:has(s,"more") end
+function Cols:nump(s)  return self:obj(s) or self:has(s,"num") end
+function Cols:goalp(s) return self:obj(s) or self:has(s,"klass") end
+function Cols:add(x)
+  push(x,  a.all)
+  push(x, a[self:nump(x.txt) and "nums" or "syms"])  
+end
+function Cols:add(t,     u)
+  u = {}
+  for put,get in pairs(self.use) do 
+    u[ #u+1 ] = self.cols.all[ put ]:add( t[get] ) end
+  return row(u)
+end
+
+function cols(t)         
+  local put, new = 0, ako(Cols)
+  for get,txt in pairs(t) do
+    if new:skip(txt) then
+      put          = put + 1
+      new.use[put] = get
+      new.head[m]  = txt
+      what         = (new:nump(txt) and num or sym)(put,txt)
+      new:push2(what, new.cols)
+      new:push2(what, goalp and new.y or new.x) end end
+  return new
+end
+
+Row  = {cells={},cooked={}}
+Rows = {cols={},rows={}}
+
+function Rows:add(t)
+  t= t.cells and t.cells or t
+  if self.cols then 
+    push(self.cols:add(t), t.rows) 
+  else 
+    self.cols = cols(t) 
+  end
 end
 
 -- ## Lib
