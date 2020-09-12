@@ -127,8 +127,8 @@ local cli, options, fun                  = nil,nil, nil
 local some,binChop,col,adds              = nil,nil,nil,nil
 local Coc,Num,Some,Sym                   = nil,nil,nil,nil
 
--- ## Cocomo
--- ### Coc.all() : return a generator of COCOMO projects
+-- # Cocomo
+-- ## Coc.all() : return a generator of COCOMO projects
 Coc={}
 function Coc.all(   eq1,eq2,pem,nem,sf,between,lohi,posints)
   function eq1(x,m,n)   return (x-3)*from(m,n)+1 end 
@@ -172,7 +172,7 @@ function Coc.all(   eq1,eq2,pem,nem,sf,between,lohi,posints)
   }
 end
 
--- ### Coc.all() : compute effort and risk for one project
+-- ## Coc.all() : compute effort and risk for one project
 function Coc.one(      r,c,    x,y,em,sf,risk)
   c = Coc.all()
   x,y = {},{}
@@ -191,7 +191,7 @@ function Coc.one(      r,c,    x,y,em,sf,risk)
   return x,y,risk/108
 end
 
--- ### Coc.Risk : Cocomo risk model
+-- ## Coc.Risk : Cocomo risk model
 
 function Coc.risk(    _,ne,nw,nw4,sw,sw4,ne46, sw26,sw46)
   _  = 0
@@ -261,9 +261,9 @@ function Coc.risk(    _,ne,nw,nw4,sw,sw4,ne46, sw26,sw46)
     tool= {acap=nw,  pcap=nw,  pmat=nw}} -- 6
 end
 
--- ## Data
--- ### `Col` : managing single columns of data
--- #### adds(t, klass) : all everything in `t` into a column of type `klass`
+-- # Data
+-- ## `Col` : managing single columns of data
+-- ### adds(t, klass) : all everything in `t` into a column of type `klass`
 function adds(t, klass,thing)
   klass = klass or num
   thing = klass()
@@ -271,7 +271,7 @@ function adds(t, klass,thing)
   return thing
 end
 
--- #### col(c,txt="",pos=0) : initialize a column
+-- ### col(c,txt="",pos=0) : initialize a column
 function col(c, txt,pos)
   c.n   = 0
   c.txt = txt or ""
@@ -280,13 +280,13 @@ function col(c, txt,pos)
   return c
 end
 
--- #### `Num`eric Columns
+-- ### `Num`eric Columns
 Num = {n=1, pos=0, txt="", mu=0, m2=0, sd=0,
        lo=math.huge, hi= -math.huge}
 
 function Num.new(txt,pos) return col(ako(Num),txt,pos) end
 
--- ##### Num:add(x) : add `x` to the receiver
+-- #### Num:add(x) : add `x` to the receiver
 function Num:add(x,    d) 
   if x == the.type.skip then return x end
   self.n  = self.n + 1
@@ -299,12 +299,12 @@ function Num:add(x,    d)
   return x
 end
 
--- #### `Sym`bolic Columns
+-- ### `Sym`bolic Columns
 Sym = {n=1, pos=0, txt="", most=0, seen={}}
 
 function Sym.new(txt,pos) return col(ako(Sym),txt,pos) end
 
--- ##### Sym:add(x) : add `x` to the receiver
+-- #### Sym:add(x) : add `x` to the receiver
 function Sym:add(x,    new)
   if x == the.type.skip then return x end
   self.n       = self.n + 1
@@ -314,7 +314,7 @@ function Sym:add(x,    new)
   return x
 end
 
--- ##### Sym:ent() : return the entropy of the symbols seen in this column
+-- #### Sym:ent() : return the entropy of the symbols seen in this column
 function Sym:ent(     e,p)
   e = 0
   for _,v in pairs(self.seen) do
@@ -324,14 +324,14 @@ function Sym:ent(     e,p)
   return e
 end
 
--- #### `Some` Column: resovoir samplers
+-- ### `Some` Column: resovoir samplers
 Some= {n=1, pos=0, txt="", t={}, old=false, max=256}
 
 function Some.new(txt,pos,max,   c) 
   return col(ako(Some,{max=max or the.some.max}),
              txt,pos) end
 
--- ##### Some:add(x) : add `x` to the receiver
+-- #### Some:add(x) : add `x` to the receiver
 function Some:add(x,   pos)
   if x == the.type.skip then return x end
   self.n = self.n + 1
@@ -344,20 +344,20 @@ function Some:add(x,   pos)
   return x
 end
 
--- ##### Some:all() : return all kept items, sorted
+-- #### Some:all() : return all kept items, sorted
 function Some:all(   f) 
   if self.old then table.sort(self.t,f or lt); self.old=false end
   return self.t
 end
 
--- ### `Cols` : place to store lots of columns
+-- ## `Cols` : place to store lots of columns
 Cols = {use  = {},
         hdr  = {},
         x    = {nums={}, syms={}, all={}},
         y    = {nums={}, syms={}, all={}},
         cols = {nums={}, syms={}, all={}}}
 
--- #### cols(t) : return a news `cols` with all the `nums` and `syms` filled in
+-- ### cols(t) : return a news `cols` with all the `nums` and `syms` filled in
 function Cols.new(t)         
   local put, new = 0, ako(Cols)
   for get,txt in pairs(t) do
@@ -371,20 +371,20 @@ function Cols.new(t)
   return new
 end
 
--- #### Column types (string types)
+-- ### Column types (string types)
 function Cols:has(s,x) return s:find(the.all.type[x]) end 
 function Cols:skip(s)  return self:has(s,"skip") end
 function Cols:obj(s)   return self:has(s,"less") or self:has(s,"more") end
 function Cols:nump(s)  return self:obj(s) or self:has(s,"num") end
 function Cols:goalp(s) return self:obj(s) or self:has(s,"klass") end
 
--- #### Cols:push2(x) : add a column, to `all`, `nums` and `syms`
+-- ### Cols:push2(x) : add a column, to `all`, `nums` and `syms`
 function Cols:push2(x)
   push(x, a.all)
   push(x, a[self:nump(x.txt) and "nums" or "syms"])  
 end
 
--- #### Cols:row(t) : return a row containing `cells`, updating the summaries.
+-- ### Cols:row(t) : return a row containing `cells`, updating the summaries.
 function Cols:row(t,     u,col,val)
   u = {}
   for put,get in pairs(self.use) do 
@@ -394,21 +394,21 @@ function Cols:row(t,     u,col,val)
   return Row.new(u)
 end
 
--- ### `Rows` : class; a place to store `cols` and `rows`.
+-- ## `Rows` : class; a place to store `cols` and `rows`.
 Rows = {cols={},rows={}}
 
--- #### Rows:clone() : return a new `Rows` with the same structure as the receiver
+-- ### Rows:clone() : return a new `Rows` with the same structure as the receiver
 function Rows:clone() 
   return ako(Rows,{cols=cols(self.cols.hdr)})   
 end
 
--- #### Rows:read(file) : read in data from a csv `file`
+-- ### Rows:read(file) : read in data from a csv `file`
 function Rows:read(file) 
   for t in csv(file) do self:add(t) end
   return self 
 end
 
--- #### Rows:add(t) : turn the first row into a columns header, the rest into data rows
+-- ### Rows:add(t) : turn the first row into a columns header, the rest into data rows
 function Rows:add(t)
   t = t.cells and t.cells or t
   if   self.cols 
@@ -417,35 +417,35 @@ function Rows:add(t)
   end
 end
 
--- ### `Row` : a place to hold one example
+-- ## `Row` : a place to hold one example
 Row = {cells={},cooked={}}
 
--- #### Row.new(t) : initialize a new row
+-- ### Row.new(t) : initialize a new row
 function Row.new(t) return ako(Row,{cells=t}) end
 
--- ## Miscellaneous Functions
--- ### Maths
--- #### from(lo,hi) : return a number from `lo` to `hi`
+-- # Miscellaneous Functions
+-- ## Maths
+-- ### from(lo,hi) : return a number from `lo` to `hi`
 function from(lo,hi) return lo+(hi-lo)*math.random() end
 
--- #### round(n,places) : round `n` to some decimal `places`.
+-- ### round(n,places) : round `n` to some decimal `places`.
 function round(num, places)
   local mult = 10^(places or 0)
   return math.floor(num * mult + 0.5) / mult
 end
 
--- ### Strings
--- #### o(t,pre) : return `t` as a string, with `pre`fix
+-- ## Strings
+-- ### o(t,pre) : return `t` as a string, with `pre`fix
 function o(z,pre,   s,sep) 
   s, sep = (pre or "")..'{', ""
   for _,v in pairs(z or {}) do s = s..sep..tostring(v); sep=", " end
   return s..'}'
 end
 
--- #### oo(t,pre) : print `t` as a string, with `pre`fix
+-- ### oo(t,pre) : print `t` as a string, with `pre`fix
 function oo(z,pre) print(o(z,pre)) end
 
--- #### ooo(t,pre) : return a string representing `t`'s recursive contents.
+-- ### ooo(t,pre) : return a string representing `t`'s recursive contents.
 function ooo(t,pre,    indent,fmt)
   pre=pre or ""
   indent = indent or 0
@@ -460,30 +460,30 @@ function ooo(t,pre,    indent,fmt)
   print(fmt .. tostring(v)) end end end end
 end
 
--- ### Meta
--- #### id(x) : ensure `x` has a unique if
+-- ## Meta
+-- ### id(x) : ensure `x` has a unique if
 function id (x)
   if not x._id then the.all.id = the.all.id+1; x._id= the.all.id end
   return x._id 
 end
 
--- #### same(z) : return z
+-- ### same(z) : return z
 function same(z) return z end
 
--- #### lt(x,y) : return `x<y`
+-- ### lt(x,y) : return `x<y`
 function lt(x,y) return x<y end
 
--- #### fun(x): returns true if `x` is a function
+-- ### fun(x): returns true if `x` is a function
 function fun(x) return assert(type(_ENV[x]) == "function", "not function") and x end
 
--- #### map(t,f) : apply `f` to everything in `t` and return the result
+-- ### map(t,f) : apply `f` to everything in `t` and return the result
 function map(t,f, u)
   u, f = {}, f or same
   for i,v in pairs(t or {}) do u[i] = f(v) end  
   return u
 end
 
--- #### copy(t) : return a deep copy of `t`
+-- ### copy(t) : return a deep copy of `t`
 function copy(obj,   old,new)
   if type(obj) ~= 'table' then return obj end
   if old and old[obj] then return old[obj] end
@@ -493,14 +493,14 @@ function copy(obj,   old,new)
   return setmetatable(new, getmetatable(obj))
 end
 
--- #### select(t,f) : return a table of items in `t` that satisfy function `f`
+-- ### select(t,f) : return a table of items in `t` that satisfy function `f`
 function select(t,f,     g,u)
   u, f = {}, f or same
   for _,v in pairs(t) do if f(v) then u[#u+1] = v  end end
   return u
 end
 
--- #### ako(class,has) : create a new instance of `class`, add the `has` slides 
+-- ### ako(class,has) : create a new instance of `class`, add the `has` slides 
 function ako(klass,has,      new)
   new = copy(klass or {})
   for k,v in pairs(has or {}) do new[k] = v end
@@ -509,18 +509,18 @@ function ako(klass,has,      new)
   return new
 end
 
--- ### Lists
--- #### any(a) : sample 1 item from `a`
+-- ## Lists
+-- ### any(a) : sample 1 item from `a`
 function any(a) return a[1 + math.floor(#a*math.random())] end
 
--- #### anys(a,n) : sample `n` items from `a`
+-- ### anys(a,n) : sample `n` items from `a`
 function anys(a,n,   t) 
   t={}
   for i=1,n do t[#t+1] = any(a) end
   return t
 end
 
--- #### keys(t): iterate over key,values (sorted by key)
+-- ### keys(t): iterate over key,values (sorted by key)
 function keys(t)
   local i,u = 0,{}
   for k,_ in pairs(t) do u[#u+1] = k end
@@ -531,7 +531,7 @@ function keys(t)
   return u[i], t[u[i]] end end 
 end
 
--- #### binChop(t,x) : return a position very near `x` within `t`
+-- ### binChop(t,x) : return a position very near `x` within `t`
 function binChop (t,x,    lo,hi,mid)
   lo,hi = 1,#t
   while lo <= hi do
@@ -542,8 +542,8 @@ function binChop (t,x,    lo,hi,mid)
   return mid
 end
 
--- ### Files
--- #### csv(file) : iterate through  non-empty rows, divided on comma, coercing numbers
+-- ## Files
+-- ### csv(file) : iterate through  non-empty rows, divided on comma, coercing numbers
 function csv(file,     ch,fun,   pat,stream,tmp,row)
   stream = file and io.input(file) or io.input()
   tmp    = io.read()
@@ -558,14 +558,14 @@ function csv(file,     ch,fun,   pat,stream,tmp,row)
   io.close(stream) end end   
 end
 
--- #### words(s,pat,fun) : split `str` on `pat` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
+-- ### words(s,pat,fun) : split `str` on `pat` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
 function words(str,pat,fun,   t)
   t = {}
   for x in str:gmatch(pat) do t[#t+1] = fun(x) or trim(x) end
   return t
 end
 
--- #### trim(str) : remove leading and trailing blanks
+-- ### trim(str) : remove leading and trailing blanks
 function trim(str) return (str:gsub("^%s*(.-)%s*$", "%1")) end
 
 do local colors={red=31, green=32,  plain=0}
@@ -573,10 +573,10 @@ do local colors={red=31, green=32,  plain=0}
   return '\27[1m\27['..colors[col]..'m'..str..'\27[0m' end
 end
 -- -------------------------------------------------------------------
--- ## Testing
--- ### Support code
+-- # Testing
+-- ## Support code
 
--- #### eg(x): run the test function `eg_x` or, if `x` is nil, run all.
+-- ### eg(x): run the test function `eg_x` or, if `x` is nil, run all.
 function eg(name,   f,t1,t2,passed,err,y,n)
   if name=="fun" then return 1 end
   f= Eg[name]
@@ -598,12 +598,12 @@ function eg(name,   f,t1,t2,passed,err,y,n)
     100*y/(y+n)))) end 
 end
 
--- #### within
+-- ### within
 function within(x,y,z)
   assert(x <= y and y <= z, 'outside range ['..x..' to '..']')
 end
 
---- #### rogues(): report escaped local variables
+--- ### rogues(): report escaped local variables
 function rogues(   no)
    no = {the=true,
       tostring=true,  tonumber=true,  assert=true,  rawlen=true,
@@ -623,7 +623,7 @@ function rogues(   no)
 end
 
 -- -------------------------------------------------------------------
--- ### Unit tests
+-- ## Unit tests
 Eg={}
 function Eg.fun()   return true end
 function Eg.all()   print("")
@@ -703,8 +703,8 @@ function Eg.num()
 end
 
 -- -------------------------------------------------------------------
--- ## Command Line
--- ### options(now,b4) : return a tree with options from `b4` updated with `now`
+-- # Command Line
+-- ## options(now,b4) : return a tree with options from `b4` updated with `now`
 function options(now,b4,   old)
   local function parse(str,    t,g,o)
     t, g, o = {}, "all", "opt"
@@ -738,13 +738,13 @@ function options(now,b4,   old)
   return b4
 end
 
--- ### cli() : initialize the `the` variable and run command-line options.
+-- ## cli() : initialize the `the` variable and run command-line options.
 function cli()
   the = options( table.concat(arg," "),
                  Help:match("\nOptions[^\n]*\n\n([^#]+)#"))
   math.randomseed(the.all.seed)
   Eg.num()
-  if the.all.C then print(Help:match("\n## License[%s]*(.*)")) end
+  if the.all.C then print(Help:match("\n# License[%s]*(.*)")) end
   if the.all.h then print(Help:match("(.*)\n# Details")) end
   if the.all.H then print(Help) end
   eg(the.all.U) 
@@ -752,7 +752,7 @@ function cli()
 end
 
 -- --------------------------------------------------------------------
--- ## start-up
+-- # start-up
 -- If called at top level, run `cli()`.
 if not pcall(debug.getlocal,4,1) then cli() end
 

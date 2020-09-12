@@ -58,7 +58,7 @@ lua2md() {
 F=/tmp/$$
  cat $1 | awk  '
 BEGIN {while(!sub(/^\]\].*/,"")) { getline }; 
-       print "\n\n# Code \n\n"
+       print "\n\n"
        print"```lua"} 
 sub(/^-- /,"")    {print"```" 
                    do {print; getline} while (sub(/^-- /,"")) 
