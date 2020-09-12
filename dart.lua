@@ -4,7 +4,7 @@ local Help=[[
 
 ## Description
   Optimize = cluster plus sample plus contrast;
-  i.e. divide problem space into chunks;
+  i.e. Divide problem space into chunks;
   dart, a little, around the chunks;
   report back anything that jumps you between chunks.
 
@@ -122,7 +122,7 @@ local y,x,sym,xsym,xnum,cols,lt          = nil,nil,nil,nil,nil,nil,nil
 local round,o,oo,ooo,id,same             = nil,nil,nil,nil,nil,nil 
 local map, copy,select,any,anys,keys,csv = nil,nil,nil,nil,nil,nil
 local within,rogues,eg,eg1,Eg,main       = nil,nil,nil,nil,nil,nil
-local from,ako,var,words,trim,color      = nil,nil,nil,nil,nil,nil
+local from,isa,var,words,trim,color      = nil,nil,nil,nil,nil,nil
 local cli, options, fun                  = nil,nil, nil
 local some,binChop,col,adds              = nil,nil,nil,nil
 local Coc,Num,Some,Sym                   = nil,nil,nil,nil
@@ -285,7 +285,7 @@ Num = {n=1, pos=0, txt="", mu=0, m2=0, sd=0,
        lo=math.huge, hi= -math.huge}
 
 -- #### `Num`.new(txt,pos) : make a  new `Num`
-function Num.new(txt,pos) return col(ako(Num),txt,pos) end
+function Num.new(txt,pos) return col(isa(Num),txt,pos) end
 
 -- #### `Num`:add(x) : add `x` to the receiver
 function Num:add(x,    d) 
@@ -304,7 +304,7 @@ end
 Sym = {n=1, pos=0, txt="", most=0, seen={}}
 
 -- #### `Sym`.new(txt,pos) : make a  new `Sym`
-function Sym.new(txt,pos) return col(ako(Sym),txt,pos) end
+function Sym.new(txt,pos) return col(isa(Sym),txt,pos) end
 
 -- #### `Sym`:add(x) : add `x` to the receiver
 function Sym:add(x,    new)
@@ -331,7 +331,7 @@ Some= {n=1, pos=0, txt="", t={}, old=false, max=256}
 
 -- #### `Some`.new(txt,pos) : make a  new `Some`
 function Some.new(txt,pos,max,   c) 
-  return col(ako(Some,{max=max or the.some.max}),
+  return col(isa(Some,{max=max or the.some.max}),
              txt,pos) end
 
 -- #### `Some`:add(x) : add `x` to the receiver
@@ -362,7 +362,7 @@ Cols = {use  = {},
 
 -- ### `Cols`.new(t) : return a news `cols` with all the `nums` and `syms` filled in
 function Cols.new(t)         
-   local put, new = 0, ako(Cols)
+   local put, new = 0, isa(Cols)
    local function remember(x,a)
       push(x, a.all)
       push(x, a[new:nump(x.txt) and "nums" or "syms"])  
@@ -401,7 +401,7 @@ Rows = {cols={},rows={}}
 
 -- ### `Rows`:clone() : return a new `Rows` with the same structure as the receiver
 function Rows:clone() 
-  return ako(Rows,{cols=cols(self.cols.hdr)})   
+  return isa(Rows,{cols=cols(self.cols.hdr)})   
 end
 
 -- ### `Rows`:read(file) : read in data from a csv `file`
@@ -423,7 +423,7 @@ end
 Row = {cells={},cooked={}}
 
 -- ### `Row`.new(t) : initialize a new row
-function Row.new(t) return ako(Row,{cells=t}) end
+function Row.new(t) return isa(Row,{cells=t}) end
 
 -- -------------------------------------------------------------------
 -- # Miscellaneous Functions
@@ -504,8 +504,8 @@ function select(t,f,     g,u)
   return u
 end
 
--- ### ako(class,has) : create a new instance of `class`, add the `has` slides 
-function ako(klass,has,      new)
+-- ### isa(class,has) : create a new instance of `class`, add the `has` slots 
+function isa(klass,has,      new)
   new = copy(klass or {})
   for k,v in pairs(has or {}) do new[k] = v end
   setmetatable(new, klass)
@@ -580,28 +580,29 @@ end
 
 -- -------------------------------------------------------------------
 -- # Unit Tests
--- ## Support code
+-- ## Support code    
 
 -- ### eg(x): run the test function `eg_x` or, if `x` is nil, run all.
-function eg(name,   f,t1,t2,passed,err,y,n)
+function eg(name,   f,t1,t2,t3,passed,err,y,n)
   if name=="fun" then return 1 end
   f= Eg[name]
   the.test.yes = the.test.yes + 1
   t1 = os.clock()
   math.randomseed(the.all.seed)
   passed,err = pcall(f) 
+  t3= os.date("%X :")
   if passed then
     t2= os.clock()
     print(color("green",
-                string.format("PASS! "..name.." \t: %8.6f secs",
+                string.format("%s PASS! "..name.." \t: %8.6f secs",t3,
                               t2-t1)))
   else
     the.test.no = the.test.no + 1
     y,n = the.test.yes,  the.test.no
     print(color("red",
-                 string.format("FAIL! "..name.." \t: %s [%.0f] %%",
+                 string.format("%s FAIL! "..name.." \t: %s [%.0f] %%",t3,
                                err:gsub("^.*: ",""), 
-    100*y/(y+n)))) end 
+                               100*y/(y+n)))) end 
 end
 
 -- ### within(x,y,z)
@@ -625,17 +626,22 @@ function rogues(   no)
    for k,v in pairs( _G ) do
       if not no[k] then
          if k:match("^[^A-Z]") then
-   print("-- ROGUE ["..k.."]") end end end
+   print("-- ROGUE ["..k.."]") end end end 
 end
 
 -- -------------------------------------------------------------------
 -- ## Unit tests
 Eg={}
 function Eg.fun()   return true end
-function Eg.all()   print("")
+function Eg.all()   print("") 
                     for k,_ in keys(Eg) do
                       if k~="all" and k~="fun" then  
-                        eg(k) end end end
+                        eg(k) end end 
+                    print(color("green",
+                                os.date("%X : ").."pass = "..the.test.yes),
+                          color("red",
+                                "\n"..os.date("%X : ").."fail = "..the.test.no))
+                    end
 function Eg.test()  assert(1==2) end
 function Eg.rnd()   assert(3.2==round(3.2222,1)) end
 function Eg.o()     assert("{1, aa, 3}" == o({1,"aa",3})) end
