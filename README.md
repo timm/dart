@@ -138,7 +138,6 @@ ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 
--- ROGUE [row]
 - [Code](#code) 
     - [Cocomo](#cocomo) 
         - [Coc.all()](#cocall--return-a-generator-of-cocomo-projects) : return a generator of COCOMO projects
@@ -388,7 +387,8 @@ end
 ```lua
 Num = {n=1, pos=0, txt="", mu=0, m2=0, sd=0,
        lo=math.huge, hi= -math.huge}
-num = function(txt,pos) return col(ako(Num),txt,pos) end
+
+function Num.new(txt,pos) return col(ako(Num),txt,pos) end
 
 ```
 ##### Num:add(x) : add `x` to the receiver
@@ -409,7 +409,8 @@ end
 #### `Sym`bolic Columns
 ```lua
 Sym = {n=1, pos=0, txt="", most=0, seen={}}
-sym = function(txt,pos) return col(ako(Sym),txt,pos) end
+
+function Sym.new(txt,pos) return col(ako(Sym),txt,pos) end
 
 ```
 ##### Sym:add(x) : add `x` to the receiver
@@ -439,9 +440,10 @@ end
 #### `Some` Column: resovoir samplers
 ```lua
 Some= {n=1, pos=0, txt="", t={}, old=false, max=256}
-some = function(txt,pos,max,   c) 
-         return col(ako(Some,{max=max or the.some.max}),
-                    txt,pos) end
+
+function Some.new(txt,pos,max,   c) 
+  return col(ako(Some,{max=max or the.some.max}),
+             txt,pos) end
 
 ```
 ##### Some:add(x) : add `x` to the receiver
@@ -478,14 +480,14 @@ Cols = {use  = {},
 ```
 #### cols(t) : return a news `cols` with all the `nums` and `syms` filled in
 ```lua
-function cols(t)         
+function Cols.new(t)         
   local put, new = 0, ako(Cols)
   for get,txt in pairs(t) do
     if new:skip(txt) then
       put          = put + 1
       new.use[put] = get
       new.hdr[put] = txt
-      what         = (new:nump(txt) and num or sym)(put,txt)
+      what         = (new:nump(txt) and Num or Sym).new(put,txt)
       new:push2(what, new.cols)
       new:push2(what, goalp and new.y or new.x) end end
   return new
@@ -517,7 +519,7 @@ function Cols:row(t,     u,col,val)
     col, val = self.cols.all[put], t[get]
     u[put]   = col:add(val) 
   end
-  return row(u)
+  return Row.new(u)
 end
 
 ```
@@ -528,12 +530,17 @@ Rows = {cols={},rows={}}
 ```
 #### Rows:clone() : return a new `Rows` with the same structure as the receiver
 ```lua
-function Rows:clone() return ako(Rows,{cols=cols(self.cols.hdr)})   end
+function Rows:clone() 
+  return ako(Rows,{cols=cols(self.cols.hdr)})   
+end
 
 ```
 #### Rows:read(file) : read in data from a csv `file`
 ```lua
-function Rows:read(file) for t in csv(file) do self:add(t) end;return self end
+function Rows:read(file) 
+  for t in csv(file) do self:add(t) end
+  return self 
+end
 
 ```
 #### Rows:add(t) : turn the first row into a columns header, the rest into data rows
@@ -554,7 +561,7 @@ Row = {cells={},cooked={}}
 ```
 #### row(t) : initialize a new row
 ```lua
-function row(t) return ako(Row,{cells=t}) end
+function Row.new(t) return ako(Row,{cells=t}) end
 
 ```
 ## Lib
@@ -858,7 +865,7 @@ function Eg.chop(t,n)
 end
 
 function Eg.some(s)
-  s =some()
+  s =Some.new()
   s.max = 32
   for i = 1,10^4 do s:add(i) end
 end
@@ -876,12 +883,13 @@ function Eg.num()
     mu, sd = mu or 0, sd or 1
     return mu + sd*(-2*l(r()))^0.5*c(6.2831853*r()) 
   end
-  local n=num()
+  local n=Num.new()
   local mu, sd=10,3
   for _ = 1,1000 do n:add(norm(10,3)) end
   assert(mu*.95<=n.mu and n.mu<=mu*1.05)
   assert(sd*.95<=n.sd and n.sd<=sd*1.05)
 end
+
 ```
 -------------------------------------------------------------------
 ## Command Line

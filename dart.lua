@@ -695,12 +695,13 @@ function Eg.num()
     mu, sd = mu or 0, sd or 1
     return mu + sd*(-2*l(r()))^0.5*c(6.2831853*r()) 
   end
-  local n=Nun.new()
+  local n=Num.new()
   local mu, sd=10,3
   for _ = 1,1000 do n:add(norm(10,3)) end
   assert(mu*.95<=n.mu and n.mu<=mu*1.05)
   assert(sd*.95<=n.sd and n.sd<=sd*1.05)
 end
+
 -- -------------------------------------------------------------------
 -- ## Command Line
 -- ### options(now,b4) : return a tree with options from `b4` updated with `now`
