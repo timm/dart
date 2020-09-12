@@ -342,7 +342,7 @@ function Some:all(   f)
 end
 -- ### Col,ms
 Cols = {use  = {},
-        head = {},
+        hdr  = {},
         x    = {nums={}, syms={}, all={}},
         y    = {nums={}, syms={}, all={}},
         cols = {nums={}, syms={}, all={}}}
@@ -353,13 +353,15 @@ function Cols:obj(s)   return self:has(s,"less") or self:has(s,"more") end
 function Cols:nump(s)  return self:obj(s) or self:has(s,"num") end
 function Cols:goalp(s) return self:obj(s) or self:has(s,"klass") end
 function Cols:add(x)
-  push(x,  a.all)
+  push(x, a.all)
   push(x, a[self:nump(x.txt) and "nums" or "syms"])  
 end
-function Cols:add(t,     u)
+function Cols:add(t,     u,col,val)
   u = {}
   for put,get in pairs(self.use) do 
-    u[put] = self.cols.all[put]:add(t[get]) end
+    col, val = self.cols.all[put], t[get]
+    u[put]   = col:add(val) 
+  end
   return row(u)
 end
 
@@ -369,7 +371,7 @@ function cols(t)
     if new:skip(txt) then
       put          = put + 1
       new.use[put] = get
-      new.head[m]  = txt
+      new.hdr[put] = txt
       what         = (new:nump(txt) and num or sym)(put,txt)
       new:push2(what, new.cols)
       new:push2(what, goalp and new.y or new.x) end end
@@ -378,14 +380,14 @@ end
 
 Rows = {cols={},rows={}}
 
-function Rows:clone() return ako(Rows,{cols=cols(self.cols.head)})    end
-function Rows:read(f) for t in csv(f) do self:add(t) end;return self; end
-
+function Rows:clone() return ako(Rows,{cols=cols(self.cols.hdr)})   end
+function Rows:read(f) for t in csv(f) do self:add(t) end;return self end
 function Rows:add(t)
-  t= t.cells and t.cells or t
+  t = t.cells and t.cells or t
   if   self.cols 
   then t.rows[#t.rows+1] = self.cols:add(t) 
-  else self.cols = cols(t) end
+  else self.cols = cols(t) 
+  end
 end
 
 Row = {cells={},cooked={}}
