@@ -283,7 +283,8 @@ end
 -- #### `Num`eric Columns
 Num = {n=1, pos=0, txt="", mu=0, m2=0, sd=0,
        lo=math.huge, hi= -math.huge}
-num = function(txt,pos) return col(ako(Num),txt,pos) end
+
+function Num.new(txt,pos) return col(ako(Num),txt,pos) end
 
 -- ##### Num:add(x) : add `x` to the receiver
 function Num:add(x,    d) 
@@ -300,7 +301,8 @@ end
 
 -- #### `Sym`bolic Columns
 Sym = {n=1, pos=0, txt="", most=0, seen={}}
-sym = function(txt,pos) return col(ako(Sym),txt,pos) end
+
+function Sym.new(txt,pos) return col(ako(Sym),txt,pos) end
 
 -- ##### Sym:add(x) : add `x` to the receiver
 function Sym:add(x,    new)
@@ -324,9 +326,10 @@ end
 
 -- #### `Some` Column: resovoir samplers
 Some= {n=1, pos=0, txt="", t={}, old=false, max=256}
-some = function(txt,pos,max,   c) 
-         return col(ako(Some,{max=max or the.some.max}),
-                    txt,pos) end
+
+function Some.new(txt,pos,max,   c) 
+  return col(ako(Some,{max=max or the.some.max}),
+             txt,pos) end
 
 -- ##### Some:add(x) : add `x` to the receiver
 function Some:add(x,   pos)
@@ -355,7 +358,7 @@ Cols = {use  = {},
         cols = {nums={}, syms={}, all={}}}
 
 -- #### cols(t) : return a news `cols` with all the `nums` and `syms` filled in
-function cols(t)         
+function Cols.new(t)         
   local put, new = 0, ako(Cols)
   for get,txt in pairs(t) do
     if new:skip(txt) then
@@ -388,7 +391,7 @@ function Cols:row(t,     u,col,val)
     col, val = self.cols.all[put], t[get]
     u[put]   = col:add(val) 
   end
-  return row(u)
+  return Row.new(u)
 end
 
 -- ### Rows : class; a place to store `cols` and `rows`.
@@ -398,7 +401,10 @@ Rows = {cols={},rows={}}
 function Rows:clone() return ako(Rows,{cols=cols(self.cols.hdr)})   end
 
 -- #### Rows:read(file) : read in data from a csv `file`
-function Rows:read(file) for t in csv(file) do self:add(t) end;return self end
+function Rows:read(file) 
+  for t in csv(file) do self:add(t) end
+  return self 
+ nd
 
 -- #### Rows:add(t) : turn the first row into a columns header, the rest into data rows
 function Rows:add(t)
@@ -413,7 +419,7 @@ end
 Row = {cells={},cooked={}}
 
 -- #### row(t) : initialize a new row
-function row(t) return ako(Row,{cells=t}) end
+function Row.new(t) return ako(Row,{cells=t}) end
 
 -- ## Lib
 -- ### Maths
@@ -669,7 +675,7 @@ function Eg.chop(t,n)
 end
 
 function Eg.some(s)
-  s =some()
+  s =Some.new()
   s.max = 32
   for i = 1,10^4 do s:add(i) end
 end
