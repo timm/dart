@@ -603,7 +603,7 @@ function within(x,y,z)
   assert(x <= y and y <= z, 'outside range ['..x..' to '..']')
 end
 
---- ### rogues() : report escaped local variables
+-- ### rogues() : report escaped local variables
 function rogues(   no)
    no = {the=true,
       tostring=true,  tonumber=true,  assert=true,  rawlen=true,

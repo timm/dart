@@ -195,6 +195,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     - [Support code](#support-code) 
         - [eg(x)](#egx-run-the-test-function-egx-or-if-x-is-nil-run-all) : run the test function `eg_x` or, if `x` is nil, run all.
         - [within(x,y,z)](#withinxyz) 
+        - [rogues()](#rogues--report-escaped-local-variables) : report escaped local variables
     - [Unit tests](#unit-tests) 
 - [Command Line](#command-line) 
     - [options(now,b4)](#optionsnowb4--return-a-tree-with-options-from-b4-updated-with-now) : return a tree with options from `b4` updated with `now`
@@ -786,7 +787,9 @@ function within(x,y,z)
   assert(x <= y and y <= z, 'outside range ['..x..' to '..']')
 end
 
---- ### rogues() : report escaped local variables
+```
+### rogues() : report escaped local variables
+```lua
 function rogues(   no)
    no = {the=true,
       tostring=true,  tonumber=true,  assert=true,  rawlen=true,
