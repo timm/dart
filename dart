@@ -35,20 +35,20 @@ Dir=$(cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )
 Sh=$(basename ${BASH_SOURCE[0]})
 Src=$(basename $Sh).lua 
 
-alias bye="$Tmux kill-session"                  # exit
-alias dart="lua $Dir/$Src "                     # run code
-alias ga='git add *'                            # add to local repo
-alias gg='git pull'                             # update code from web
-alias gp='ga;git commit -am saving;git push;gs' # end-of-day actions
-alias gs='git status'                           # status 
-alias ls='ls -G'                                # ls
-alias ok="dart -U "                             # run a unit test
-alias oks="dart -U all"                         # run all unit tests
-alias okspy="rerun 'lua dart.lua -U all'"       # run tests when files change
-alias readme="lua2md $Dir/$Src>$Dir/README.md"  # rebuild README.md
-alias reload='. $Dir/$Sh'                       # reload these tools
-alias tmux=mytmux                               # 2-pane tmux environment
-alias vims="vim +PluginInstall +qall"           # install vim plugins 
+alias bye="$Tmux kill-session"                # exit
+alias dart="lua $Dir/$Src "                   # run code
+alias ga='git add *'                          # add to local repo
+alias gg='git pull'                           # update code from web
+alias gp='ga;git commit -am save;git push;gs' # end-of-day actions
+alias gs='git status'                         # status 
+alias ls='ls -G'                              # ls
+alias ok="dart -U "                           # run a unit test
+alias oks="dart -U all"                       # run all unit tests
+alias okspy="rerun 'lua dart.lua -U all'"     # retest if files change
+alias readme="lua2md $Dir/$Src>$Dir/README.md" # rebuild README.md
+alias reload='. $Dir/$Sh'                     # reload these tools
+alias tmux=mytmux                             # 2-pane tmux environment
+alias vims="vim +PluginInstall +qall"         # install vim plugins 
 
 color() { awk '
 /FAIL/ {print "\033[31m" $0 "\033[0m";next}
@@ -129,13 +129,13 @@ mytmux() {
   $Tmux start-server
   sleep 1
   $Tmux new-session -d -s $session  
-  $Tmux send-keys ". $Dir/$Sh"  C-m  "sleep 1; vi dart.lua" C-m
+  $Tmux send-keys ". $Dir/$Sh"  C-m  "sleep 0.5; vi dart.lua" C-m
 
-  $Tmux splitw -h -p 30
+  $Tmux splitw -h -p 20
   $Tmux selectp -t 1
   $Tmux send-keys ".  $Dir/$Sh"  C-m  "clear; hello" C-m
 
-  $Tmux splitw -v  -p 10
+  $Tmux splitw -v  -p 5
   $Tmux selectp -t 2
   $Tmux send-keys ".  $Dir/$Sh"  C-m  "htop"  C-m
 

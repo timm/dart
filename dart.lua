@@ -373,27 +373,29 @@ function Cols.new(t)
       new.use[put] = get
       new.hdr[put] = txt
       what         = (new:nump(txt) and Num or Sym).new(put,txt)
+      if new:klassp(txt) then self.klass= what end
       remember(what, new.cols)
       remember(what, new:goalp(txt) and new.y or new.x) end end
   return new
 end
 
 -- ### `Col`umn types (string types)
-function Cols:has(s,x) return s:find(the.all.type[x]) end 
-function Cols:skip(s)  return self:has(s,"skip") end
-function Cols:obj(s)   return self:has(s,"less") or self:has(s,"more") end
-function Cols:nump(s)  return self:obj(s) or self:has(s,"num") end
-function Cols:goalp(s) return self:obj(s) or self:has(s,"klass") end
+function Cols:has(s,x)  return s:find(the.all.type[x]) end 
+function Cols:klassp(s) return self:has(s,"klass") end
+function Cols:skip(s)   return self:has(s,"skip") end
+function Cols:obj(s)    return self:has(s,"less") or self:has(s,"more") end
+function Cols:nump(s)   return self:obj(s) or self:has(s,"num") end
+function Cols:goalp(s)  return self:obj(s) or self:klassp(s) end
 
 -- ### `Cols`:push2(x) : add a column, to `all`, `nums` and `syms`
 -- ### `Cols`:row(t) : return a row containing `cells`, updating the summaries.
-function Cols:row(cells,     using,col,val)
+function Cols:row(cells,rows,     using,col,val)
   using = {}
   for put,get in pairs(self.use) do 
     col, val = self.cols.all[put], cells[get]
     using[put]   = col:add(val) 
   end
-  return Row.new(using)
+  return Row.new(using,rows)
 end
 
 -- ## `Rows` : class; a place to store `cols` and `rows`.
@@ -414,7 +416,7 @@ end
 function Rows:add(t)
   t = t.cells and t.cells or t
   if   self.cols 
-  then t.rows[#t.rows+1] = self.cols:row(t) 
+  then t.rows[#t.rows+1] = self.cols:row(t,self) 
   else self.cols = cols(t) 
   end
 end
@@ -423,7 +425,8 @@ end
 Row = {cells={},cooked={}}
 
 -- ### `Row`.new(t) : initialize a new row
-function Row.new(t) return isa(Row,{cells=t}) end
+function Row.new(t,rows) 
+  return isa(Row,{cells=t,_rows=rows}) end
 
 -- -------------------------------------------------------------------
 -- # Miscellaneous Functions
@@ -450,12 +453,12 @@ function oo(z,pre) print(o(z,pre)) end
 
 -- ### ooo(t,pre) : return a string representing `t`'s recursive contents.
 function ooo(t,pre,    indent,fmt)
-  pre=pre or ""
+  pre    = pre or ""
   indent = indent or 0
   if indent < 10 then
     for k, v in pairs(t or {}) do
       if not (type(k)=='string' and k:match("^_")) then
-        fmt= pre..string.rep("|  ",indent)..tostring(k)..": "
+        fmt = pre..string.rep("|  ",indent)..tostring(k)..": "
         if type(v) == "table" then
           print(fmt)
           ooo(v, pre, indent+1)
@@ -594,16 +597,14 @@ function eg(name,       f,t1,t2,t3,passed,err,y,n)
   if passed then
     t2= os.clock()
     print(
-      color("green",
-        string.format("%s PASS! "..name.." \t: %8.6f secs",
-                      t3, t2-t1)))
+     color("green",string.format("%s PASS! "..name.." \t: %8.6f secs",
+                                 t3, t2-t1)))
   else
     the.test.no = the.test.no + 1
     y,n = the.test.yes,  the.test.no
     print(
-      color("red",
-        string.format("%s FAIL! "..name.." \t: %s [%.0f] %%",
-                      t3, err:gsub("^.*: ",""), 100*y/(y+n)))) end 
+     color("red",string.format("%s FAIL! "..name.." \t: %s [%.0f] %%",
+                         t3, err:gsub("^.*: ",""), 100*y/(y+n)))) end 
 end
 
 -- ### within(x,y,z)
@@ -635,21 +636,24 @@ end
 -- -------------------------------------------------------------------
 -- ## Unit tests
 Eg={}
+function Eg.all()   
+  print("") 
+  for k,_ in keys(Eg) do
+    if k~="all" and k~="fun" then eg(k) end 
+  end 
+  print(color("green",
+          os.date("%X : ").."pass = "..the.test.yes),
+        color("red",
+          "\n"..os.date("%X : ").."fail = "..the.test.no))
+end
+
 function Eg.fun()   return true end
-function Eg.all()   print("") 
-                    for k,_ in keys(Eg) do
-                      if k~="all" and k~="fun" then  
-                        eg(k) end end 
-                    print(color("green",
-                                os.date("%X : ").."pass = "..the.test.yes),
-                          color("red",
-                                "\n"..os.date("%X : ").."fail = "..the.test.no))
-                    end
 function Eg.test()  assert(1==2) end
 function Eg.rnd()   assert(3.2==round(3.2222,1)) end
 function Eg.o()     assert("{1, aa, 3}" == o({1,"aa",3})) end
 function Eg.id(  a) a={}; id(a); id(a); assert(1==a._id) end
-function Eg.map( t) assert(30 == map({1,2,3}, function (z) return z*10 end)[3]) end
+function Eg.map( t) 
+  assert(30 == map({1,2,3}, function (z) return z*10 end)[3]) end
 
 function Eg.coc(    x,y,z,s,sep)
   x,y,z = Coc.one()
@@ -715,6 +719,9 @@ function Eg.num()
   assert(sd*.95<=n.sd and n.sd<=sd*1.05)
 end
 
+function Eg.cols()
+  ooo(Cols.new({"name","$age"}))
+end
 -- -------------------------------------------------------------------
 -- # Command Line
 -- ## options(now,b4) : return a tree with options from `b4` updated with `now`
@@ -751,7 +758,7 @@ function options(now,b4,   old)
   return b4
 end
 
--- ## cli() : initialize the `the` variable and run command-line options.
+-- ## cli() : initialize `the` and run command-line options.
 function cli()
   the = options( table.concat(arg," "),
                  Help:match("\nOptions[^\n]*\n\n([^#]+)#"))
