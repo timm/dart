@@ -69,7 +69,7 @@ onventions:
       another library:
       - And I test for that using `not pcall(debug.getlocal, 4, 1)`.
     - Finally, there  is a return statement that exports the more useful parts of the code.
-  - No globals (so keep the list of `local`s at top of file up to date).
+  - No globasl (so keep the list of `local`s at top of file up to date).
   - The `the` local handles information and defaults shared across all functions and classes.
     - And this variable is initialized by parsing the [Usage](#usage) section of this help
       text/
@@ -532,7 +532,7 @@ function keys(t)
   return function () 
     if i < #u then 
       i = i+1
-  return u[i], t[u[i]] end end 
+      return u[i], t[u[i]] end end 
 end
 
 -- ### binChop(t,x) : return a position very near `x` within `t`
@@ -583,7 +583,7 @@ end
 -- ## Support code    
 
 -- ### eg(x): run the test function `eg_x` or, if `x` is nil, run all.
-function eg(name,   f,t1,t2,t3,passed,err,y,n)
+function eg(name,       f,t1,t2,t3,passed,err,y,n)
   if name=="fun" then return 1 end
   f= Eg[name]
   the.test.yes = the.test.yes + 1
@@ -593,16 +593,17 @@ function eg(name,   f,t1,t2,t3,passed,err,y,n)
   t3= os.date("%X :")
   if passed then
     t2= os.clock()
-    print(color("green",
-                string.format("%s PASS! "..name.." \t: %8.6f secs",t3,
-                              t2-t1)))
+    print(
+      color("green",
+        string.format("%s PASS! "..name.." \t: %8.6f secs",
+                      t3, t2-t1)))
   else
     the.test.no = the.test.no + 1
     y,n = the.test.yes,  the.test.no
-    print(color("red",
-                 string.format("%s FAIL! "..name.." \t: %s [%.0f] %%",t3,
-                               err:gsub("^.*: ",""), 
-                               100*y/(y+n)))) end 
+    print(
+      color("red",
+        string.format("%s FAIL! "..name.." \t: %s [%.0f] %%",
+                      t3, err:gsub("^.*: ",""), 100*y/(y+n)))) end 
 end
 
 -- ### within(x,y,z)
@@ -612,17 +613,19 @@ end
 
 -- ### rogues() : report escaped local variables
 function rogues(   no)
-   no = {the=true,
-      tostring=true,  tonumber=true,  assert=true,  rawlen=true,
-      pairs=true,  ipairs=true, collectgarbage=true,  pcall=true,
-      rawget=true,  xpcall=true,  type=true,  print=true,
-      rawequal=true,  setmetatable=true,  require=true,
-      load=true,  rawset=true,  next=true,
-      getmetatable=true,  select=true,  error=true,  dofile=true,
-      loadfile=true,  jit=true, utf8=true, math=true,
-      package=true, table=true, coroutine=true, bit=true, os=true,
-      io=true, bit32=true, string=true, arg=true, debug=true,
-      _VERSION=true, _G=true }
+   no = {
+      the=true, tostring=true,  tonumber=true, assert=true,
+      rawlen=true, pairs=true,     ipairs=true,
+      collectgarbage=true, xpcall=true, rawget=true,
+      pcall=true,        type=true,      print=true,
+      rawequal=true,  setmetatable=true, require=true, load=true,
+      rawset=true,       next=true, getmetatable=true,
+      select=true,   error=true,     dofile=true, loadfile=true,
+      jit=true,          utf8=true,      math=true, package=true,
+      table=true,        coroutine=true, bit=true, os=true,
+      io=true,        bit32=true,        string=true,
+      arg=true, debug=true, _VERSION=true, _G=true
+      }
    for k,v in pairs( _G ) do
       if not no[k] then
          if k:match("^[^A-Z]") then
@@ -664,9 +667,7 @@ end
 
 function Eg.csv( n) 
   n=0
-  for row in csv("data/weather.csv") do 
-    n=n+1
-  end
+  for row in csv("data/weather.csv") do n=n+1 end
   assert(n==15)
 end
 
