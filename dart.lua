@@ -573,7 +573,7 @@ do local colors={red=31, green=32,  plain=0}
   return '\27[1m\27['..colors[col]..'m'..str..'\27[0m' end
 end
 -- -------------------------------------------------------------------
--- # Testing
+-- # Unit Tests
 -- ## Support code
 
 -- ### eg(x): run the test function `eg_x` or, if `x` is nil, run all.
@@ -603,7 +603,7 @@ function within(x,y,z)
   assert(x <= y and y <= z, 'outside range ['..x..' to '..']')
 end
 
---- ### rogues(): report escaped local variables
+--- ### rogues() : report escaped local variables
 function rogues(   no)
    no = {the=true,
       tostring=true,  tonumber=true,  assert=true,  rawlen=true,

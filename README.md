@@ -191,7 +191,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         - [csv(file)](#csvfile--iterate-through--non-empty-rows-divided-on-comma-coercing-numbers) : iterate through  non-empty rows, divided on comma, coercing numbers
         - [words(s,pat,fun)](#wordsspatfun--split-str-on-pat-default-coerce-using-fun-defaults-tonumiber) : split `str` on `pat` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
         - [trim(str)](#trimstr--remove-leading-and-trailing-blanks) : remove leading and trailing blanks
-- [Testing](#testing) 
+- [Unit Tests](#unit-tests) 
     - [Support code](#support-code) 
         - [eg(x)](#egx-run-the-test-function-egx-or-if-x-is-nil-run-all) : run the test function `eg_x` or, if `x` is nil, run all.
         - [within](#within) 
@@ -751,7 +751,7 @@ do local colors={red=31, green=32,  plain=0}
 end
 ```
 -------------------------------------------------------------------
-# Testing
+# Unit Tests
 ## Support code
 ```lua
 
@@ -786,7 +786,7 @@ function within(x,y,z)
   assert(x <= y and y <= z, 'outside range ['..x..' to '..']')
 end
 
---- ### rogues(): report escaped local variables
+--- ### rogues() : report escaped local variables
 function rogues(   no)
    no = {the=true,
       tostring=true,  tonumber=true,  assert=true,  rawlen=true,
