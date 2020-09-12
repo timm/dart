@@ -284,6 +284,7 @@ end
 Num = {n=1, pos=0, txt="", mu=0, m2=0, sd=0,
        lo=math.huge, hi= -math.huge}
 
+-- #### `Num`.new(txt,pos) : make a  new `Num`
 function Num.new(txt,pos) return col(ako(Num),txt,pos) end
 
 -- #### `Num`:add(x) : add `x` to the receiver
@@ -302,6 +303,7 @@ end
 -- ### `Sym`bolic Columns
 Sym = {n=1, pos=0, txt="", most=0, seen={}}
 
+-- #### `Sym`.new(txt,pos) : make a  new `Sym`
 function Sym.new(txt,pos) return col(ako(Sym),txt,pos) end
 
 -- #### `Sym`:add(x) : add `x` to the receiver
@@ -327,6 +329,7 @@ end
 -- ### `Some` Column: resovoir samplers
 Some= {n=1, pos=0, txt="", t={}, old=false, max=256}
 
+-- #### `Some`.new(txt,pos) : make a  new `Some`
 function Some.new(txt,pos,max,   c) 
   return col(ako(Some,{max=max or the.some.max}),
              txt,pos) end
@@ -474,7 +477,8 @@ function same(z) return z end
 function lt(x,y) return x<y end
 
 -- ### fun(x): returns true if `x` is a function
-function fun(x) return assert(type(_ENV[x]) == "function", "not function") and x end
+function fun(x) 
+  return assert(type(_ENV[x]) == "function", "not function") and x end
 
 -- ### map(t,f) : apply `f` to everything in `t` and return the result
 function map(t,f, u)
@@ -483,7 +487,7 @@ function map(t,f, u)
   return u
 end
 
--- ### copy(t) : return a deep copy of `t`
+-- ### copy(t) : return a deep copy of `obj`
 function copy(obj,   old,new)
   if type(obj) ~= 'table' then return obj end
   if old and old[obj] then return old[obj] end

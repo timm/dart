@@ -147,11 +147,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         - [adds(t, klass)](#addst-klass--all-everything-in-t-into-a-column-of-type-klass) : all everything in `t` into a column of type `klass`
         - [col(c,txt="",pos=0)](#colctxtpos0--initialize-a-column) : initialize a column
         - [`Num`eric Columns](#numeric-columns) 
+            - [`Num`.new(txt,pos)](#numnewtxtpos--make-a--new-num) : make a  new `Num`
             - [`Num`:add(x)](#numaddx--add-x-to-the-receiver) : add `x` to the receiver
         - [`Sym`bolic Columns](#symbolic-columns) 
+            - [`Sym`.new(txt,pos)](#symnewtxtpos--make-a--new-sym) : make a  new `Sym`
             - [`Sym`:add(x)](#symaddx--add-x-to-the-receiver) : add `x` to the receiver
             - [`Sym`:ent()](#syment--return-the-entropy-of-the-symbols-seen-in-this-column) : return the entropy of the symbols seen in this column
         - [`Some` Column](#some-column-resovoir-samplers) : resovoir samplers
+            - [`Some`.new(txt,pos)](#somenewtxtpos--make-a--new-some) : make a  new `Some`
             - [`Some`:add(x)](#someaddx--add-x-to-the-receiver) : add `x` to the receiver
             - [`Some`:all()](#someall--return-all-kept-items-sorted) : return all kept items, sorted
     - [`Cols`](#cols--place-to-store-lots-of-columns) : place to store lots of columns
@@ -179,7 +182,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         - [lt(x,y)](#ltxy--return-xy) : return `x<y`
         - [fun(x)](#funx-returns-true-if-x-is-a-function) : returns true if `x` is a function
         - [map(t,f)](#maptf--apply-f-to-everything-in-t-and-return-the-result) : apply `f` to everything in `t` and return the result
-        - [copy(t)](#copyt--return-a-deep-copy-of-t) : return a deep copy of `t`
+        - [copy(t)](#copyt--return-a-deep-copy-of-obj) : return a deep copy of `obj`
         - [select(t,f)](#selecttf--return-a-table-of-items-in-t-that-satisfy-function-f) : return a table of items in `t` that satisfy function `f`
         - [ako(class,has)](#akoclasshas--create-a-new-instance-of-class-add-the-has-slides-) : create a new instance of `class`, add the `has` slides 
     - [Lists](#lists) 
@@ -387,6 +390,9 @@ end
 Num = {n=1, pos=0, txt="", mu=0, m2=0, sd=0,
        lo=math.huge, hi= -math.huge}
 
+```
+#### `Num`.new(txt,pos) : make a  new `Num`
+```lua
 function Num.new(txt,pos) return col(ako(Num),txt,pos) end
 
 ```
@@ -409,6 +415,9 @@ end
 ```lua
 Sym = {n=1, pos=0, txt="", most=0, seen={}}
 
+```
+#### `Sym`.new(txt,pos) : make a  new `Sym`
+```lua
 function Sym.new(txt,pos) return col(ako(Sym),txt,pos) end
 
 ```
@@ -440,6 +449,9 @@ end
 ```lua
 Some= {n=1, pos=0, txt="", t={}, old=false, max=256}
 
+```
+#### `Some`.new(txt,pos) : make a  new `Some`
+```lua
 function Some.new(txt,pos,max,   c) 
   return col(ako(Some,{max=max or the.some.max}),
              txt,pos) end
@@ -629,7 +641,8 @@ function lt(x,y) return x<y end
 ```
 ### fun(x): returns true if `x` is a function
 ```lua
-function fun(x) return assert(type(_ENV[x]) == "function", "not function") and x end
+function fun(x) 
+  return assert(type(_ENV[x]) == "function", "not function") and x end
 
 ```
 ### map(t,f) : apply `f` to everything in `t` and return the result
@@ -641,7 +654,7 @@ function map(t,f, u)
 end
 
 ```
-### copy(t) : return a deep copy of `t`
+### copy(t) : return a deep copy of `obj`
 ```lua
 function copy(obj,   old,new)
   if type(obj) ~= 'table' then return obj end
