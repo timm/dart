@@ -148,15 +148,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         - [Col](#col--managing-single-columns-of-data) : managing single columns of data
             - [adds(t, klass)](#addst-klass--all-everything-in-t-into-a-column-of-type-klass) : all everything in `t` into a column of type `klass`
             - [col(c,txt="",pos=0)](#colctxtpos0--initialize-a-column) : initialize a column
-            - [Special kinds of colums](#special-kinds-of-colums) 
-                - [`Num`eric Columns](#numeric-columns) 
-                    - [Num:add(x)](#numaddx--add-x-to-the-receiver) : add `x` to the receiver
-                - [`Sym`bolic Columns](#symbolic-columns) 
-                    - [Sym:add(x)](#symaddx--add-x-to-the-receiver) : add `x` to the receiver
-                    - [Sym:ent()](#syment--return-the-entropy-of-the-symbols-seen-in-this-column) : return the entropy of the symbols seen in this column
-                - [`Some` Column](#some-column-resovoir-samplers) : resovoir samplers
-                    - [Some:add(x)](#someaddx--add-x-to-the-receiver) : add `x` to the receiver
-                    - [Some:all()](#someall--return-all-kept-items-sorted) : return all kept items, sorted
+            - [`Num`eric Columns](#numeric-columns) 
+                - [Num:add(x)](#numaddx--add-x-to-the-receiver) : add `x` to the receiver
+            - [`Sym`bolic Columns](#symbolic-columns) 
+                - [Sym:add(x)](#symaddx--add-x-to-the-receiver) : add `x` to the receiver
+                - [Sym:ent()](#syment--return-the-entropy-of-the-symbols-seen-in-this-column) : return the entropy of the symbols seen in this column
+            - [`Some` Column](#some-column-resovoir-samplers) : resovoir samplers
+                - [Some:add(x)](#someaddx--add-x-to-the-receiver) : add `x` to the receiver
+                - [Some:all()](#someall--return-all-kept-items-sorted) : return all kept items, sorted
         - [Columns](#columns) 
             - [cols(t)](#colst--return-a-news-cols-with-all-the-nums-and-syms-filled-in) : return a news `cols` with all the `nums` and `syms` filled in
             - [Column types (string types)](#column-types-string-types) 
@@ -385,15 +384,14 @@ function col(c, txt,pos)
 end
 
 ```
-#### Special kinds of colums
-##### `Num`eric Columns
+#### `Num`eric Columns
 ```lua
 Num = {n=1, pos=0, txt="", mu=0, m2=0, sd=0,
        lo=math.huge, hi= -math.huge}
 num = function(txt,pos) return col(ako(Num),txt,pos) end
 
 ```
-###### Num:add(x) : add `x` to the receiver
+##### Num:add(x) : add `x` to the receiver
 ```lua
 function Num:add(x,    d) 
   if x == the.type.skip then return x end
@@ -408,13 +406,13 @@ function Num:add(x,    d)
 end
 
 ```
-##### `Sym`bolic Columns
+#### `Sym`bolic Columns
 ```lua
 Sym = {n=1, pos=0, txt="", most=0, seen={}}
 sym = function(txt,pos) return col(ako(Sym),txt,pos) end
 
 ```
-###### Sym:add(x) : add `x` to the receiver
+##### Sym:add(x) : add `x` to the receiver
 ```lua
 function Sym:add(x,    new)
   if x == the.type.skip then return x end
@@ -426,7 +424,7 @@ function Sym:add(x,    new)
 end
 
 ```
-###### Sym:ent() : return the entropy of the symbols seen in this column
+##### Sym:ent() : return the entropy of the symbols seen in this column
 ```lua
 function Sym:ent(     e,p)
   e = 0
@@ -438,7 +436,7 @@ function Sym:ent(     e,p)
 end
 
 ```
-##### `Some` Column: resovoir samplers
+#### `Some` Column: resovoir samplers
 ```lua
 Some= {n=1, pos=0, txt="", t={}, old=false, max=256}
 some = function(txt,pos,max,   c) 
@@ -446,7 +444,7 @@ some = function(txt,pos,max,   c)
                     txt,pos) end
 
 ```
-###### Some:add(x) : add `x` to the receiver
+##### Some:add(x) : add `x` to the receiver
 ```lua
 function Some:add(x,   pos)
   if x == the.type.skip then return x end
@@ -461,7 +459,7 @@ function Some:add(x,   pos)
 end
 
 ```
-###### Some:all() : return all kept items, sorted
+##### Some:all() : return all kept items, sorted
 ```lua
 function Some:all(   f) 
   if self.old then table.sort(self.t,f or lt); self.old=false end

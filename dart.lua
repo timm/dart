@@ -280,13 +280,12 @@ function col(c, txt,pos)
   return c
 end
 
--- #### Special kinds of colums
--- ##### `Num`eric Columns
+-- #### `Num`eric Columns
 Num = {n=1, pos=0, txt="", mu=0, m2=0, sd=0,
        lo=math.huge, hi= -math.huge}
 num = function(txt,pos) return col(ako(Num),txt,pos) end
 
--- ###### Num:add(x) : add `x` to the receiver
+-- ##### Num:add(x) : add `x` to the receiver
 function Num:add(x,    d) 
   if x == the.type.skip then return x end
   self.n  = self.n + 1
@@ -299,11 +298,11 @@ function Num:add(x,    d)
   return x
 end
 
--- ##### `Sym`bolic Columns
+-- #### `Sym`bolic Columns
 Sym = {n=1, pos=0, txt="", most=0, seen={}}
 sym = function(txt,pos) return col(ako(Sym),txt,pos) end
 
--- ###### Sym:add(x) : add `x` to the receiver
+-- ##### Sym:add(x) : add `x` to the receiver
 function Sym:add(x,    new)
   if x == the.type.skip then return x end
   self.n       = self.n + 1
@@ -313,7 +312,7 @@ function Sym:add(x,    new)
   return x
 end
 
--- ###### Sym:ent() : return the entropy of the symbols seen in this column
+-- ##### Sym:ent() : return the entropy of the symbols seen in this column
 function Sym:ent(     e,p)
   e = 0
   for _,v in pairs(self.seen) do
@@ -323,13 +322,13 @@ function Sym:ent(     e,p)
   return e
 end
 
--- ##### `Some` Column: resovoir samplers
+-- #### `Some` Column: resovoir samplers
 Some= {n=1, pos=0, txt="", t={}, old=false, max=256}
 some = function(txt,pos,max,   c) 
          return col(ako(Some,{max=max or the.some.max}),
                     txt,pos) end
 
--- ###### Some:add(x) : add `x` to the receiver
+-- ##### Some:add(x) : add `x` to the receiver
 function Some:add(x,   pos)
   if x == the.type.skip then return x end
   self.n = self.n + 1
@@ -342,7 +341,7 @@ function Some:add(x,   pos)
   return x
 end
 
--- ###### Some:all() : return all kept items, sorted
+-- ##### Some:all() : return all kept items, sorted
 function Some:all(   f) 
   if self.old then table.sort(self.t,f or lt); self.old=false end
   return self.t
