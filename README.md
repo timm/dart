@@ -166,7 +166,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             - [Rows:add(t)](#rowsaddt--turn-the-first-row-into-a-columns-header-the-rest-into-data-rows) : turn the first row into a columns header, the rest into data rows
         - [`Row`](#row--a-place-to-hold-one-example) : a place to hold one example
             - [Row.new(t)](#rownewt--initialize-a-new-row) : initialize a new row
-    - [Lib](#lib) 
+    - [Miscellaneous Functions](#miscellaneous-functions) 
         - [Maths](#maths) 
             - [from(lo,hi)](#fromlohi--return-a-number-from-lo-to-hi) : return a number from `lo` to `hi`
             - [round(n,places)](#roundnplaces--round-n-to-some-decimal-places) : round `n` to some decimal `places`.
@@ -564,7 +564,7 @@ Row = {cells={},cooked={}}
 function Row.new(t) return ako(Row,{cells=t}) end
 
 ```
-## Lib
+## Miscellaneous Functions
 ### Maths
 #### from(lo,hi) : return a number from `lo` to `hi`
 ```lua

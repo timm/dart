@@ -423,7 +423,7 @@ Row = {cells={},cooked={}}
 -- #### Row.new(t) : initialize a new row
 function Row.new(t) return ako(Row,{cells=t}) end
 
--- ## Lib
+-- ## Miscellaneous Functions
 -- ### Maths
 -- #### from(lo,hi) : return a number from `lo` to `hi`
 function from(lo,hi) return lo+(hi-lo)*math.random() end
