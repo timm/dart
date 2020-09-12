@@ -191,6 +191,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         - [csv(file)](#csvfile--iterate-through--non-empty-rows-divided-on-comma-coercing-numbers) : iterate through  non-empty rows, divided on comma, coercing numbers
         - [words(s,pat,fun)](#wordsspatfun--split-str-on-pat-default-coerce-using-fun-defaults-tonumiber) : split `str` on `pat` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
         - [trim(str)](#trimstr--remove-leading-and-trailing-blanks) : remove leading and trailing blanks
+        - [color(theColor,str)](#colorthecolorstr--print-str-using-thecolor) : print `str` using `theColor`
 - [Unit Tests](#unit-tests) 
     - [Support code](#support-code) 
         - [eg(x)](#egx-run-the-test-function-egx-or-if-x-is-nil-run-all) : run the test function `eg_x` or, if `x` is nil, run all.
@@ -562,6 +563,7 @@ Row = {cells={},cooked={}}
 function Row.new(t) return ako(Row,{cells=t}) end
 
 ```
+-------------------------------------------------------------------
 # Miscellaneous Functions
 ## Maths
 ### from(lo,hi) : return a number from `lo` to `hi`
@@ -746,10 +748,14 @@ end
 ```lua
 function trim(str) return (str:gsub("^%s*(.-)%s*$", "%1")) end
 
+```
+### color(theColor,str) : print `str` using `theColor`
+```lua
 do local colors={red=31, green=32,  plain=0}
   function color(col,str)
   return '\27[1m\27['..colors[col]..'m'..str..'\27[0m' end
 end
+
 ```
 -------------------------------------------------------------------
 # Unit Tests

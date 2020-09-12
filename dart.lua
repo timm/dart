@@ -423,6 +423,7 @@ Row = {cells={},cooked={}}
 -- ### Row.new(t) : initialize a new row
 function Row.new(t) return ako(Row,{cells=t}) end
 
+-- -------------------------------------------------------------------
 -- # Miscellaneous Functions
 -- ## Maths
 -- ### from(lo,hi) : return a number from `lo` to `hi`
@@ -568,10 +569,12 @@ end
 -- ### trim(str) : remove leading and trailing blanks
 function trim(str) return (str:gsub("^%s*(.-)%s*$", "%1")) end
 
+-- ### color(theColor,str) : print `str` using `theColor`
 do local colors={red=31, green=32,  plain=0}
   function color(col,str)
   return '\27[1m\27['..colors[col]..'m'..str..'\27[0m' end
 end
+
 -- -------------------------------------------------------------------
 -- # Unit Tests
 -- ## Support code
