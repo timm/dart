@@ -262,7 +262,8 @@ function Coc.risk(    _,ne,nw,nw4,sw,sw4,ne46, sw26,sw46)
 end
 
 -- ## Data
--- ### Columns
+-- ### Col : managing single columns of data
+-- #### adds(t, klass) : all everything in `t` into a column of type `klass`
 function adds(t, klass,thing)
   klass = klass or num
   thing = klass()
@@ -270,6 +271,7 @@ function adds(t, klass,thing)
   return thing
 end
 
+-- #### col(c,txt="",pos=0) : initialize a column
 function col(c, txt,pos)
   c.n   = 0
   c.txt = txt or ""
@@ -284,6 +286,7 @@ Num = {n=1, pos=0, txt="", mu=0, m2=0, sd=0,
        lo=math.huge, hi= -math.huge}
 num = function(txt,pos) return col(ako(Num),txt,pos) end
 
+-- ###### Num:add(x) : add `x` to the receiver
 function Num:add(x,    d) 
   if x == the.type.skip then return x end
   self.n  = self.n + 1
@@ -300,6 +303,7 @@ end
 Sym = {n=1, pos=0, txt="", most=0, seen={}}
 sym = function(txt,pos) return col(ako(Sym),txt,pos) end
 
+-- ###### Sym:add(x) : add `x` to the receiver
 function Sym:add(x,    new)
   if x == the.type.skip then return x end
   self.n       = self.n + 1
@@ -309,6 +313,7 @@ function Sym:add(x,    new)
   return x
 end
 
+-- ###### Sym:ent() : return the entropy of the symbols seen in this column
 function Sym:ent(     e,p)
   e = 0
   for _,v in pairs(self.seen) do
@@ -324,6 +329,7 @@ some = function(txt,pos,max,   c)
          return col(ako(Some,{max=max or the.some.max}),
                     txt,pos) end
 
+-- ###### Some:add(x) : add `x` to the receiver
 function Some:add(x,   pos)
   if x == the.type.skip then return x end
   self.n = self.n + 1
@@ -336,35 +342,20 @@ function Some:add(x,   pos)
   return x
 end
 
+-- ###### Some:all() : return all kept items, sorted
 function Some:all(   f) 
   if self.old then table.sort(self.t,f or lt); self.old=false end
   return self.t
 end
--- ### Col,ms
+
+-- #### Col,ms
 Cols = {use  = {},
         hdr  = {},
         x    = {nums={}, syms={}, all={}},
         y    = {nums={}, syms={}, all={}},
         cols = {nums={}, syms={}, all={}}}
 
-function Cols:has(s,x) return s:find(the.all.type[x]) end 
-function Cols:skip(s)  return self:has(s,"skip") end
-function Cols:obj(s)   return self:has(s,"less") or self:has(s,"more") end
-function Cols:nump(s)  return self:obj(s) or self:has(s,"num") end
-function Cols:goalp(s) return self:obj(s) or self:has(s,"klass") end
-function Cols:add(x)
-  push(x, a.all)
-  push(x, a[self:nump(x.txt) and "nums" or "syms"])  
-end
-function Cols:add(t,     u,col,val)
-  u = {}
-  for put,get in pairs(self.use) do 
-    col, val = self.cols.all[put], t[get]
-    u[put]   = col:add(val) 
-  end
-  return row(u)
-end
-
+-- ##### cols(t) : return a news `cols` with all the `nums` and `syms` filled in
 function cols(t)         
   local put, new = 0, ako(Cols)
   for get,txt in pairs(t) do
@@ -378,19 +369,51 @@ function cols(t)
   return new
 end
 
+-- ##### Column types (string types)
+function Cols:has(s,x) return s:find(the.all.type[x]) end 
+function Cols:skip(s)  return self:has(s,"skip") end
+function Cols:obj(s)   return self:has(s,"less") or self:has(s,"more") end
+function Cols:nump(s)  return self:obj(s) or self:has(s,"num") end
+function Cols:goalp(s) return self:obj(s) or self:has(s,"klass") end
+
+-- ##### Cols:push2(x) : add a column, to `all`, `nums` and `syms`
+function Cols:push2(x)
+  push(x, a.all)
+  push(x, a[self:nump(x.txt) and "nums" or "syms"])  
+end
+
+-- ##### Cols:row(t) : return a row containing `cells`, updating the summaries.
+function Cols:row(t,     u,col,val)
+  u = {}
+  for put,get in pairs(self.use) do 
+    col, val = self.cols.all[put], t[get]
+    u[put]   = col:add(val) 
+  end
+  return row(u)
+end
+
+-- ### Rows : class; a place to store `cols` and `rows`.
 Rows = {cols={},rows={}}
 
+-- #### Rows:clone() : return a new `Rows` with the same structure as the receiver
 function Rows:clone() return ako(Rows,{cols=cols(self.cols.hdr)})   end
-function Rows:read(f) for t in csv(f) do self:add(t) end;return self end
+
+-- #### Rows:read(file) : read in data from a csv `file`
+function Rows:read(file) for t in csv(file) do self:add(t) end;return self end
+
+-- #### Rows:add(t) : turn the first row into a columns header, the rest into data rows
 function Rows:add(t)
   t = t.cells and t.cells or t
   if   self.cols 
-  then t.rows[#t.rows+1] = self.cols:add(t) 
+  then t.rows[#t.rows+1] = self.cols:row(t) 
   else self.cols = cols(t) 
   end
 end
 
+-- ### Row : a place to hold one example
 Row = {cells={},cooked={}}
+
+-- #### row(t) : initialize a new row
 function row(t) return ako(Row,{cells=t}) end
 
 -- ## Lib
