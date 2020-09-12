@@ -376,8 +376,10 @@ function cols(t)
   return new
 end
 
-Row  = {cells={},cooked={}}
 Rows = {cols={},rows={}}
+
+function Rows:clone() return ako(Rows,{cols=cols(self.cols.head)})    end
+function Rows:read(f) for t in csv(f) do self:add(t) end;return self; end
 
 function Rows:add(t)
   t= t.cells and t.cells or t
@@ -385,6 +387,9 @@ function Rows:add(t)
   then t.rows[#t.rows+1] = self.cols:add(t) 
   else self.cols = cols(t) end
 end
+
+Row = {cells={},cooked={}}
+function row(t) return ako(Row,{cells=t}) end
 
 -- ## Lib
 -- ### Maths
