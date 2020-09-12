@@ -144,7 +144,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         - [Coc.all()](#cocall--compute-effort-and-risk-for-one-project) : compute effort and risk for one project
         - [Coc.Risk](#cocrisk--cocomo-risk-model) : Cocomo risk model
     - [Data](#data) 
-        - [Col](#col--managing-single-columns-of-data) : managing single columns of data
+        - [`Col`](#col--managing-single-columns-of-data) : managing single columns of data
             - [adds(t, klass)](#addst-klass--all-everything-in-t-into-a-column-of-type-klass) : all everything in `t` into a column of type `klass`
             - [col(c,txt="",pos=0)](#colctxtpos0--initialize-a-column) : initialize a column
             - [`Num`eric Columns](#numeric-columns) 
@@ -155,17 +155,17 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             - [`Some` Column](#some-column-resovoir-samplers) : resovoir samplers
                 - [Some:add(x)](#someaddx--add-x-to-the-receiver) : add `x` to the receiver
                 - [Some:all()](#someall--return-all-kept-items-sorted) : return all kept items, sorted
-        - [Columns](#columns) 
+        - [`Cols`](#cols--place-to-store-lots-of-columns) : place to store lots of columns
             - [cols(t)](#colst--return-a-news-cols-with-all-the-nums-and-syms-filled-in) : return a news `cols` with all the `nums` and `syms` filled in
             - [Column types (string types)](#column-types-string-types) 
             - [Cols:push2(x)](#colspush2x--add-a-column-to-all-nums-and-syms) : add a column, to `all`, `nums` and `syms`
             - [Cols:row(t)](#colsrowt--return-a-row-containing-cells-updating-the-summaries) : return a row containing `cells`, updating the summaries.
-        - [Rows](#rows--class-a-place-to-store-cols-and-rows) : class; a place to store `cols` and `rows`.
+        - [`Rows`](#rows--class-a-place-to-store-cols-and-rows) : class; a place to store `cols` and `rows`.
             - [Rows:clone()](#rowsclone--return-a-new-rows-with-the-same-structure-as-the-receiver) : return a new `Rows` with the same structure as the receiver
             - [Rows:read(file)](#rowsreadfile--read-in-data-from-a-csv-file) : read in data from a csv `file`
             - [Rows:add(t)](#rowsaddt--turn-the-first-row-into-a-columns-header-the-rest-into-data-rows) : turn the first row into a columns header, the rest into data rows
-        - [Row](#row--a-place-to-hold-one-example) : a place to hold one example
-            - [row(t)](#rowt--initialize-a-new-row) : initialize a new row
+        - [`Row`](#row--a-place-to-hold-one-example) : a place to hold one example
+            - [Row.new(t)](#rownewt--initialize-a-new-row) : initialize a new row
     - [Lib](#lib) 
         - [Maths](#maths) 
             - [from(lo,hi)](#fromlohi--return-a-number-from-lo-to-hi) : return a number from `lo` to `hi`
@@ -361,7 +361,7 @@ end
 
 ```
 ## Data
-### Col : managing single columns of data
+### `Col` : managing single columns of data
 #### adds(t, klass) : all everything in `t` into a column of type `klass`
 ```lua
 function adds(t, klass,thing)
@@ -469,7 +469,7 @@ function Some:all(   f)
 end
 
 ```
-### Columns
+### `Cols` : place to store lots of columns
 ```lua
 Cols = {use  = {},
         hdr  = {},
@@ -523,7 +523,7 @@ function Cols:row(t,     u,col,val)
 end
 
 ```
-### Rows : class; a place to store `cols` and `rows`.
+### `Rows` : class; a place to store `cols` and `rows`.
 ```lua
 Rows = {cols={},rows={}}
 
@@ -554,12 +554,12 @@ function Rows:add(t)
 end
 
 ```
-### Row : a place to hold one example
+### `Row` : a place to hold one example
 ```lua
 Row = {cells={},cooked={}}
 
 ```
-#### row(t) : initialize a new row
+#### Row.new(t) : initialize a new row
 ```lua
 function Row.new(t) return ako(Row,{cells=t}) end
 

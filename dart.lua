@@ -262,7 +262,7 @@ function Coc.risk(    _,ne,nw,nw4,sw,sw4,ne46, sw26,sw46)
 end
 
 -- ## Data
--- ### Col : managing single columns of data
+-- ### `Col` : managing single columns of data
 -- #### adds(t, klass) : all everything in `t` into a column of type `klass`
 function adds(t, klass,thing)
   klass = klass or num
@@ -350,7 +350,7 @@ function Some:all(   f)
   return self.t
 end
 
--- ### Columns
+-- ### `Cols` : place to store lots of columns
 Cols = {use  = {},
         hdr  = {},
         x    = {nums={}, syms={}, all={}},
@@ -394,7 +394,7 @@ function Cols:row(t,     u,col,val)
   return Row.new(u)
 end
 
--- ### Rows : class; a place to store `cols` and `rows`.
+-- ### `Rows` : class; a place to store `cols` and `rows`.
 Rows = {cols={},rows={}}
 
 -- #### Rows:clone() : return a new `Rows` with the same structure as the receiver
@@ -417,10 +417,10 @@ function Rows:add(t)
   end
 end
 
--- ### Row : a place to hold one example
+-- ### `Row` : a place to hold one example
 Row = {cells={},cooked={}}
 
--- #### row(t) : initialize a new row
+-- #### Row.new(t) : initialize a new row
 function Row.new(t) return ako(Row,{cells=t}) end
 
 -- ## Lib
