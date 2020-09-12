@@ -598,7 +598,7 @@ function eg(name,   f,t1,t2,passed,err,y,n)
     100*y/(y+n)))) end 
 end
 
--- ### within
+-- ### within(x,y,z)
 function within(x,y,z)
   assert(x <= y and y <= z, 'outside range ['..x..' to '..']')
 end

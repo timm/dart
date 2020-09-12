@@ -194,7 +194,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 - [Unit Tests](#unit-tests) 
     - [Support code](#support-code) 
         - [eg(x)](#egx-run-the-test-function-egx-or-if-x-is-nil-run-all) : run the test function `eg_x` or, if `x` is nil, run all.
-        - [within](#within) 
+        - [within(x,y,z)](#withinxyz) 
     - [Unit tests](#unit-tests) 
 - [Command Line](#command-line) 
     - [options(now,b4)](#optionsnowb4--return-a-tree-with-options-from-b4-updated-with-now) : return a tree with options from `b4` updated with `now`
@@ -780,7 +780,7 @@ function eg(name,   f,t1,t2,passed,err,y,n)
 end
 
 ```
-### within
+### within(x,y,z)
 ```lua
 function within(x,y,z)
   assert(x <= y and y <= z, 'outside range ['..x..' to '..']')
