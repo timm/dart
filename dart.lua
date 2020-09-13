@@ -188,7 +188,6 @@ local function map(t,f, u)
   return u
 end
 
--- ### copy(t) : return a deep copy of `obj`
 local function copy(obj,   old,new)
   if type(obj) ~= 'table' then return obj end
   if old and old[obj] then return old[obj] end
@@ -208,7 +207,7 @@ end
 -- ### isa(class,has) : create a new instance of `class`, add the `has` slots 
 local function isa(klass,has,      new)
   new = copy(klass or {})
-  for k,v in pairs(has or {}) do new[k] = v end
+  for k,v in pairs(has) do new[k] = v end
   setmetatable(new, klass)
   klass.__index = klass
   return new
@@ -316,24 +315,41 @@ local function bootstrap(y0,z0)
   return more/the.stats.bootstrap >= the.stats.confidence
 end
 
-local function unsuper(t,fx,n,     x)
-  n = #t^the.stats.enough
+-- ## `Cut` : information about some section of data
+local Cut={}
+
+-- ### `Cut`.new(klassy, xs,ys) : create a new cut
+-- Requires `klassy` information about type of y variables.
+-- Creates, or reuses, `xs,ys` which is information about all data.
+local function Cut.new(klassy, xs,ys) 
+   return isa(Cut,{x=  somed(Num.new()), y=somed(klassy.new()),
+                   xs= xs or somed(Num.new()), 
+                   ys= ys or somed(klassy.new())}) end
+
+-- ### `Cut`.add(x,y) : update a cut
+local function Cut:add(x,y) 
+  self.x:add(x); self.xs:add(x); self.y:add(y); self.ys:add(y) end 
+
+-- ### cuts(t,n,klassy) : chop list of pairs `t` into cuts of size `n`. 
+-- Assumes that first of each pair is a number and the second of
+-- each pair is of type `klassy` (defaults to `Sym`). Also,
+-- `n` defaults to sqrt size of `t`.
+local function cuts(t,n,klassy,    cut,out,xlo,xhi,xs,ys )
+  n       = n  or #t^the.stats.enough
+  klassy  = klassy or Sym
+  xs, ys  = Num.new(), klassy.new()
+  cut     = Cut.new(klassy, xs,ys)
+  xlo,out = 1, {cut}
   while n < 4 and n < #t/2 do n=n*1.2 end  
-  fx = fx or function(z) return z[1] end
-  last = {}
-  all  = {last}
-  xlo  = 1
   for xhi,z in pairs(t) do
-    x = fx(z)
     if xhi - xlo >= n then
       if #t - xhi >= n then
-        if x ~= fx( t[xhi-1] ) then
-           xlo=xhi
-           all[#all+1] = last 
-           last={}     end end end
-    last[#last+1] = {xhi, z}
+        if z[1] ~= t[xhi-1][1] then
+           xlo, cut = xhi, Cut.new(klassy,xs,ys)
+           push(cut, out)  end end end 
+    cut:add(z[1], z[2])
   end
-  if #last > 0 then all[#all+1] = last  end
+  return out
 end
        
 -- # `Coc`omo
@@ -472,76 +488,6 @@ end
 
 -- # Data
 -- ## Managing single columns of data
--- ### adds(t, klass) : all everything in `t` into a column of type `klass`
-local function adds(t, klass,thing)
-  klass = klass or (type(t[1]) == "number" and Num or Sym)
-  thing = klass.new()
-  for _,x in pairs(t) do thing:add(x) end
-  return thing
-end
-
--- ### col(c,txt="",pos=0) : initialize a column
-local function col(c, txt,pos)
-  c.n   = 0
-  c.txt = txt or ""
-  c.pos = pos or 0
-  c.w   = c.txt:find(the.type.less) and -1 or 1
-  return c
-end
-
--- ### `Num`eric Columns
-local Num = {n=1, pos=0, txt="", mu=0, m2=0, sd=0,
-             lo=math.huge, hi= -math.huge}
-
--- #### `Num`.new(txt,pos) : make a  new `Num`
-function Num.new(txt,pos) return col(isa(Num),txt,pos) end
-
--- #### `Num`:add(x) : add `x` to the receiver
-function Num:add(x,    d) 
-  if x == the.type.skip then return x end
-  self.n  = self.n + 1
-  d       = x - self.mu
-  self.mu = self.mu + d/self.n
-  self.m2 = self.m2 + d*(x - self.mu)
-  self.sd = (self.m2<0 or self.n<2) and 0 or (
-            (self.m2/(self.n-1))^0.5)
-  self.lo = math.min(x, self.lo)
-  self.hi = math.max(x, self.hi) 
-  return x
-end
-
--- #### `Num`:delta(y) 
-function Num:delta(them,    x,y)
-  y, z, e = self, them, 10^-64
-  return (y.mu-z.mu) / (e+(y.sd/y.n+z.sd/z.n)^0.5) 
-end
-
--- ### `Sym`bolic Columns
-local Sym = {n=1, pos=0, txt="", most=0, seen={}}
-
--- #### `Sym`.new(txt,pos) : make a  new `Sym`
-function Sym.new(txt,pos) return col(isa(Sym),txt,pos) end
-
--- #### `Sym`:add(x) : add `x` to the receiver
-function Sym:add(x,    new)
-  if x == the.type.skip then return x end
-  self.n = self.n + 1
-  self.seen[x] = (self.seen[x] or 0) + 1
-  if self.seen[x] > self.most then 
-    self.most,self.mode = self.seen[x],x end
-  return x
-end
-
--- #### `Sym`:ent() : return the entropy of the symbols seen in this column
-function Sym:ent(     e,p)
-  e = 0
-  for _,v in pairs(self.seen) do
-    if v>0 then
-      p = v/self.n
-      e = e - p*math.log(p,2) end end
-  return e
-end
-
 -- ### `Some` Column: resovoir samplers
 local Some= {n=1, pos=0, txt="", t={}, old=false, max=256}
 
@@ -581,6 +527,62 @@ function Some:same(them)
   return cliffsDelta(self:few(), them:few())
 end
 
+
+-- ### `Num`eric Columns
+local Num = {n=1, pos=0, txt="", mu=0, m2=0, sd=0,
+             lo=math.huge, hi= -math.huge}
+
+-- #### `Num`.new(txt,pos) : make a  new `Num`
+function Num.new(txt,pos) return col(isa(Num),txt,pos) end
+
+-- #### `Num`:add(x) : add `x` to the receiver
+function Num:add(x,    d) 
+  if x == the.type.skip then return x end
+  if self.some then self.some:add(x) end
+  self.n  = self.n + 1
+  d       = x - self.mu
+  self.mu = self.mu + d/self.n
+  self.m2 = self.m2 + d*(x - self.mu)
+  self.sd = (self.m2<0 or self.n<2) and 0 or (
+            (self.m2/(self.n-1))^0.5)
+  self.lo = math.min(x, self.lo)
+  self.hi = math.max(x, self.hi) 
+  return x
+end
+
+-- #### `Num`:delta(y) 
+function Num:delta(them,    x,y)
+  y, z, e = self, them, 10^-64
+  return (y.mu-z.mu) / (e+(y.sd/y.n+z.sd/z.n)^0.5) 
+end
+
+-- ### `Sym`bolic Columns
+local Sym = {n=1, pos=0, txt="", most=0, seen={}}
+
+-- #### `Sym`.new(txt,pos) : make a  new `Sym`
+function Sym.new(txt,pos) return col(isa(Sym),txt,pos) end
+
+-- #### `Sym`:add(x) : add `x` to the receiver
+function Sym:add(x,    new)
+  if x == the.type.skip then return x end
+  if self.some then self.some:add(x) end
+  self.n = self.n + 1
+  self.seen[x] = (self.seen[x] or 0) + 1
+  if self.seen[x] > self.most then 
+    self.most,self.mode = self.seen[x],x end
+  return x
+end
+
+-- #### `Sym`:ent() : return the entropy of the symbols seen in this column
+function Sym:ent(     e,p)
+  e = 0
+  for _,v in pairs(self.seen) do
+    if v>0 then
+      p = v/self.n
+      e = e - p*math.log(p,2) end end
+  return e
+end
+
 -- ## `Row` : a place to hold one example
 local Row = {cells={},cooked={}}
 
@@ -588,6 +590,27 @@ local Row = {cells={},cooked={}}
 function Row.new(t,rows) 
   return isa(Row,{cells=t,_rows=rows}) end
 
+-- ## Gernics for all columns
+
+-- ### adds(t, klass) : all everything in `t` into a column of type `klass`
+local function adds(t, klass,thing)
+  klass = klass or (type(t[1]) == "number" and Num or Sym)
+  thing = klass.new()
+  for _,x in pairs(t) do thing:add(x) end
+  return thing
+end
+
+-- ### col(c,txt="",pos=0) : initialize a column
+local function col(c, txt,pos)
+  c.n   = 0
+  c.txt = txt or ""
+  c.pos = pos or 0
+  c.w   = c.txt:find(the.type.less) and -1 or 1
+  return c
+end
+
+-- ### somed(col) : include a `Some` into `col`
+local function somed(c) c.some=Some(); return c end
 
 -- ## `Cols` : place to store lots of columns
 local Cols = {use  = {},
