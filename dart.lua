@@ -25,8 +25,13 @@ Options:
     --test       ;; system stuff, set up test engine    
        -yes   0  
        -no    0
+    --stats
+       -cliffsDelta .147
+       -bootstrap   256
+       -confidence         .95
     --some
        -max   256
+       -few    30
     --type       ;; when reading csv files, names in row1 have
                  ;; magic symbols telling us their type.
        -klass !  ;; symbolic class
@@ -277,6 +282,38 @@ local function color(col,str)
   return '\27[1m\27['..colors[col]..'m'..str..'\27[0m' 
 end
 
+-- ## Stats
+-- cliffsDelta(xs,ys) : are `xs` and `ys` different by more than a small effect
+local function cliffsDelta(xs,ys,   lt,gt)
+  lt,gt,n = 0,0,0
+  for _,x in pairs(xs) do
+    for _,y in pairs(ys) do
+      n = n + 1
+      if y > x then gt = gt + 1 end
+      if y < x  then lt = lt + 1 end end end
+  return math.abs(gt - lt)/n <= the.stats.cliffsDelta
+end
+
+-- From an bootstrap hypothesis test from 220 to 223 of Efron's book 
+-- 'An introduction to the boostrap'.
+local function bootstrap(y0,z0)
+  local function sample(t, n)
+    n = Num.new()
+    for i=1,#t do n:add( t[math.random(#t)] ) end
+    return n 
+  end
+  local x, y, z = Num.new(), adds(y0), adds(z0)
+  for i=1,#y do x:add(y0[i]) end
+  for i=1,#z do x:add(z0[i]) end
+  local yhat, zhat, tobs= {}, {}, y:delta(z)
+  for i=1,#y0 do yhat[i] = y0[i] - y.mu + x.mu end
+  for i=1,#z0 do zhat[i] = z0[i] - z.mu + x.mu end
+  local more = 0
+  for _ = 1,the.stats.bootstrap  do
+    if sample(yhat):delta(sample(zhat)) > tobs then
+      more = more + 1 end end
+  return more/the.stats.bootstrap >= the.stats.confidence
+end
 
 -- # `Coc`omo
 -- ## `Coc`.all() : return a generator of COCOMO projects
@@ -445,10 +482,17 @@ function Num:add(x,    d)
   d       = x - self.mu
   self.mu = self.mu + d/self.n
   self.m2 = self.m2 + d*(x - self.mu)
-  self.sd = (self.m2<0 or self.n<2) and 0 or (self.m2/(self.n-1))^0.5
+  self.sd = (self.m2<0 or self.n<2) and 0 or (
+            (self.m2/(self.n-1))^0.5)
   self.lo = math.min(x, self.lo)
   self.hi = math.max(x, self.hi) 
   return x
+end
+
+-- #### `Num`:delta(y) 
+function Num:delta(them,    x,y)
+  y, z, e = self, them, 10^-64
+  return (y.mu-z.mu) / (e+(y.sd/y.n+z.sd/z.n)^0.5) 
 end
 
 -- ### `Sym`bolic Columns
@@ -460,7 +504,7 @@ function Sym.new(txt,pos) return col(isa(Sym),txt,pos) end
 -- #### `Sym`:add(x) : add `x` to the receiver
 function Sym:add(x,    new)
   if x == the.type.skip then return x end
-  self.n       = self.n + 1
+  self.n = self.n + 1
   self.seen[x] = (self.seen[x] or 0) + 1
   if self.seen[x] > self.most then 
     self.most,self.mode = self.seen[x],x end
@@ -502,6 +546,18 @@ end
 function Some:all(   f) 
   if self.old then table.sort(self.t,f or lt); self.old=false end
   return self.t
+end
+
+-- #### `Some`:few() : return all kept items, sorted
+function Some:few(    f,   t,u) 
+  t= self:all(f)
+  for i = 1, #t // the.some.few do u[#u+1] = t[i] end
+  return u
+end
+
+-- #### `Some`:same() : return all kept items, sorted
+function Some:same(them)
+  return cliffsDelta(self:few(), them:few())
 end
 
 -- ## `Row` : a place to hold one example
@@ -580,6 +636,7 @@ function Rows:add(t)
   else self.cols = Cols.new(t) 
   end
 end
+
 -- -------------------------------------------------------------------
 -- # Unit Tests
 local Eg={}
