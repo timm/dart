@@ -26,7 +26,7 @@ alt="lisp" src="https://img.shields.io/badge/language-lua,bash-blue"> <a
 
 ## Description
   Optimize = cluster plus sample plus contrast;
-  i.e. divide problem space into chunks;
+  i.e. Divide problem space into chunks;
   dart, a little, around the chunks;
   report back anything that jumps you between chunks.
 
@@ -54,7 +54,7 @@ Options:
        -klass !  ;; symbolic class
        -less  <  ;; numeric goal to be minimized
        -more  >  ;; numeric goal to be maximized
-       -num   $  ;; numeric
+       -num   :  ;; numeric
        -skip  ?  ;; to be ignored
   
 
@@ -91,7 +91,7 @@ onventions:
       another library:
       - And I test for that using `not pcall(debug.getlocal, 4, 1)`.
     - Finally, there  is a return statement that exports the more useful parts of the code.
-  - No globals (so keep the list of `local`s at top of file up to date).
+  - No globasl (so keep the list of `local`s at top of file up to date).
   - The `the` local handles information and defaults shared across all functions and classes.
     - And this variable is initialized by parsing the [Usage](#usage) section of this help
       text/
@@ -138,6 +138,34 @@ ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 
+- [Miscellaneous Functions](#miscellaneous-functions) 
+    - [Maths](#maths) 
+        - [from(lo,hi)](#fromlohi--return-a-number-from-lo-to-hi) : return a number from `lo` to `hi`
+        - [round(n,places)](#roundnplaces--round-n-to-some-decimal-places) : round `n` to some decimal `places`.
+    - [Strings](#strings) 
+        - [o(t,pre)](#otpre--return-t-as-a-string-with-prefix) : return `t` as a string, with `pre`fix
+        - [oo(t,pre)](#ootpre--print-t-as-a-string-with-prefix) : print `t` as a string, with `pre`fix
+        - [ooo(t,pre)](#oootpre--return-a-string-representing-ts-recursive-contents) : return a string representing `t`'s recursive contents.
+    - [Meta](#meta) 
+        - [id(x)](#idx--ensure-x-has-a-unique-if) : ensure `x` has a unique if
+        - [same(z)](#samez--return-z) : return z
+        - [lt(x,y)](#ltxy--return-xy) : return `x<y`
+        - [fun(x)](#funx-returns-true-if-x-is-a-function) : returns true if `x` is a function
+        - [map(t,f)](#maptf--apply-f-to-everything-in-t-and-return-the-result) : apply `f` to everything in `t` and return the result
+        - [copy(t)](#copyt--return-a-deep-copy-of-obj) : return a deep copy of `obj`
+        - [select(t,f)](#selecttf--return-a-table-of-items-in-t-that-satisfy-function-f) : return a table of items in `t` that satisfy function `f`
+        - [isa(class,has)](#isaclasshas--create-a-new-instance-of-class-add-the-has-slots-) : create a new instance of `class`, add the `has` slots 
+    - [Lists](#lists) 
+        - [push(x,a)](#pushxa--push-x-to-end-of--a-return-x) : push `x` to end of  `a`. return `x`
+        - [any(a)](#anya--sample-1-item-from-a) : sample 1 item from `a`
+        - [anys(a,n)](#anysan--sample-n-items-from-a) : sample `n` items from `a`
+        - [keys(t)](#keyst-iterate-over-keyvalues-sorted-by-key) : iterate over key,values (sorted by key)
+        - [binChop(t,x)](#binchoptx--return-a-position-very-near-x-within-t) : return a position very near `x` within `t`
+    - [Files](#files) 
+        - [trim(str)](#trimstr--remove-leading-and-trailing-blanks) : remove leading and trailing blanks
+        - [words(s,pat,fun)](#wordsspatfun--split-str-on-pat-default-coerce-using-fun-defaults-tonumiber) : split `str` on `pat` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
+        - [csv(file)](#csvfile--iterate-through--non-empty-rows-divided-on-comma-coercing-numbers) : iterate through  non-empty rows, divided on comma, coercing numbers
+        - [color(theColor,str)](#colorthecolorstr--print-str-using-thecolor) : print `str` using `theColor`
 - [`Coc`omo](#cocomo) 
     - [`Coc`.all()](#cocall--return-a-generator-of-cocomo-projects) : return a generator of COCOMO projects
     - [`Coc`.all()](#cocall--compute-effort-and-risk-for-one-project) : compute effort and risk for one project
@@ -157,6 +185,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             - [`Some`.new(txt,pos)](#somenewtxtpos--make-a--new-some) : make a  new `Some`
             - [`Some`:add(x)](#someaddx--add-x-to-the-receiver) : add `x` to the receiver
             - [`Some`:all()](#someall--return-all-kept-items-sorted) : return all kept items, sorted
+    - [`Row`](#row--a-place-to-hold-one-example) : a place to hold one example
+        - [`Row`.new(t)](#rownewt--initialize-a-new-row) : initialize a new row
     - [`Cols`](#cols--place-to-store-lots-of-columns) : place to store lots of columns
         - [`Cols`.new(t)](#colsnewt--return-a-news-cols-with-all-the-nums-and-syms-filled-in) : return a news `cols` with all the `nums` and `syms` filled in
         - [`Col`umn types (string types)](#column-types-string-types) 
@@ -166,44 +196,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         - [`Rows`:clone()](#rowsclone--return-a-new-rows-with-the-same-structure-as-the-receiver) : return a new `Rows` with the same structure as the receiver
         - [`Rows`:read(file)](#rowsreadfile--read-in-data-from-a-csv-file) : read in data from a csv `file`
         - [`Rows`:add(t)](#rowsaddt--turn-the-first-row-into-a-columns-header-the-rest-into-data-rows) : turn the first row into a columns header, the rest into data rows
-    - [`Row`](#row--a-place-to-hold-one-example) : a place to hold one example
-        - [`Row`.new(t)](#rownewt--initialize-a-new-row) : initialize a new row
-- [Miscellaneous Functions](#miscellaneous-functions) 
-    - [Maths](#maths) 
-        - [from(lo,hi)](#fromlohi--return-a-number-from-lo-to-hi) : return a number from `lo` to `hi`
-        - [round(n,places)](#roundnplaces--round-n-to-some-decimal-places) : round `n` to some decimal `places`.
-    - [Strings](#strings) 
-        - [o(t,pre)](#otpre--return-t-as-a-string-with-prefix) : return `t` as a string, with `pre`fix
-        - [oo(t,pre)](#ootpre--print-t-as-a-string-with-prefix) : print `t` as a string, with `pre`fix
-        - [ooo(t,pre)](#oootpre--return-a-string-representing-ts-recursive-contents) : return a string representing `t`'s recursive contents.
-    - [Meta](#meta) 
-        - [id(x)](#idx--ensure-x-has-a-unique-if) : ensure `x` has a unique if
-        - [same(z)](#samez--return-z) : return z
-        - [lt(x,y)](#ltxy--return-xy) : return `x<y`
-        - [fun(x)](#funx-returns-true-if-x-is-a-function) : returns true if `x` is a function
-        - [map(t,f)](#maptf--apply-f-to-everything-in-t-and-return-the-result) : apply `f` to everything in `t` and return the result
-        - [copy(t)](#copyt--return-a-deep-copy-of-obj) : return a deep copy of `obj`
-        - [select(t,f)](#selecttf--return-a-table-of-items-in-t-that-satisfy-function-f) : return a table of items in `t` that satisfy function `f`
-        - [ako(class,has)](#akoclasshas--create-a-new-instance-of-class-add-the-has-slides-) : create a new instance of `class`, add the `has` slides 
-    - [Lists](#lists) 
-        - [any(a)](#anya--sample-1-item-from-a) : sample 1 item from `a`
-        - [anys(a,n)](#anysan--sample-n-items-from-a) : sample `n` items from `a`
-        - [keys(t)](#keyst-iterate-over-keyvalues-sorted-by-key) : iterate over key,values (sorted by key)
-        - [binChop(t,x)](#binchoptx--return-a-position-very-near-x-within-t) : return a position very near `x` within `t`
-    - [Files](#files) 
-        - [csv(file)](#csvfile--iterate-through--non-empty-rows-divided-on-comma-coercing-numbers) : iterate through  non-empty rows, divided on comma, coercing numbers
-        - [words(s,pat,fun)](#wordsspatfun--split-str-on-pat-default-coerce-using-fun-defaults-tonumiber) : split `str` on `pat` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
-        - [trim(str)](#trimstr--remove-leading-and-trailing-blanks) : remove leading and trailing blanks
-        - [color(theColor,str)](#colorthecolorstr--print-str-using-thecolor) : print `str` using `theColor`
 - [Unit Tests](#unit-tests) 
-    - [Support code](#support-code) 
         - [eg(x)](#egx-run-the-test-function-egx-or-if-x-is-nil-run-all) : run the test function `eg_x` or, if `x` is nil, run all.
         - [within(x,y,z)](#withinxyz) 
         - [rogues()](#rogues--report-escaped-local-variables) : report escaped local variables
-    - [Unit tests](#unit-tests) 
+- [Unit Tests](#unit-tests) 
 - [Command Line](#command-line) 
     - [options(now,b4)](#optionsnowb4--return-a-tree-with-options-from-b4-updated-with-now) : return a tree with options from `b4` updated with `now`
-    - [cli()](#cli--initialize-the-the-variable-and-run-command-line-options) : initialize the `the` variable and run command-line options.
+    - [cli()](#cli--initialize-the-and-run-command-line-options) : initialize `the` and run command-line options.
 - [start-up](#start-up) 
 
 
@@ -211,21 +211,216 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ```lua
 
-local the,c,klass,less,goal,num          = nil,nil,nil,nil,nil
-local y,x,sym,xsym,xnum,cols,lt          = nil,nil,nil,nil,nil,nil,nil
-local round,o,oo,ooo,id,same             = nil,nil,nil,nil,nil,nil 
-local map, copy,select,any,anys,keys,csv = nil,nil,nil,nil,nil,nil
-local within,rogues,eg,eg1,Eg,main       = nil,nil,nil,nil,nil,nil
-local from,ako,var,words,trim,color      = nil,nil,nil,nil,nil,nil
-local cli, options, fun                  = nil,nil, nil
-local some,binChop,col,adds              = nil,nil,nil,nil
-local Coc,Num,Some,Sym                   = nil,nil,nil,nil
+local the = nil
+
+```
+-------------------------------------------------------------------
+# Miscellaneous Functions
+## Maths
+### from(lo,hi) : return a number from `lo` to `hi`
+```lua
+local function from(lo,hi) return lo+(hi-lo)*math.random() end
+
+```
+### round(n,places) : round `n` to some decimal `places`.
+```lua
+local function round(num, places)
+  local mult = 10^(places or 0)
+  return math.floor(num * mult + 0.5) / mult
+end
+
+```
+## Strings
+### o(t,pre) : return `t` as a string, with `pre`fix
+```lua
+local function o(z,pre,   s,sep) 
+  s, sep = (pre or "")..'{', ""
+  for _,v in pairs(z or {}) do s = s..sep..tostring(v); sep=", " end
+  return s..'}'
+end
+
+```
+### oo(t,pre) : print `t` as a string, with `pre`fix
+```lua
+local function oo(z,pre) print(o(z,pre)) end
+
+```
+### ooo(t,pre) : return a string representing `t`'s recursive contents.
+```lua
+local function ooo(t,pre,    indent,fmt)
+  pre    = pre or ""
+  indent = indent or 0
+  if indent < 10 then
+    for k, v in pairs(t or {}) do
+      if not (type(k)=='string' and k:match("^_")) then
+        if not (type(v)=='function') then
+          fmt = pre..string.rep("|  ",indent)..tostring(k)..": "
+          if type(v) == "table" then
+            print(fmt)
+            ooo(v, pre, indent+1)
+          else
+            print(fmt .. tostring(v)) end end end end end
+end
+
+```
+## Meta
+### id(x) : ensure `x` has a unique if
+```lua
+local function id (x)
+  if not x._id then the.all.id = the.all.id+1; x._id= the.all.id end
+  return x._id 
+end
+
+```
+### same(z) : return z
+```lua
+local function same(z) return z end
+
+```
+### lt(x,y) : return `x<y`
+```lua
+local function lt(x,y) return x<y end
+
+```
+### fun(x): returns true if `x` is a function
+```lua
+local function fun(x) 
+  return assert(type(_ENV[x]) == "function", "not function") and x end
+
+```
+### map(t,f) : apply `f` to everything in `t` and return the result
+```lua
+local function map(t,f, u)
+  u, f = {}, f or same
+  for i,v in pairs(t or {}) do u[i] = f(v) end  
+  return u
+end
+
+```
+### copy(t) : return a deep copy of `obj`
+```lua
+local function copy(obj,   old,new)
+  if type(obj) ~= 'table' then return obj end
+  if old and old[obj] then return old[obj] end
+  old, new = old or {}, {}
+  old[obj] = new
+  for k, v in pairs(obj) do new[copy(k, old)]=copy(v, old) end
+  return setmetatable(new, getmetatable(obj))
+end
+
+```
+### select(t,f) : return a table of items in `t` that satisfy function `f`
+```lua
+local function select(t,f,     g,u)
+  u, f = {}, f or same
+  for _,v in pairs(t) do if f(v) then u[#u+1] = v  end end
+  return u
+end
+
+```
+### isa(class,has) : create a new instance of `class`, add the `has` slots 
+```lua
+local function isa(klass,has,      new)
+  new = copy(klass or {})
+  for k,v in pairs(has or {}) do new[k] = v end
+  setmetatable(new, klass)
+  klass.__index = klass
+  return new
+end
+
+```
+## Lists
+### push(x,a) : push `x` to end of  `a`. return `x`
+```lua
+local function push(x,a) a[#a+1] = x; return x end
+
+```
+### any(a) : sample 1 item from `a`
+```lua
+local function any(a) return a[1 + math.floor(#a*math.random())] end
+
+```
+### anys(a,n) : sample `n` items from `a`
+```lua
+local function anys(a,n,   t) 
+  t={}
+  for i=1,n do t[#t+1] = any(a) end
+  return t
+end
+
+```
+### keys(t): iterate over key,values (sorted by key)
+```lua
+local function keys(t,        i,u)
+  i,u = 0,{}
+  for k,_ in pairs(t) do u[#u+1] = k end
+  table.sort(u)
+  return function () 
+    if i < #u then 
+      i = i+1
+      return u[i], t[u[i]] end end 
+end
+
+```
+### binChop(t,x) : return a position very near `x` within `t`
+```lua
+local function binChop (t,x,    lo,hi,mid)
+  lo,hi = 1,#t
+  while lo <= hi do
+    mid = math.floor((lo+hi)/2)
+    if     t[mid] > x then hi = mid - 1
+    elseif t[mid] < x then lo = mid + 1
+    else   break end end
+  return mid
+end
+
+```
+## Files
+### trim(str) : remove leading and trailing blanks
+```lua
+local function trim(str) return (str:gsub("^%s*(.-)%s*$", "%1")) end
+
+```
+### words(s,pat,fun) : split `str` on `pat` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
+```lua
+local function words(str,pat,fun,   t)
+  t = {}
+  for x in str:gmatch(pat) do t[#t+1] = fun(x) or trim(x) end
+  return t
+end
+
+```
+### csv(file) : iterate through  non-empty rows, divided on comma, coercing numbers
+```lua
+local function csv(file,     ch,fun,   pat,stream,tmp,row)
+  stream = file and io.input(file) or io.input()
+  tmp    = io.read()
+  pat    = "([^".. (ch or ",") .."]+)"
+  fun    = tonumber
+  return function()
+    if tmp then
+      row = words(tmp:gsub("[\t\r ]*",""),pat,fun)-- no spaces
+      tmp = io.read()
+      if #row > 0 then return row end
+    else
+  io.close(stream) end end   
+end
+
+```
+### color(theColor,str) : print `str` using `theColor`
+```lua
+local colors={red=31, green=32,  plain=0}
+
+local function color(col,str)
+  return '\27[1m\27['..colors[col]..'m'..str..'\27[0m' 
+end
+
 
 ```
 # `Coc`omo
 ## `Coc`.all() : return a generator of COCOMO projects
 ```lua
-Coc={}
+local Coc={}
 function Coc.all(   eq1,eq2,pem,nem,sf,between,lohi,posints)
   function eq1(x,m,n)   return (x-3)*from(m,n)+1 end 
   function eq2(x,m,n)   return (x-6)*from(m,n) end 
@@ -366,7 +561,7 @@ end
 ## Managing single columns of data
 ### adds(t, klass) : all everything in `t` into a column of type `klass`
 ```lua
-function adds(t, klass,thing)
+local function adds(t, klass,thing)
   klass = klass or (type(t[1]) == "number" and Num or Sym)
   thing = klass.new()
   for _,x in pairs(t) do thing:add(x) end
@@ -376,7 +571,7 @@ end
 ```
 ### col(c,txt="",pos=0) : initialize a column
 ```lua
-function col(c, txt,pos)
+local function col(c, txt,pos)
   c.n   = 0
   c.txt = txt or ""
   c.pos = pos or 0
@@ -387,13 +582,13 @@ end
 ```
 ### `Num`eric Columns
 ```lua
-Num = {n=1, pos=0, txt="", mu=0, m2=0, sd=0,
-       lo=math.huge, hi= -math.huge}
+local Num = {n=1, pos=0, txt="", mu=0, m2=0, sd=0,
+             lo=math.huge, hi= -math.huge}
 
 ```
 #### `Num`.new(txt,pos) : make a  new `Num`
 ```lua
-function Num.new(txt,pos) return col(ako(Num),txt,pos) end
+function Num.new(txt,pos) return col(isa(Num),txt,pos) end
 
 ```
 #### `Num`:add(x) : add `x` to the receiver
@@ -413,12 +608,12 @@ end
 ```
 ### `Sym`bolic Columns
 ```lua
-Sym = {n=1, pos=0, txt="", most=0, seen={}}
+local Sym = {n=1, pos=0, txt="", most=0, seen={}}
 
 ```
 #### `Sym`.new(txt,pos) : make a  new `Sym`
 ```lua
-function Sym.new(txt,pos) return col(ako(Sym),txt,pos) end
+function Sym.new(txt,pos) return col(isa(Sym),txt,pos) end
 
 ```
 #### `Sym`:add(x) : add `x` to the receiver
@@ -447,13 +642,13 @@ end
 ```
 ### `Some` Column: resovoir samplers
 ```lua
-Some= {n=1, pos=0, txt="", t={}, old=false, max=256}
+local Some= {n=1, pos=0, txt="", t={}, old=false, max=256}
 
 ```
 #### `Some`.new(txt,pos) : make a  new `Some`
 ```lua
 function Some.new(txt,pos,max,   c) 
-  return col(ako(Some,{max=max or the.some.max}),
+  return col(isa(Some,{max=max or the.some.max}),
              txt,pos) end
 
 ```
@@ -480,66 +675,81 @@ function Some:all(   f)
 end
 
 ```
+## `Row` : a place to hold one example
+```lua
+local Row = {cells={},cooked={}}
+
+```
+### `Row`.new(t) : initialize a new row
+```lua
+function Row.new(t,rows) 
+  return isa(Row,{cells=t,_rows=rows}) end
+
+
+```
 ## `Cols` : place to store lots of columns
 ```lua
-Cols = {use  = {},
-        hdr  = {},
-        x    = {nums={}, syms={}, all={}},
-        y    = {nums={}, syms={}, all={}},
-        cols = {nums={}, syms={}, all={}}}
+local Cols = {use  = {},
+              hdr  = {},
+              ready= true,
+              x    = {nums={}, syms={}, all={}},
+              y    = {nums={}, syms={}, all={}},
+              xy   = {nums={}, syms={}, all={}}}
 
 ```
 ### `Cols`.new(t) : return a news `cols` with all the `nums` and `syms` filled in
 ```lua
 function Cols.new(t)         
-   local put, new = 0, ako(Cols)
-   local function remember(x,a)
-      push(x, a.all)
-      push(x, a[new:nump(x.txt) and "nums" or "syms"])  
+   local put, new = 0, isa(Cols)
+   local function push2(x,a)
+     push(x, a.all)
+     push(x, a[new:nump(x.txt) and "nums" or "syms"])  
    end
-  for get,txt in pairs(t) do
-    if new:skip(txt) then
-      put          = put + 1
-      new.use[put] = get
-      new.hdr[put] = txt
-      what         = (new:nump(txt) and Num or Sym).new(put,txt)
-      remember(what, new.cols)
-      remember(what, new:goalp(txt) and new.y or new.x) end end
+   for get,txt in pairs(t) do
+     if not new:skip(txt) then
+       put          = put + 1
+       new.use[put] = get
+       new.hdr[put] = txt
+       local what   = (new:nump(txt) and Num or Sym).new(txt,put)
+       if new:klassp(txt) then new.klass= what end
+       push2(what, new.xy)
+       push2(what, new:goalp(txt) and new.y or new.x) end end
   return new
 end
 
 ```
 ### `Col`umn types (string types)
 ```lua
-function Cols:has(s,x) return s:find(the.all.type[x]) end 
-function Cols:skip(s)  return self:has(s,"skip") end
-function Cols:obj(s)   return self:has(s,"less") or self:has(s,"more") end
-function Cols:nump(s)  return self:obj(s) or self:has(s,"num") end
-function Cols:goalp(s) return self:obj(s) or self:has(s,"klass") end
+function Cols:has(s,x)  return s:find(the.type[x]) end 
+function Cols:klassp(s) return self:has(s,"klass") end
+function Cols:skip(s)   return self:has(s,"skip") end
+function Cols:obj(s)    return self:has(s,"less") or self:has(s,"more") end
+function Cols:nump(s)   return self:obj(s) or self:has(s,"num") end
+function Cols:goalp(s)  return self:obj(s) or self:klassp(s) end
 
 ```
 ### `Cols`:push2(x) : add a column, to `all`, `nums` and `syms`
 ### `Cols`:row(t) : return a row containing `cells`, updating the summaries.
 ```lua
-function Cols:row(cells,     using,col,val)
+function Cols:row(cells,rows,     using,col,val)
   using = {}
   for put,get in pairs(self.use) do 
-    col, val = self.cols.all[put], cells[get]
-    using[put]   = col:add(val) 
+    col, val   = self.xy.all[put], cells[get]
+    using[put] = col:add(val) 
   end
-  return Row.new(using)
+  return Row.new(using,rows)
 end
 
 ```
 ## `Rows` : class; a place to store `cols` and `rows`.
 ```lua
-Rows = {cols={},rows={}}
+local Rows = {cols={}, rows={}}
 
 ```
 ### `Rows`:clone() : return a new `Rows` with the same structure as the receiver
 ```lua
 function Rows:clone() 
-  return ako(Rows,{cols=cols(self.cols.hdr)})   
+  return isa(Rows,{cols=cols(self.cols.hdr)})   
 end
 
 ```
@@ -555,290 +765,96 @@ end
 ```lua
 function Rows:add(t)
   t = t.cells and t.cells or t
-  if   self.cols 
-  then t.rows[#t.rows+1] = self.cols:row(t) 
-  else self.cols = cols(t) 
+  if   self.cols.ready
+  then self.rows[#self.rows+1] = self.cols:row(t,self) 
+  else self.cols = Cols.new(t) 
   end
 end
-
-```
-## `Row` : a place to hold one example
-```lua
-Row = {cells={},cooked={}}
-
-```
-### `Row`.new(t) : initialize a new row
-```lua
-function Row.new(t) return ako(Row,{cells=t}) end
-
-```
--------------------------------------------------------------------
-# Miscellaneous Functions
-## Maths
-### from(lo,hi) : return a number from `lo` to `hi`
-```lua
-function from(lo,hi) return lo+(hi-lo)*math.random() end
-
-```
-### round(n,places) : round `n` to some decimal `places`.
-```lua
-function round(num, places)
-  local mult = 10^(places or 0)
-  return math.floor(num * mult + 0.5) / mult
-end
-
-```
-## Strings
-### o(t,pre) : return `t` as a string, with `pre`fix
-```lua
-function o(z,pre,   s,sep) 
-  s, sep = (pre or "")..'{', ""
-  for _,v in pairs(z or {}) do s = s..sep..tostring(v); sep=", " end
-  return s..'}'
-end
-
-```
-### oo(t,pre) : print `t` as a string, with `pre`fix
-```lua
-function oo(z,pre) print(o(z,pre)) end
-
-```
-### ooo(t,pre) : return a string representing `t`'s recursive contents.
-```lua
-function ooo(t,pre,    indent,fmt)
-  pre=pre or ""
-  indent = indent or 0
-  if indent < 10 then
-    for k, v in pairs(t or {}) do
-      if not (type(k)=='string' and k:match("^_")) then
-        fmt= pre..string.rep("|  ",indent)..tostring(k)..": "
-        if type(v) == "table" then
-          print(fmt)
-          ooo(v, pre, indent+1)
-        else
-  print(fmt .. tostring(v)) end end end end
-end
-
-```
-## Meta
-### id(x) : ensure `x` has a unique if
-```lua
-function id (x)
-  if not x._id then the.all.id = the.all.id+1; x._id= the.all.id end
-  return x._id 
-end
-
-```
-### same(z) : return z
-```lua
-function same(z) return z end
-
-```
-### lt(x,y) : return `x<y`
-```lua
-function lt(x,y) return x<y end
-
-```
-### fun(x): returns true if `x` is a function
-```lua
-function fun(x) 
-  return assert(type(_ENV[x]) == "function", "not function") and x end
-
-```
-### map(t,f) : apply `f` to everything in `t` and return the result
-```lua
-function map(t,f, u)
-  u, f = {}, f or same
-  for i,v in pairs(t or {}) do u[i] = f(v) end  
-  return u
-end
-
-```
-### copy(t) : return a deep copy of `obj`
-```lua
-function copy(obj,   old,new)
-  if type(obj) ~= 'table' then return obj end
-  if old and old[obj] then return old[obj] end
-  old, new = old or {}, {}
-  old[obj] = new
-  for k, v in pairs(obj) do new[copy(k, old)]=copy(v, old) end
-  return setmetatable(new, getmetatable(obj))
-end
-
-```
-### select(t,f) : return a table of items in `t` that satisfy function `f`
-```lua
-function select(t,f,     g,u)
-  u, f = {}, f or same
-  for _,v in pairs(t) do if f(v) then u[#u+1] = v  end end
-  return u
-end
-
-```
-### ako(class,has) : create a new instance of `class`, add the `has` slides 
-```lua
-function ako(klass,has,      new)
-  new = copy(klass or {})
-  for k,v in pairs(has or {}) do new[k] = v end
-  setmetatable(new, klass)
-  klass.__index = klass
-  return new
-end
-
-```
-## Lists
-### any(a) : sample 1 item from `a`
-```lua
-function any(a) return a[1 + math.floor(#a*math.random())] end
-
-```
-### anys(a,n) : sample `n` items from `a`
-```lua
-function anys(a,n,   t) 
-  t={}
-  for i=1,n do t[#t+1] = any(a) end
-  return t
-end
-
-```
-### keys(t): iterate over key,values (sorted by key)
-```lua
-function keys(t)
-  local i,u = 0,{}
-  for k,_ in pairs(t) do u[#u+1] = k end
-  table.sort(u)
-  return function () 
-    if i < #u then 
-      i = i+1
-  return u[i], t[u[i]] end end 
-end
-
-```
-### binChop(t,x) : return a position very near `x` within `t`
-```lua
-function binChop (t,x,    lo,hi,mid)
-  lo,hi = 1,#t
-  while lo <= hi do
-    mid = math.floor((lo+hi)/2)
-    if     t[mid] > x then hi = mid - 1
-    elseif t[mid] < x then lo = mid + 1
-    else   break end end
-  return mid
-end
-
-```
-## Files
-### csv(file) : iterate through  non-empty rows, divided on comma, coercing numbers
-```lua
-function csv(file,     ch,fun,   pat,stream,tmp,row)
-  stream = file and io.input(file) or io.input()
-  tmp    = io.read()
-  pat    = "([^".. (ch or ",") .."]+)"
-  fun    = tonumber
-  return function()
-    if tmp then
-      row = words(tmp:gsub("[\t\r ]*",""),pat,fun)-- no spaces
-      tmp = io.read()
-      if #row > 0 then return row end
-    else
-  io.close(stream) end end   
-end
-
-```
-### words(s,pat,fun) : split `str` on `pat` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
-```lua
-function words(str,pat,fun,   t)
-  t = {}
-  for x in str:gmatch(pat) do t[#t+1] = fun(x) or trim(x) end
-  return t
-end
-
-```
-### trim(str) : remove leading and trailing blanks
-```lua
-function trim(str) return (str:gsub("^%s*(.-)%s*$", "%1")) end
-
-```
-### color(theColor,str) : print `str` using `theColor`
-```lua
-do local colors={red=31, green=32,  plain=0}
-  function color(col,str)
-  return '\27[1m\27['..colors[col]..'m'..str..'\27[0m' end
-end
-
 ```
 -------------------------------------------------------------------
 # Unit Tests
-## Support code
 ```lua
+local Eg={}
 
 ```
 ### eg(x): run the test function `eg_x` or, if `x` is nil, run all.
 ```lua
-function eg(name,   f,t1,t2,passed,err,y,n)
+local function eg(name,       f,t1,t2,t3,passed,err,y,n)
   if name=="fun" then return 1 end
   f= Eg[name]
   the.test.yes = the.test.yes + 1
   t1 = os.clock()
   math.randomseed(the.all.seed)
   passed,err = pcall(f) 
+  t3= os.date("%X :")
   if passed then
     t2= os.clock()
-    print(color("green",
-                string.format("PASS! "..name.." \t: %8.6f secs",
-                              t2-t1)))
+    print(
+     color("green",string.format("%s PASS! "..name.." \t: %8.6f secs",
+                                 t3, t2-t1)))
   else
     the.test.no = the.test.no + 1
     y,n = the.test.yes,  the.test.no
-    print(color("red",
-                 string.format("FAIL! "..name.." \t: %s [%.0f] %%",
-                               err:gsub("^.*: ",""), 
-    100*y/(y+n)))) end 
+    print(
+     color("red",string.format("%s FAIL! "..name.." \t: %s [%.0f] %%",
+                         t3, err:gsub("^.*: ",""), 100*y/(y+n)))) end 
 end
 
 ```
 ### within(x,y,z)
 ```lua
-function within(x,y,z)
+local function within(x,y,z)
   assert(x <= y and y <= z, 'outside range ['..x..' to '..']')
 end
 
 ```
 ### rogues() : report escaped local variables
 ```lua
-function rogues(   no)
-   no = {the=true,
-      tostring=true,  tonumber=true,  assert=true,  rawlen=true,
-      pairs=true,  ipairs=true, collectgarbage=true,  pcall=true,
-      rawget=true,  xpcall=true,  type=true,  print=true,
-      rawequal=true,  setmetatable=true,  require=true,
-      load=true,  rawset=true,  next=true,
-      getmetatable=true,  select=true,  error=true,  dofile=true,
-      loadfile=true,  jit=true, utf8=true, math=true,
-      package=true, table=true, coroutine=true, bit=true, os=true,
-      io=true, bit32=true, string=true, arg=true, debug=true,
-      _VERSION=true, _G=true }
+local function rogues(   no)
+   no = {
+      the=true, tostring=true,  tonumber=true, assert=true,
+      rawlen=true, pairs=true,     ipairs=true,
+      collectgarbage=true, xpcall=true, rawget=true,
+      pcall=true,        type=true,      print=true,
+      rawequal=true,  setmetatable=true, require=true, load=true,
+      rawset=true,       next=true, getmetatable=true,
+      select=true,   error=true,     dofile=true, loadfile=true,
+      jit=true,          utf8=true,      math=true, package=true,
+      table=true,        coroutine=true, bit=true, os=true,
+      io=true,        bit32=true,        string=true,
+      arg=true, debug=true, _VERSION=true, _G=true
+      }
    for k,v in pairs( _G ) do
       if not no[k] then
          if k:match("^[^A-Z]") then
-   print("-- ROGUE ["..k.."]") end end end
+   print("-- ROGUE ["..k.."]") end end end 
 end
 
 ```
 -------------------------------------------------------------------
-## Unit tests
+# Unit Tests
 ```lua
-Eg={}
+function Eg.all()   
+  print("") 
+  for k,_ in keys(Eg) do
+    if k~="all" and k~="fun" then eg(k) end 
+  end 
+  print(color("green",
+          os.date("%X : ").."pass = "..the.test.yes),
+        color("red",
+          "\n"..os.date("%X : ").."fail = "..the.test.no))
+end
+
 function Eg.fun()   return true end
-function Eg.all()   print("")
-                    for k,_ in keys(Eg) do
-                      if k~="all" and k~="fun" then  
-                        eg(k) end end end
 function Eg.test()  assert(1==2) end
 function Eg.rnd()   assert(3.2==round(3.2222,1)) end
 function Eg.o()     assert("{1, aa, 3}" == o({1,"aa",3})) end
 function Eg.id(  a) a={}; id(a); id(a); assert(1==a._id) end
-function Eg.map( t) assert(30 == map({1,2,3}, function (z) return z*10 end)[3]) end
+function Eg.push(t) 
+   t={}; push(10,t); push(20,t); assert(t[1]==10 and t[2]==20) end
+
+function Eg.map( t) 
+  assert(30 == map({1,2,3}, function (z) return z*10 end)[3]) end
 
 function Eg.coc(    x,y,z,s,sep)
   x,y,z = Coc.one()
@@ -856,9 +872,7 @@ end
 
 function Eg.csv( n) 
   n=0
-  for row in csv("data/weather.csv") do 
-    n=n+1
-  end
+  for row in csv("data/weather.csv") do n=n+1 end
   assert(n==15)
 end
 
@@ -906,12 +920,25 @@ function Eg.num()
   assert(sd*.95<=n.sd and n.sd<=sd*1.05)
 end
 
+function Eg.cols(    t)
+  t = Cols.new {"!name","?skip",":age"}
+  assert(2==#t.xy.all)
+  assert(1==#t.x.nums)
+  assert(2==t.x.nums[1].pos)
+end
+
+function Eg.rows(      t)
+  t=  isa(Rows):read("data/weather.csv")
+  assert(type(t.rows[14].cells[2]) == "number")
+  assert(5 == t.cols.xy.all[1].seen.rainy)
+end
+
 ```
 -------------------------------------------------------------------
 # Command Line
 ## options(now,b4) : return a tree with options from `b4` updated with `now`
 ```lua
-function options(now,b4,   old)
+local function options(now,b4,   old)
   local function parse(str,    t,g,o)
     t, g, o = {}, "all", "opt"
     t[g] = {}
@@ -945,13 +972,12 @@ function options(now,b4,   old)
 end
 
 ```
-## cli() : initialize the `the` variable and run command-line options.
+## cli() : initialize `the` and run command-line options.
 ```lua
-function cli()
+local function cli()
   the = options( table.concat(arg," "),
                  Help:match("\nOptions[^\n]*\n\n([^#]+)#"))
   math.randomseed(the.all.seed)
-  Eg.num()
   if the.all.C then print(Help:match("\n# License[%s]*(.*)")) end
   if the.all.h then print(Help:match("(.*)\n# Details")) end
   if the.all.H then print(Help) end

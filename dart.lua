@@ -518,7 +518,7 @@ local Cols = {use  = {},
               ready= true,
               x    = {nums={}, syms={}, all={}},
               y    = {nums={}, syms={}, all={}},
-              cols = {nums={}, syms={}, all={}}}
+              xy   = {nums={}, syms={}, all={}}}
 
 -- ### `Cols`.new(t) : return a news `cols` with all the `nums` and `syms` filled in
 function Cols.new(t)         
@@ -534,7 +534,7 @@ function Cols.new(t)
        new.hdr[put] = txt
        local what   = (new:nump(txt) and Num or Sym).new(txt,put)
        if new:klassp(txt) then new.klass= what end
-       push2(what, new.cols)
+       push2(what, new.xy)
        push2(what, new:goalp(txt) and new.y or new.x) end end
   return new
 end
@@ -552,7 +552,7 @@ function Cols:goalp(s)  return self:obj(s) or self:klassp(s) end
 function Cols:row(cells,rows,     using,col,val)
   using = {}
   for put,get in pairs(self.use) do 
-    col, val   = self.cols.all[put], cells[get]
+    col, val   = self.xy.all[put], cells[get]
     using[put] = col:add(val) 
   end
   return Row.new(using,rows)
@@ -582,7 +582,6 @@ function Rows:add(t)
 end
 -- -------------------------------------------------------------------
 -- # Unit Tests
-
 local Eg={}
 
 -- ### eg(x): run the test function `eg_x` or, if `x` is nil, run all.
@@ -722,14 +721,16 @@ function Eg.num()
 end
 
 function Eg.cols(    t)
-  t = Cols.new {"!name","$age"}
-  assert(2==#t.cols.all)
-  assert(1==#t.nums.all)
+  t = Cols.new {"!name","?skip",":age"}
+  assert(2==#t.xy.all)
+  assert(1==#t.x.nums)
+  assert(2==t.x.nums[1].pos)
 end
 
 function Eg.rows(      t)
   t=  isa(Rows):read("data/weather.csv")
-  --ooo(t)
+  assert(type(t.rows[14].cells[2]) == "number")
+  assert(5 == t.cols.xy.all[1].seen.rainy)
 end
 
 -- -------------------------------------------------------------------
