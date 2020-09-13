@@ -28,7 +28,8 @@ Options:
     --stats
        -cliffsDelta .147
        -bootstrap   256
-       -confidence         .95
+       -confidence  .95
+       -enough      .50
     --some
        -max   256
        -few    30
@@ -315,6 +316,26 @@ local function bootstrap(y0,z0)
   return more/the.stats.bootstrap >= the.stats.confidence
 end
 
+local function unsuper(t,fx,n,     x)
+  n = #t^the.stats.enough
+  while n < 4 and n < #t/2 do n=n*1.2 end  
+  fx = fx or function(z) return z[1] end
+  last = {}
+  all  = {last}
+  xlo  = 1
+  for xhi,z in pairs(t) do
+    x = fx(z)
+    if xhi - xlo >= n then
+      if #t - xhi >= n then
+        if x ~= fx( t[xhi-1] ) then
+           xlo=xhi
+           all[#all+1] = last 
+           last={}     end end end
+    last[#last+1] = {xhi, z}
+  end
+  if #last > 0 then all[#all+1] = last  end
+end
+       
 -- # `Coc`omo
 -- ## `Coc`.all() : return a generator of COCOMO projects
 local Coc={}
