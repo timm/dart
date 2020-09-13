@@ -353,7 +353,7 @@ local function cuts(t,n,    klassy,cut,out,xlo,xhi)
       if #t - xhi >= n then
         if z[1] ~= t[xhi-1][1] then
            xlo, cut = xhi, cut:clone()
-           push(cut, out)  end end end 
+           push(cut, out)  end end end  
     cut:add(z[1], z[2])
   end
   return out
