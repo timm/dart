@@ -32,7 +32,7 @@ Options:
        -klass !  ;; symbolic class
        -less  <  ;; numeric goal to be minimized
        -more  >  ;; numeric goal to be maximized
-       -num   $  ;; numeric
+       -num   \$  ;; numeric
        -skip  ?  ;; to be ignored
   
 
@@ -124,7 +124,7 @@ local map, copy,select,any,anys,keys,csv = nil,nil,nil,nil,nil,nil
 local within,rogues,eg,eg1,Eg,main       = nil,nil,nil,nil,nil,nil
 local from,isa,var,words,trim,color      = nil,nil,nil,nil,nil,nil
 local cli, options, fun                  = nil,nil, nil
-local some,binChop,col,adds              = nil,nil,nil,nil
+local some,binChop,col,adds,push         = nil,nil,nil,nil,nil
 local Coc,Num,Some,Sym                   = nil,nil,nil,nil
 
 -- # `Coc`omo
@@ -290,6 +290,7 @@ function Num.new(txt,pos) return col(isa(Num),txt,pos) end
 -- #### `Num`:add(x) : add `x` to the receiver
 function Num:add(x,    d) 
   if x == the.type.skip then return x end
+  print("x",x)
   self.n  = self.n + 1
   d       = x - self.mu
   self.mu = self.mu + d/self.n
@@ -356,6 +357,7 @@ end
 -- ## `Cols` : place to store lots of columns
 Cols = {use  = {},
         hdr  = {},
+        ready= true,
         x    = {nums={}, syms={}, all={}},
         y    = {nums={}, syms={}, all={}},
         cols = {nums={}, syms={}, all={}}}
@@ -363,24 +365,26 @@ Cols = {use  = {},
 -- ### `Cols`.new(t) : return a news `cols` with all the `nums` and `syms` filled in
 function Cols.new(t)         
    local put, new = 0, isa(Cols)
-   local function remember(x,a)
-      push(x, a.all)
-      push(x, a[new:nump(x.txt) and "nums" or "syms"])  
+   local function push2(x,a)
+     push(x, a.all)
+     push(x, a[new:nump(x.txt) and "nums" or "syms"])  
    end
-  for get,txt in pairs(t) do
-    if new:skip(txt) then
-      put          = put + 1
-      new.use[put] = get
-      new.hdr[put] = txt
-      what         = (new:nump(txt) and Num or Sym).new(put,txt)
-      if new:klassp(txt) then self.klass= what end
-      remember(what, new.cols)
-      remember(what, new:goalp(txt) and new.y or new.x) end end
+   for get,txt in pairs(t) do
+     print("txt",txt)
+     if not new:skip(txt) then
+       put          = put + 1
+       new.use[put] = get
+       new.hdr[put] = txt
+       local what   = (new:nump(txt) and Num or Sym).new(txt,put)
+       print("ako", txt, new:nump(txt) and true or false)
+       if new:klassp(txt) then new.klass= what end
+       push2(what, new.cols)
+       push2(what, new:goalp(txt) and new.y or new.x) end end
   return new
 end
 
 -- ### `Col`umn types (string types)
-function Cols:has(s,x)  return s:find(the.all.type[x]) end 
+function Cols:has(s,x)  return s:find(the.type[x]) end 
 function Cols:klassp(s) return self:has(s,"klass") end
 function Cols:skip(s)   return self:has(s,"skip") end
 function Cols:obj(s)    return self:has(s,"less") or self:has(s,"more") end
@@ -392,14 +396,14 @@ function Cols:goalp(s)  return self:obj(s) or self:klassp(s) end
 function Cols:row(cells,rows,     using,col,val)
   using = {}
   for put,get in pairs(self.use) do 
-    col, val = self.cols.all[put], cells[get]
-    using[put]   = col:add(val) 
+    col, val   = self.cols.all[put], cells[get]
+    using[put] = col:add(val) 
   end
   return Row.new(using,rows)
 end
 
 -- ## `Rows` : class; a place to store `cols` and `rows`.
-Rows = {cols={},rows={}}
+Rows = {cols={}, rows={}}
 
 -- ### `Rows`:clone() : return a new `Rows` with the same structure as the receiver
 function Rows:clone() 
@@ -408,16 +412,16 @@ end
 
 -- ### `Rows`:read(file) : read in data from a csv `file`
 function Rows:read(file) 
-  for t in csv(file) do self:add(t) end
+  for t in csv(file) do oo(t); self:add(t) end
   return self 
 end
 
 -- ### `Rows`:add(t) : turn the first row into a columns header, the rest into data rows
 function Rows:add(t)
   t = t.cells and t.cells or t
-  if   self.cols 
-  then t.rows[#t.rows+1] = self.cols:row(t,self) 
-  else self.cols = cols(t) 
+  if   self.cols.ready
+  then self.rows[#self.rows+1] = self.cols:row(t,self) 
+  else self.cols = Cols.new(t) 
   end
 end
 
@@ -458,12 +462,13 @@ function ooo(t,pre,    indent,fmt)
   if indent < 10 then
     for k, v in pairs(t or {}) do
       if not (type(k)=='string' and k:match("^_")) then
-        fmt = pre..string.rep("|  ",indent)..tostring(k)..": "
-        if type(v) == "table" then
-          print(fmt)
-          ooo(v, pre, indent+1)
-        else
-  print(fmt .. tostring(v)) end end end end
+        if not (type(v)=='function') then
+          fmt = pre..string.rep("|  ",indent)..tostring(k)..": "
+          if type(v) == "table" then
+            print(fmt)
+            ooo(v, pre, indent+1)
+          else
+            print(fmt .. tostring(v)) end end end end end
 end
 
 -- ## Meta
@@ -517,6 +522,9 @@ function isa(klass,has,      new)
 end
 
 -- ## Lists
+-- ### push(x,a) : push `x` to end of  `a`. return `x`
+function push(x,a) a[#a+1] = x; return x end
+
 -- ### any(a) : sample 1 item from `a`
 function any(a) return a[1 + math.floor(#a*math.random())] end
 
@@ -652,6 +660,9 @@ function Eg.test()  assert(1==2) end
 function Eg.rnd()   assert(3.2==round(3.2222,1)) end
 function Eg.o()     assert("{1, aa, 3}" == o({1,"aa",3})) end
 function Eg.id(  a) a={}; id(a); id(a); assert(1==a._id) end
+function Eg.push(t) 
+   t={}; push(10,t); push(20,t); assert(t[1]==10 and t[2]==20) end
+
 function Eg.map( t) 
   assert(30 == map({1,2,3}, function (z) return z*10 end)[3]) end
 
@@ -720,8 +731,14 @@ function Eg.num()
 end
 
 function Eg.cols()
-  ooo(Cols.new({"name","$age"}))
+  ooo(Cols.new({"!name","$age"}))
 end
+
+function Eg.rows()
+  print("klass",the.type.klass)
+  return isa(Rows):read("data/weather.csv").rows
+end
+
 -- -------------------------------------------------------------------
 -- # Command Line
 -- ## options(now,b4) : return a tree with options from `b4` updated with `now`
@@ -763,11 +780,12 @@ function cli()
   the = options( table.concat(arg," "),
                  Help:match("\nOptions[^\n]*\n\n([^#]+)#"))
   math.randomseed(the.all.seed)
-  Eg.num()
   if the.all.C then print(Help:match("\n# License[%s]*(.*)")) end
   if the.all.h then print(Help:match("(.*)\n# Details")) end
   if the.all.H then print(Help) end
-  eg(the.all.U) 
+  --eg(the.all.U) 
+  Eg.rows()
+  ooo(the.type)
   rogues()
 end
 
