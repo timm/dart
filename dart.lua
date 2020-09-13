@@ -321,31 +321,38 @@ local Cut={}
 -- ### `Cut`.new(klassy, xs,ys) : create a new cut
 -- Requires `klassy` information about type of y variables.
 -- Creates, or reuses, `xs,ys` which is information about all data.
-local function Cut.new(klassy, xs,ys) 
-   return isa(Cut,{x=  somed(Num.new()), y=somed(klassy.new()),
-                   xs= xs or somed(Num.new()), 
-                   ys= ys or somed(klassy.new())}) end
+local function Cut.new(klassy, xs,ys,fun) 
+   self.fun = fun or same
+   return isa(Cut,{x=  self.fun(Num.new()), 
+                   y=  self.fun(klassy.new()),
+                   xs= xs or self.fun(Num.new()), 
+                   ys= ys or self.fun(klassy.new())}) end
 
--- ### `Cut`.add(x,y) : update a cut
+-- ### `Cut`:clone() : return a clone like the receiver.
+local function Cut:clone()
+  return Cut.new(self.fun(getmetatable(self.y)), 
+                 self.xs, self.ys, self.fun)
+end
+   
+-- ### `Cut`:add(x,y) : update a cut
 local function Cut:add(x,y) 
   self.x:add(x); self.xs:add(x); self.y:add(y); self.ys:add(y) end 
 
--- ### cuts(t,n,klassy) : chop list of pairs `t` into cuts of size `n`. 
+-- ### cuts(t,n) : chop list of pairs `t` into cuts of size `n`. 
 -- Assumes that first of each pair is a number and the second of
--- each pair is of type `klassy` (defaults to `Sym`). Also,
+-- each pair is ether a numeric or a string. Also,
 -- `n` defaults to sqrt size of `t`.
-local function cuts(t,n,klassy,    cut,out,xlo,xhi,xs,ys )
+local function cuts(t,n,    klassy,cut,out,xlo,xhi)
   n       = n  or #t^the.stats.enough
-  klassy  = klassy or Sym
-  xs, ys  = Num.new(), klassy.new()
-  cut     = Cut.new(klassy, xs,ys)
+  klassy  = type(t[1][2]) == "number" and Num or Sym
+  cut     = Cut.new(klassy, somed)
   xlo,out = 1, {cut}
   while n < 4 and n < #t/2 do n=n*1.2 end  
   for xhi,z in pairs(t) do
     if xhi - xlo >= n then
       if #t - xhi >= n then
         if z[1] ~= t[xhi-1][1] then
-           xlo, cut = xhi, Cut.new(klassy,xs,ys)
+           xlo, cut = xhi, cut:clone()
            push(cut, out)  end end end 
     cut:add(z[1], z[2])
   end
@@ -592,10 +599,9 @@ function Row.new(t,rows)
 
 -- ## Gernics for all columns
 
--- ### adds(t, klass) : all everything in `t` into a column of type `klass`
-local function adds(t, klass,thing)
-  klass = klass or (type(t[1]) == "number" and Num or Sym)
-  thing = klass.new()
+-- ### adds(t, klass) : all everything in `t` into a column of type `thing`
+local function adds(t, thing)
+  thing = thing or (type(t[1]) == "number" and Num or Sym).new())`
   for _,x in pairs(t) do thing:add(x) end
   return thing
 end
@@ -802,9 +808,9 @@ function Eg.some(s)
 end
 
 function Eg.sym(  s)
-   s=adds({"a","a","a","a","b","b","c"},Sym)
+   s=adds({"a","a","a","a","b","b","c"},Sym.new())
    assert(1.378 <= s:ent() and s:ent() <= 1.379)
-   s=adds({"a","a","a","a","a","a","a"},Sym)
+   s=adds({"a","a","a","a","a","a","a"},Sym.new())
    assert(s:ent()==0)
 end
 
