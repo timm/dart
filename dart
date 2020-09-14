@@ -150,7 +150,10 @@ startup() {
   [ -z "$TMUX" ] && mytmux
 }
 
-
+reformat() {
+  luarocks install --server=https://luarocks.org/dev luaformatter
+  lua-format --indent-width=2 --tab-width=2 --column-limit=70 $Dir/$Src
+}
 want=$HOME/.config/htop/htoprc
 mkdir -p $(dirname $want)
 [ -f "$want" ] || cat<<-'EOF'>$want
