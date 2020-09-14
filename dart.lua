@@ -930,4 +930,4 @@ end
 if not pcall(debug.getlocal,4,1) then cli() end
 
 -- Return the names that external people can access
-return {the=the,cli=cli,Some=Some,Num=Num,Sym=Sym}
+areturn {the=the,cli=cli,Some=Some,Num=Num,Sym=Sym}
