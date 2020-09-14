@@ -26,13 +26,14 @@ Options:
        -yes   0  
        -no    0
     --stats
+       -cohen       .2
        -cliffsDelta .147
        -bootstrap   256
        -confidence  .95
        -enough      .50
     --some
        -max   256
-       -few    30
+       -few    64
     --type       ;; when reading csv files, names in row1 have
                  ;; magic symbols telling us their type.
        -klass !  ;; symbolic class
@@ -123,7 +124,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 ]]
 
-local the = nil
+local the={}
 
 -- -------------------------------------------------------------------
 -- # Miscellaneous Functions
@@ -207,7 +208,7 @@ end
 -- ### isa(class,has) : create a new instance of `class`, add the `has` slots 
 local function isa(klass,has,      new)
   new = copy(klass or {})
-  for k,v in pairs(has) do new[k] = v end
+  for k,v in pairs(has or {}) do new[k] = v end
   setmetatable(new, klass)
   klass.__index = klass
   return new
@@ -315,50 +316,53 @@ local function bootstrap(y0,z0)
   return more/the.stats.bootstrap >= the.stats.confidence
 end
 
--- ## `Cut` : information about some section of data
-local Cut={}
-
--- ### `Cut`.new(klassy, xs,ys) : create a new cut
--- Requires `klassy` information about type of y variables.
--- Creates, or reuses, `xs,ys` which is information about all data.
-local function Cut.new(klassy, xs,ys,fun) 
-   self.fun = fun or same
-   return isa(Cut,{x=  self.fun(Num.new()), 
-                   y=  self.fun(klassy.new()),
-                   xs= xs or self.fun(Num.new()), 
-                   ys= ys or self.fun(klassy.new())}) end
-
--- ### `Cut`:clone() : return a clone like the receiver.
-local function Cut:clone()
-  return Cut.new(self.fun(getmetatable(self.y)), 
-                 self.xs, self.ys, self.fun)
-end
-   
--- ### `Cut`:add(x,y) : update a cut
-local function Cut:add(x,y) 
-  self.x:add(x); self.xs:add(x); self.y:add(y); self.ys:add(y) end 
 
 -- ### cuts(t,n) : chop list of pairs `t` into cuts of size `n`. 
 -- Assumes that first of each pair is a number and the second of
 -- each pair is ether a numeric or a string. Also,
 -- `n` defaults to sqrt size of `t`.
-local function cuts(t,n,    klassy,cut,out,xlo,xhi)
-  n       = n  or #t^the.stats.enough
-  klassy  = type(t[1][2]) == "number" and Num or Sym
-  cut     = Cut.new(klassy, somed)
+function cuts(t,n,    cut,out,xlo,xhi)
+  n   = n  or #t^the.stats.enough
+  cut ={x=Num(),y=Sym.new()}
   xlo,out = 1, {cut}
   while n < 4 and n < #t/2 do n=n*1.2 end  
   for xhi,z in pairs(t) do
     if xhi - xlo >= n then
       if #t - xhi >= n then
         if z[1] ~= t[xhi-1][1] then
-           xlo, cut = xhi, cut:clone()
-           push(cut, out)  end end end  
-    cut:add(z[1], z[2])
+           xlo, cut = xhi, {x=Num(), y=Sym()}
+           out[#out+1]=cut end end end  
+    cut.x:add(z[1])
+    cut.y:add(z[2])
   end
   return out
 end
-       
+
+-- function pastes(cuts,epsilon,goal)
+--   epsilon = epsilon or 0.01
+--   goal = goal or "true"
+--   local function mid(cut) return cut[#cut //2][1] end
+--   local function score(cut)
+--   local function merge(a,b,   ab)
+--     ab = copy(a)
+--     for x,v in pairs(b.seen) do 
+--       ab.seen[x] = (ab.seen[x] or 0) + v
+--       if ab.seen[x] > ab.most then ab.most, ab.mode = ab.seen[x],x end
+--     end
+--   end
+--   j,tmp = 1,{}
+--   while j <= #cuts do
+--     a = cuts[j]
+--     if j<#cuts-1 then
+--       b  = cuts[j+1]
+--       ab = merge(a,b)
+--       if b.x.mu - a.x.mu < epsilon or 
+--          
+--     end
+--   end
+-- 
+-- end
+--        
 -- # `Coc`omo
 -- ## `Coc`.all() : return a generator of COCOMO projects
 local Coc={}
@@ -495,6 +499,15 @@ end
 
 -- # Data
 -- ## Managing single columns of data
+-- ### col(c,txt="",pos=0) : initialize a column
+local function col(c, txt,pos)
+  c.n   = 0
+  c.txt = txt or ""
+  c.pos = pos or 0
+  c.w   = c.txt:find(the.type.less) and -1 or 1
+  return c
+end
+
 -- ### `Some` Column: resovoir samplers
 local Some= {n=1, pos=0, txt="", t={}, old=false, max=256}
 
@@ -599,21 +612,21 @@ function Row.new(t,rows)
 
 -- ## Gernics for all columns
 
--- ### adds(t, klass) : all everything in `t` into a column of type `thing`
-local function adds(t, thing)
-  thing = thing or (type(t[1]) == "number" and Num or Sym).new())`
-  for _,x in pairs(t) do thing:add(x) end
-  return thing
+-- ### adds(t, it) : all everything in `t` into a column of type `it`
+local function adds(t, it)
+  it = it or (type(t[1]) == "number" and Num or Sym).new()
+  for _,x in pairs(t) do it:add(x) end
+  return it
 end
 
--- ### col(c,txt="",pos=0) : initialize a column
-local function col(c, txt,pos)
-  c.n   = 0
-  c.txt = txt or ""
-  c.pos = pos or 0
-  c.w   = c.txt:find(the.type.less) and -1 or 1
-  return c
+-- ### madds(ts, its) : multiple adds
+local function madds(ts, it)
+  for _,t in pairs(ts) do 
+     it = it or (type(t[1]) == "number" and Num or Sym).new()
+     for _,x in pairs(t) do it:add(x) end end
+  return it
 end
+
 
 -- ### somed(col) : include a `Some` into `col`
 local function somed(c) c.some=Some(); return c end
