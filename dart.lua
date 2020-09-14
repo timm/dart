@@ -321,48 +321,53 @@ end
 -- Assumes that first of each pair is a number and the second of
 -- each pair is ether a numeric or a string. Also,
 -- `n` defaults to sqrt size of `t`.
-function cuts(t,n,    cut,out,xlo,xhi)
+local function cuts(t,n,    cut,out,lo,hi)
   n   = n  or #t^the.stats.enough
-  cut ={lo=1,hi=1,xlo=1,xhi=1}
-  xlo,out = 1, {cut}
+  cut ={start=1,stop=1}
+  lo,out = 1, {cut}
   while n < 4 and n < #t/2 do n=n*1.2 end  
-  for xhi,z in pairs(t) do
-    if xhi - xlo >= n then
-      if #t - xhi >= n then
-        if z[1] ~= t[xhi-1][1] then
-           xlo, cut = xhi, {lo=xhi, hi=xhi}
+  for hi,z in pairs(t) do
+    if hi - lo >= n then
+      if #t - hi >= n then
+        if z[1] ~= t[hi-1][1] then
+           xlo, cut = hi, {start=hi, stop=hi}
            out[#out+1]=cut end end end  
-    cut.hi=xhi
+    cut.stop=hi 
   end
   return out
 end
---- add in the xlo,xho,lomhi stuff
-function pastes(t,cuts,all,goal)
-  local function summarize(cut,   s,n,j)
-    if not cut.num then
-      n,s= Num(),Sym()
-      j   = math.max(1,#cut//the.some.few)
-      for i=cut.lo, cut.hi, j do n:add(t[i][1]); s:add(t[i][2]) end
-      cut.num, cut.sym = n,s
+
+local function pastes(t,cuts,all,goal)
+  local function summarized(cut,   s,n,j)
+    if not cut.x then
+      cut.x = Num()
+      cut.y = (type(t[cut.start][2])=="number" and Num or Sym).new()
+      j     = math.max(1,#cut//the.some.few)
+      for i = cut.start, cut.stop, j do 
+         cut.x:add(t[i][1])
+         cut.y:add(t[i][2]) 
+      end
+      cut.lo = t[cut.start][1]
+      cut.hi = t[cut.stop][2] 
     end
     return cut
   end
   local function dull(a,b,ab) 
-    if b.mu - a.mu < all.sd*the.stats.cohen then return true end
-    sabs = ab.sym:score(goal,all)
-    return sabs > a.sym:score(goal,all) and sabs > b.sym:score(goal,all)
+    if b.x.mu - a.x.mu < all.sd*the.stats.cohen then return true end
+    sabs = ab.y:score(goal,all)
+    return sabs > a.y:score(goal,all) and sabs > b.y:score(goal,all)
   end
   j,tmp = 1,{}
   while j <= #cuts do
-    a = summarize(cuts[j])
+    a = summarized(cuts[j])
     if j<#cuts-1 then
-      b  = summarize(cuts[j+1])
-      ab = summarize({xlo=a.xlo, lo=a.lo, xhi=b.xhi, hi=b.hi})
+      b  = summarized(cuts[j+1])
+      ab = summarized({start=a.start, stop=b.stop})
       if dull(t,a,b,ab) then
         a= ab
         j=j+1 end end
     tmp[#tmp+1]= a
-    j=j+1
+    j=j+1 
   end
   return #tmp < #cuts and cuts(tmp,eps,goal) or cuts
 end

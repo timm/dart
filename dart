@@ -141,6 +141,15 @@ mytmux() {
 
   $Tmux attach-session -t $session
 }
+startup() {
+  if [ ! -d "$HOME/.vim/bundle" ]; then
+     git clone https://github.com/VundleVim/Vundle.vim.git \
+           ~/.vim/bundle/Vundle.vim
+     vims
+  fi
+  [ -z "$TMUX" ] && mytmux
+}
+
 
 want=$HOME/.config/htop/htoprc
 mkdir -p $(dirname $want)
@@ -441,10 +450,4 @@ want=$HOME/.tmux.conf
 	set -g visual-activity on
 EOF
 
-if [ ! -d "$HOME/.vim/bundle" ]; then
-   git clone https://github.com/VundleVim/Vundle.vim.git \
-         ~/.vim/bundle/Vundle.vim
-   vims
-fi
-
-[ -z "$TMUX" ] && mytmux
+startup
