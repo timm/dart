@@ -323,46 +323,50 @@ end
 -- `n` defaults to sqrt size of `t`.
 function cuts(t,n,    cut,out,xlo,xhi)
   n   = n  or #t^the.stats.enough
-  cut ={x=Num(),y=Sym.new()}
+  cut ={lo=1,hi=1,xlo=1,xhi=1}
   xlo,out = 1, {cut}
   while n < 4 and n < #t/2 do n=n*1.2 end  
   for xhi,z in pairs(t) do
     if xhi - xlo >= n then
       if #t - xhi >= n then
         if z[1] ~= t[xhi-1][1] then
-           xlo, cut = xhi, {x=Num(), y=Sym()}
+           xlo, cut = xhi, {lo=xhi, hi=xhi}
            out[#out+1]=cut end end end  
-    cut.x:add(z[1])
-    cut.y:add(z[2])
+    cut.hi=xhi
   end
   return out
 end
+--- add in the xlo,xho,lomhi stuff
+function pastes(t,cuts,all,goal)
+  local function summarize(cut,   s,n,j)
+    if not cut.num then
+      n,s= Num(),Sym()
+      j   = math.max(1,#cut//the.some.few)
+      for i=cut.lo, cut.hi, j do n:add(t[i][1]); s:add(t[i][2]) end
+      cut.num, cut.sym = n,s
+    end
+    return cut
+  end
+  local function dull(a,b,ab) 
+    if b.mu - a.mu < all.sd*the.stats.cohen then return true end
+    sabs = ab.sym:score(goal,all)
+    return sabs > a.sym:score(goal,all) and sabs > b.sym:score(goal,all)
+  end
+  j,tmp = 1,{}
+  while j <= #cuts do
+    a = summarize(cuts[j])
+    if j<#cuts-1 then
+      b  = summarize(cuts[j+1])
+      ab = summarize({xlo=a.xlo, lo=a.lo, xhi=b.xhi, hi=b.hi})
+      if dull(t,a,b,ab) then
+        a= ab
+        j=j+1 end end
+    tmp[#tmp+1]= a
+    j=j+1
+  end
+  return #tmp < #cuts and cuts(tmp,eps,goal) or cuts
+end
 
--- function pastes(cuts,epsilon,goal)
---   epsilon = epsilon or 0.01
---   goal = goal or "true"
---   local function mid(cut) return cut[#cut //2][1] end
---   local function score(cut)
---   local function merge(a,b,   ab)
---     ab = copy(a)
---     for x,v in pairs(b.seen) do 
---       ab.seen[x] = (ab.seen[x] or 0) + v
---       if ab.seen[x] > ab.most then ab.most, ab.mode = ab.seen[x],x end
---     end
---   end
---   j,tmp = 1,{}
---   while j <= #cuts do
---     a = cuts[j]
---     if j<#cuts-1 then
---       b  = cuts[j+1]
---       ab = merge(a,b)
---       if b.x.mu - a.x.mu < epsilon or 
---          
---     end
---   end
--- 
--- end
---        
 -- # `Coc`omo
 -- ## `Coc`.all() : return a generator of COCOMO projects
 local Coc={}
@@ -601,6 +605,20 @@ function Sym:ent(     e,p)
       p = v/self.n
       e = e - p*math.log(p,2) end end
   return e
+end
+
+-- ### `Sym`:v(goal,all)
+function Sym:v(goal,all)
+  local e    = 0.00001
+  local y    = self.seen[goal] or 0
+  local n    = self.n - y
+  local yall = all.seen[goal] or 0
+  local nall = all.n - yall
+  local ys   = y    / (e+ yall)
+  local ns   = n    / (e+ nall)
+  local tmp  = ys^2 / (e+ ys + ns) 
+  self._score = tmp > 0.01 and tmp or 0
+  return self._score
 end
 
 -- ## `Row` : a place to hold one example
