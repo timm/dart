@@ -107,8 +107,8 @@ function trim(s) {
      a[1] = trim( a[1] )
      a[2] = trim( a[2] )
      if (length(a) == 1 || ! a[2] )
-          print ns(new) "- **" s "**"    
-     else print ns(new) "- **" a[1] "** : " a[2] 
+          print ns(new) "- " s ""    
+     else print ns(new) "- " a[1] " : " a[2] 
 }
 END {print ""}'
 }

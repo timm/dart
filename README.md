@@ -122,79 +122,79 @@ ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 
-- **Miscellaneous Functions**
-    - **Maths**
-        - **from(lo,hi)** : return a number from `lo` to `hi`
-        - **round(n,places)** : round `n` to some decimal `places`.
-    - **Strings**
-        - **o(t,pre)** : return `t` as a string, with `pre`fix
-        - **oo(t,pre)** : print `t` as a string, with `pre`fix
-        - **ooo(t,pre)** : return a string representing `t`'s recursive contents.
-    - **Meta**
-        - **id(x)** : ensure `x` has a unique if
-        - **same(z)** : return z
-        - **lt(x,y)** : return `x<y`
-        - **fun(x)** : returns true if `x` is a function
-        - **map(t,f)** : apply `f` to everything in `t` and return the result
-        - **select(t,f)** : return a table of items in `t` that satisfy function `f`
-        - **isa(class,has)** : create a new instance of `class`, add the `has` slots 
-    - **Lists**
-        - **push(x,a)** : push `x` to end of  `a`. return `x`
-        - **any(a)** : sample 1 item from `a`
-        - **anys(a,n)** : sample `n` items from `a`
-        - **keys(t)** : iterate over key,values (sorted by key)
-        - **binChop(t,x)** : return a position very near `x` within `t`
-    - **Files**
-        - **trim(str)** : remove leading and trailing blanks
-        - **words(s,pat,fun)** : split `str` on `pat` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
-        - **csv(file)** : iterate through  non-empty rows, divided on comma, coercing numbers
-        - **color(theColor,str)** : print `str` using `theColor`
-    - **Stats**
-        - **cuts(t,n)** : chop list of pairs `t` into cuts of size `n`. 
-- **`Coc`omo**
-    - **`Coc`.all()** : return a generator of COCOMO projects
-    - **`Coc`.all()** : compute effort and risk for one project
-    - **`Coc`.Risk** : Cocomo risk model
-- **Data**
-    - **Managing single columns of data**
-        - **col(c,txt="",pos=0)** : initialize a column
-        - **`Some` Column** : resovoir samplers
-            - **`Some`.new(txt,pos)** : make a  new `Some`
-            - **`Some`:add(x)** : add `x` to the receiver
-            - **`Some`:all()** : return all kept items, sorted
-            - **`Some`:few()** : return all kept items, sorted
-            - **`Some`:same()** : return all kept items, sorted
-        - **`Num`eric Columns**
-            - **`Num`.new(txt,pos)** : make a  new `Num`
-            - **`Num`:add(x)** : add `x` to the receiver
-            - **`Num`:delta(y) **
-        - **`Sym`bolic Columns**
-            - **`Sym`.new(txt,pos)** : make a  new `Sym`
-            - **`Sym`:add(x)** : add `x` to the receiver
-            - **`Sym`:ent()** : return the entropy of the symbols seen in this column
-        - **`Sym`:v(goal,all)**
-    - **`Row`** : a place to hold one example
-        - **`Row`.new(t)** : initialize a new row
-    - **Gernics for all columns**
-        - **adds(t, it)** : all everything in `t` into a column of type `it`
-        - **madds(ts, its)** : multiple adds
-        - **somed(col)** : include a `Some` into `col`
-    - **`Cols`** : place to store lots of columns
-        - **`Cols`.new(t)** : return a news `cols` with all the `nums` and `syms` filled in
-        - **`Col`umn types (string types)**
-        - **`Cols`:push2(x)** : add a column, to `all`, `nums` and `syms`
-        - **`Cols`:row(t)** : return a row containing `cells`, updating the summaries.
-    - **`Rows`** : class; a place to store `cols` and `rows`.
-        - **`Rows`:clone()** : return a new `Rows` with the same structure as the receiver
-        - **`Rows`:read(file)** : read in data from a csv `file`
-        - **`Rows`:add(t)** : turn the first row into a columns header, the rest into data rows
-- **Unit Tests**
-        - **eg(x)** : run the test function `eg_x` or, if `x` is nil, run all.
-        - **within(x,y,z)**
-        - **rogues()** : report escaped local variables
-- **Unit Tests**
-- **Command Line**
-    - **options(now,b4)** : return a tree with options from `b4` updated with `now`
-    - **cli()** : initialize `the` and run command-line options.
-- **start-up**
+- Miscellaneous Functions
+    - Maths
+        - from(lo,hi) : return a number from `lo` to `hi`
+        - round(n,places) : round `n` to some decimal `places`.
+    - Strings
+        - o(t,pre) : return `t` as a string, with `pre`fix
+        - oo(t,pre) : print `t` as a string, with `pre`fix
+        - ooo(t,pre) : return a string representing `t`'s recursive contents.
+    - Meta
+        - id(x) : ensure `x` has a unique if
+        - same(z) : return z
+        - lt(x,y) : return `x<y`
+        - fun(x) : returns true if `x` is a function
+        - map(t,f) : apply `f` to everything in `t` and return the result
+        - select(t,f) : return a table of items in `t` that satisfy function `f`
+        - isa(class,has) : create a new instance of `class`, add the `has` slots 
+    - Lists
+        - push(x,a) : push `x` to end of  `a`. return `x`
+        - any(a) : sample 1 item from `a`
+        - anys(a,n) : sample `n` items from `a`
+        - keys(t) : iterate over key,values (sorted by key)
+        - binChop(t,x) : return a position very near `x` within `t`
+    - Files
+        - trim(str) : remove leading and trailing blanks
+        - words(s,pat,fun) : split `str` on `pat` (default=`,`), coerce using `fun` (defaults= `tonumiber`)
+        - csv(file) : iterate through  non-empty rows, divided on comma, coercing numbers
+        - color(theColor,str) : print `str` using `theColor`
+    - Stats
+        - cuts(t,n) : chop list of pairs `t` into cuts of size `n`. 
+- `Coc`omo
+    - `Coc`.all() : return a generator of COCOMO projects
+    - `Coc`.all() : compute effort and risk for one project
+    - `Coc`.Risk : Cocomo risk model
+- Data
+    - Managing single columns of data
+        - col(c,txt="",pos=0) : initialize a column
+        - `Some` Column : resovoir samplers
+            - `Some`.new(txt,pos) : make a  new `Some`
+            - `Some`:add(x) : add `x` to the receiver
+            - `Some`:all() : return all kept items, sorted
+            - `Some`:few() : return all kept items, sorted
+            - `Some`:same() : return all kept items, sorted
+        - `Num`eric Columns
+            - `Num`.new(txt,pos) : make a  new `Num`
+            - `Num`:add(x) : add `x` to the receiver
+            - `Num`:delta(y) 
+        - `Sym`bolic Columns
+            - `Sym`.new(txt,pos) : make a  new `Sym`
+            - `Sym`:add(x) : add `x` to the receiver
+            - `Sym`:ent() : return the entropy of the symbols seen in this column
+        - `Sym`:v(goal,all)
+    - `Row` : a place to hold one example
+        - `Row`.new(t) : initialize a new row
+    - Gernics for all columns
+        - adds(t, it) : all everything in `t` into a column of type `it`
+        - madds(ts, its) : multiple adds
+        - somed(col) : include a `Some` into `col`
+    - `Cols` : place to store lots of columns
+        - `Cols`.new(t) : return a news `cols` with all the `nums` and `syms` filled in
+        - `Col`umn types (string types)
+        - `Cols`:push2(x) : add a column, to `all`, `nums` and `syms`
+        - `Cols`:row(t) : return a row containing `cells`, updating the summaries.
+    - `Rows` : class; a place to store `cols` and `rows`.
+        - `Rows`:clone() : return a new `Rows` with the same structure as the receiver
+        - `Rows`:read(file) : read in data from a csv `file`
+        - `Rows`:add(t) : turn the first row into a columns header, the rest into data rows
+- Unit Tests
+        - eg(x) : run the test function `eg_x` or, if `x` is nil, run all.
+        - within(x,y,z)
+        - rogues() : report escaped local variables
+- Unit Tests
+- Command Line
+    - options(now,b4) : return a tree with options from `b4` updated with `now`
+    - cli() : initialize `the` and run command-line options.
+- start-up
 
