@@ -61,7 +61,7 @@ PROMPT_COMMAND='echo -ne "🎯 $(git branch 2>/dev/null | grep '^*' | colrm 1 2)
 lua2md() {
 F=/tmp/$$
  cat $1 | awk  '
-BEGIN {while(!sub(/^\]\].*/,"")) { getline }; 
+BEGIN {while(!sub(/^\]\].*/,"")) {  getline }; 
        print "\n\n"
        print"```lua"} 
 sub(/^-- /,"")    {print"```" 
@@ -80,7 +80,7 @@ sub(/^--\[\[[ \t]*/,"")  { print"```"
 END {print "```\n"}
 '  > ${F}2code
   [ -f "$Dir/etc/header.md" ] && (cat $Dir/etc/header.md > ${F}1head)
-  lua $Dir/$Src -H >> ${F}1head
+  lua $Dir/$Src -H #>> ${F}1head
   cat  ${F}2code | toc 
   #> ${F}2toc
   #cat ${F}1head ${F}2toc #${F}2code 
