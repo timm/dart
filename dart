@@ -81,8 +81,9 @@ END {print "```\n"}
 '  > ${F}2code
   [ -f "$Dir/etc/header.md" ] && (cat $Dir/etc/header.md > ${F}1head)
   lua $Dir/$Src -H >> ${F}1head
-  cat  ${F}2code | toc > ${F}2toc
-  cat ${F}1head ${F}2toc ${F}2code 
+  cat  ${F}2code | toc 
+  #> ${F}2toc
+  #cat ${F}1head ${F}2toc #${F}2code 
 }
 toc() {  awk '
 function ns(n,    s) {
@@ -99,15 +100,15 @@ function trim(s) {
      s = $0
      gsub(/^[#]+[ \t]*/,"",s) #asada() : asdadsa
      s = trim(s)
-     link = s
-     gsub(/[^a-zA-Z0-9\- ]/,"",link)
-     gsub(/[ \t]/,"-",link)
+     link =  NR
+     #gsub(/[^a-zA-Z0-9\- ]/,"",link)
+     #gsub(/[ \t]/,"-",link)
      split(s,a,/[ \t]*:[ \t]/)
      a[1] = trim( a[1] )
      a[2] = trim( a[2] )
      if (length(a) == 1 || ! a[2] )
-          print ns(new) "- [" s    "](#" tolower(link) ") " 
-     else print ns(new) "- [" a[1] "](#" tolower(link) ") : " a[2] 
+          print ns(new) "- [" s    "](dart.lua#L" tolower(link) ") " 
+     else print ns(new) "- [" a[1] "](dart.lua#L" tolower(link) ") : " a[2] 
 }
 END {print ""}'
 }
