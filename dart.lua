@@ -236,8 +236,8 @@ local function keys(t,        i,u)
   return function () 
     if i < #u then 
       i = i+1
-      return u[i], t[u[i]] end end 
-end
+      return u[i], t[u[i]] 
+end end end 
 
 -- ### binChop(t,x) : return a position very near `x` within `t`
 local function binChop (t,x,    lo,hi,mid)
@@ -246,7 +246,8 @@ local function binChop (t,x,    lo,hi,mid)
     mid = math.floor((lo+hi)/2)
     if     t[mid] > x then hi = mid - 1
     elseif t[mid] < x then lo = mid + 1
-    else   break end end
+    else   break 
+  end end
   return mid
 end
 
@@ -273,8 +274,8 @@ local function csv(file,     ch,fun,   pat,stream,tmp,row)
       tmp = io.read()
       if #row > 0 then return row end
     else
-  io.close(stream) end end   
-end
+      io.close(stream) 
+end end end  
 
 -- ### color(theColor,str) : print `str` using `theColor`
 local colors={red=31, green=32,  plain=0}
@@ -291,7 +292,7 @@ local function cliffsDelta(xs,ys,   lt,gt)
     for _,y in pairs(ys) do
       n = n + 1
       if y > x then gt = gt + 1 end
-      if y < x  then lt = lt + 1 end end end
+      if y < x then lt = lt + 1 end end end
   return math.abs(gt - lt)/n <= the.stats.cliffsDelta
 end
 
@@ -316,14 +317,13 @@ local function bootstrap(y0,z0)
   return more/the.stats.bootstrap >= the.stats.confidence
 end
 
-
 -- ### cuts(t,n) : chop list of pairs `t` into cuts of size `n`. 
 -- Assumes that first of each pair is a number and the second of
 -- each pair is ether a numeric or a string. Also,
 -- `n` defaults to sqrt size of `t`.
 local function cuts(t,n,    cut,out,lo,hi)
-  n   = n  or #t^the.stats.enough
-  cut ={start=1,stop=1}
+  n      = n  or #t^the.stats.enough
+  cut    = {start=1,stop=1}
   lo,out = 1, {cut}
   while n < 4 and n < #t/2 do n=n*1.2 end  
   for hi,z in pairs(t) do
@@ -332,8 +332,7 @@ local function cuts(t,n,    cut,out,lo,hi)
         if z[1] ~= t[hi-1][1] then
            xlo, cut = hi, {start=hi, stop=hi}
            out[#out+1]=cut end end end  
-    cut.stop=hi 
-  end
+    cut.stop=hi end
   return out
 end
 
@@ -343,20 +342,20 @@ local function pastes(t,cuts,all,goal)
       cut.x = Num()
       cut.y = (type(t[cut.start][2])=="number" and Num or Sym).new()
       j     = math.max(1,#cut//the.some.few)
-      for i = cut.start, cut.stop, j do 
-         cut.x:add(t[i][1])
-         cut.y:add(t[i][2]) 
-      end
+      for i = cut.start, cut.stop, j do
+        cut.x:add(t[i][1])
+        cut.y:add(t[i][2]) end
       cut.lo = t[cut.start][1]
-      cut.hi = t[cut.stop][2] 
-    end
+      cut.hi = t[cut.stop][2]  end
     return cut
   end
+  ---------------------------
   local function dull(a,b,ab) 
     if b.x.mu - a.x.mu < all.sd*the.stats.cohen then return true end
     sabs = ab.y:score(goal,all)
     return sabs > a.y:score(goal,all) and sabs > b.y:score(goal,all)
   end
+  ------------
   j,tmp = 1,{}
   while j <= #cuts do
     a = summarized(cuts[j])
@@ -367,8 +366,7 @@ local function pastes(t,cuts,all,goal)
         a= ab
         j=j+1 end end
     tmp[#tmp+1]= a
-    j=j+1 
-  end
+    j=j+1  end
   return #tmp < #cuts and cuts(tmp,eps,goal) or cuts
 end
 
@@ -431,7 +429,8 @@ function Coc.one(      r,c,    x,y,em,sf,risk)
   risk=0
   for a1,a2s in pairs(Coc.risk()) do 
     for a2,m in pairs(a2s) do
-       risk  = risk  + m[x[a1]][x[a2]] end end
+       risk  = risk  + m[x[a1]][x[a2]] 
+  end end
   y.risk = risk/108
   return x,y,risk/108
 end
@@ -608,7 +607,8 @@ function Sym:ent(     e,p)
   for _,v in pairs(self.seen) do
     if v>0 then
       p = v/self.n
-      e = e - p*math.log(p,2) end end
+      e = e - p*math.log(p,2) 
+  end end
   return e
 end
 
@@ -646,7 +646,8 @@ end
 local function madds(ts, it)
   for _,t in pairs(ts) do 
      it = it or (type(t[1]) == "number" and Num or Sym).new()
-     for _,x in pairs(t) do it:add(x) end end
+     for _,x in pairs(t) do it:add(x) 
+  end end
   return it
 end
 
@@ -677,7 +678,8 @@ function Cols.new(t)
        local what   = (new:nump(txt) and Num or Sym).new(txt,put)
        if new:klassp(txt) then new.klass= what end
        push2(what, new.xy)
-       push2(what, new:goalp(txt) and new.y or new.x) end end
+       push2(what, new:goalp(txt) and new.y or new.x) 
+  end end
   return new
 end
 
@@ -772,8 +774,8 @@ local function rogues(   no)
    for k,v in pairs( _G ) do
       if not no[k] then
          if k:match("^[^A-Z]") then
-   print("-- ROGUE ["..k.."]") end end end 
-end
+   print("-- ROGUE ["..k.."]") 
+end end end end
 
 -- -------------------------------------------------------------------
 -- # Unit Tests
@@ -844,10 +846,10 @@ function Eg.some(s)
 end
 
 function Eg.sym(  s)
-   s=adds({"a","a","a","a","b","b","c"},Sym.new())
-   assert(1.378 <= s:ent() and s:ent() <= 1.379)
-   s=adds({"a","a","a","a","a","a","a"},Sym.new())
-   assert(s:ent()==0)
+  s=adds({"a","a","a","a","b","b","c"},Sym.new())
+  assert(1.378 <= s:ent() and s:ent() <= 1.379)
+  s=adds({"a","a","a","a","a","a","a"},Sym.new())
+  assert(s:ent()==0)
 end
 
 function Eg.num()
@@ -893,7 +895,8 @@ local function options(now,b4,   old)
         else local o0 = x:match("^%-([^%-].*)")
              if   o0 
              then o = o0; t[g][o] = false
-             else t[g][o] = tonumber(x) or x end end end end
+             else t[g][o] = tonumber(x) or x 
+    end end end end
     return t
   end
   -------------------------------
@@ -908,7 +911,8 @@ local function options(now,b4,   old)
             b4[g][o] = new 
           else print("Oops: option "..o.." wanted "..type(old)) end
         else   print("Oops: option "..o.." undefined") end
-      else     print("Oops: group " ..g.." undefined") end end end
+      else     print("Oops: group " ..g.." undefined") 
+  end end end
   return b4
 end
 
