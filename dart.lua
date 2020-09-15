@@ -21,6 +21,7 @@ Options:
     -H           ;; show help (long version) 
     -seed 1      ;; set random number seed   
     -U fun       ;; run unit test 'fun' (and `all` runs everything)
+    -R fun       ;; run test function
     -id 0        ;; counter for object ids
     --test       ;; system stuff, set up test engine    
        -yes   0  
@@ -124,7 +125,6 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 ]]
 
--- # Code
 
 local the={}
 
@@ -217,6 +217,12 @@ local function isa(klass,has,      new)
 end
 
 -- ## Lists
+-- ### first(t) : return first item
+local function first(t) return t[1] end
+
+-- ### last(t) : return first item
+local function last(t) return t[#t] end
+
 -- ### push(x,a) : push `x` to end of  `a`. return `x`
 local function push(x,a) a[#a+1] = x; return x end
 
@@ -284,92 +290,6 @@ local colors={red=31, green=32,  plain=0}
 
 local function color(col,str)
   return '\27[1m\27['..colors[col]..'m'..str..'\27[0m' 
-end
-
--- ## Stats
--- cliffsDelta(xs,ys) : are `xs` and `ys` different by more than a small effect
-local function cliffsDelta(xs,ys,   lt,gt)
-  lt,gt,n = 0,0,0
-  for _,x in pairs(xs) do
-    for _,y in pairs(ys) do
-      n = n + 1
-      if y > x then gt = gt + 1 end
-      if y < x then lt = lt + 1 end end end
-  return math.abs(gt - lt)/n <= the.stats.cliffsDelta
-end
-
--- From an bootstrap hypothesis test from 220 to 223 of Efron's book 
--- 'An introduction to the boostrap'.
-local function bootstrap(y0,z0)
-  local function sample(t, n)
-    n = Num.new()
-    for i=1,#t do n:add( t[math.random(#t)] ) end
-    return n 
-  end
-  local x, y, z = Num.new(), adds(y0), adds(z0)
-  for i=1,#y do x:add(y0[i]) end
-  for i=1,#z do x:add(z0[i]) end
-  local yhat, zhat, tobs= {}, {}, y:delta(z)
-  for i=1,#y0 do yhat[i] = y0[i] - y.mu + x.mu end
-  for i=1,#z0 do zhat[i] = z0[i] - z.mu + x.mu end
-  local more = 0
-  for _ = 1,the.stats.bootstrap  do
-    if sample(yhat):delta(sample(zhat)) > tobs then
-      more = more + 1 end end
-  return more/the.stats.bootstrap >= the.stats.confidence
-end
-
--- ### cuts(t,n) : chop list of pairs `t` into cuts of size `n`. 
--- Assumes that first of each pair is a number and the second of
--- each pair is ether a numeric or a string. Also,
--- `n` defaults to sqrt size of `t`.
-local function cuts(t,n,    cut,out,lo,hi)
-  n      = n  or #t^the.stats.enough
-  cut    = {start=1,stop=1}
-  lo,out = 1, {cut}
-  while n < 4 and n < #t/2 do n=n*1.2 end  
-  for hi,z in pairs(t) do
-    if hi - lo >= n then
-      if #t - hi >= n then
-        if z[1] ~= t[hi-1][1] then
-           xlo, cut = hi, {start=hi, stop=hi}
-           out[#out+1]=cut end end end  
-    cut.stop=hi end
-  return out
-end
-
-local function pastes(t,cuts,all,goal)
-  local function summarized(cut,   s,n,j)
-    if not cut.x then
-      cut.x = Num()
-      cut.y = (type(t[cut.start][2])=="number" and Num or Sym).new()
-      j     = math.max(1,#cut//the.some.few)
-      for i = cut.start, cut.stop, j do
-        cut.x:add(t[i][1])
-        cut.y:add(t[i][2]) end
-      cut.lo = t[cut.start][1]
-      cut.hi = t[cut.stop][2]  end
-    return cut
-  end
-  ---------------------------
-  local function dull(a,b,ab) 
-    if b.x.mu - a.x.mu < all.sd*the.stats.cohen then return true end
-    sabs = ab.y:score(goal,all)
-    return sabs > a.y:score(goal,all) and sabs > b.y:score(goal,all)
-  end
-  ------------
-  j,tmp = 1,{}
-  while j <= #cuts do
-    a = summarized(cuts[j])
-    if j<#cuts-1 then
-      b  = summarized(cuts[j+1])
-      ab = summarized({start=a.start, stop=b.stop})
-      if dull(t,a,b,ab) then
-        a= ab
-        j=j+1 end end
-    tmp[#tmp+1]= a
-    j=j+1  end
-  return #tmp < #cuts and cuts(tmp,eps,goal) or cuts
 end
 
 -- # `Coc`omo
@@ -545,10 +465,22 @@ function Some:all(   f)
   return self.t
 end
 
+-- cliffsDelta(xs,ys) : are `xs` and `ys` different by more than a small effect
+local function cliffsDelta(xs,ys,   n,lt,gt)
+  lt,gt,n = 0,0,0
+  for _,x in pairs(xs) do
+    for _,y in pairs(ys) do
+      n = n + 1
+      if y > x then gt = gt + 1 end
+      if y < x then lt = lt + 1 end end end
+  return math.abs(gt - lt)/n <= the.stats.cliffsDelta
+end
+
 -- #### `Some`:few() : return all kept items, sorted
-function Some:few(    f,   t,u) 
-  t= self:all(f)
-  for i = 1, #t // the.some.few do u[#u+1] = t[i] end
+function Some:few(    f,   t,u,n) 
+  t,u= self:all(f),{}
+  n = math.max(1, #t // the.some.few)
+  for i = 1, #t, n do u[#u+1] = t[i] end
   return u
 end
 
@@ -581,7 +513,7 @@ function Num:add(x,    d)
 end
 
 -- #### `Num`:delta(y) 
-function Num:delta(them,    x,y)
+function Num:delta(them,    y,z,e)
   y, z, e = self, them, 10^-64
   return (y.mu-z.mu) / (e+(y.sd/y.n+z.sd/z.n)^0.5) 
 end
@@ -614,8 +546,8 @@ function Sym:ent(     e,p)
   return e
 end
 
--- ### `Sym`:v(goal,all)
-function Sym:v(goal,all)
+-- ### `Sym`:score(goal,all)
+function Sym:score(goal,all)
   local e    = 0.00001
   local y    = self.seen[goal] or 0
   local n    = self.n - y
@@ -656,6 +588,83 @@ end
 
 -- ### somed(col) : include a `Some` into `col`
 local function somed(c) c.some=Some(); return c end
+
+-- ## Stats
+-- From an bootstrap hypothesis test from 220 to 223 of Efron's book 
+-- 'An introduction to the boostrap'.
+local function bootstrap(y0,z0)
+  local function sample(t, n)
+    n = Num.new()
+    for i=1,#t do n:add( t[math.random(#t)] ) end
+    return n 
+  end
+  local x, y, z = Num.new(), adds(y0), adds(z0)
+  for i=1,#y do x:add(y0[i]) end
+  for i=1,#z do x:add(z0[i]) end
+  local yhat, zhat, tobs= {}, {}, y:delta(z)
+  for i=1,#y0 do yhat[i] = y0[i] - y.mu + x.mu end
+  for i=1,#z0 do zhat[i] = z0[i] - z.mu + x.mu end
+  local more = 0
+  for _ = 1,the.stats.bootstrap  do
+    if sample(yhat):delta(sample(zhat)) > tobs then
+      more = more + 1 end end
+  return more/the.stats.bootstrap <= the.stats.confidence
+end
+
+-- ### divs(t,n) : chop list of pairs `t` into cuts of size `n`. 
+-- Assumes that first of each pair is a number and the second of
+-- each pair is ether a numeric or a string. Also,
+-- `n` defaults to sqrt size of `t`.
+local function divs(t,n,    cut,cuts,lo,hi)
+  n       = n or (#t)^the.stats.enough
+  cut     = {start=1,stop=1}
+  lo,cuts = 1, {cut}
+  while n < 4 and n < #t/2 do n=n*1.2 end  
+  for hi,z in pairs(t) do
+    if hi - lo >= n then
+      if #t - hi >= n then
+        if z[1] ~= t[hi-1][1] then
+           lo, cut = hi, {start=hi, stop=hi}
+           cuts[#cuts+1]=cut end end end  
+    cut.stop=hi end
+  return cuts
+end
+
+local function pastes(t,cuts,all,goal)
+  local function summarized(cut,   s,n,j)
+    if cut.x == nil then
+      cut.x = Num.new()
+      cut.y = (type(t[cut.start][2])=="number" and Num or Sym).new()
+      j     = math.max(1,#cut//the.some.few)
+      for i = cut.start, cut.stop, j do
+        cut.x:add(t[i][1])
+        cut.y:add(t[i][2]) end
+      cut.lo = t[cut.start][1]
+      cut.hi = t[cut.stop][2]  end
+    return cut
+  end
+  ---------------------------
+  local function dull(a,b,ab) 
+    if b.x.mu - a.x.mu < all.sd*the.stats.cohen then return true end
+    sabs = ab.y:score(goal,all)
+    return sabs > a.y:score(goal,all) and sabs > b.y:score(goal,all)
+  end
+  ------------
+  j,tmp = 1,{}
+  while j <= #cuts do
+    a = summarized(cuts[j])
+    ooo(a)
+    if j<#cuts-1 then
+      b  = summarized(cuts[j+1])
+      ab = summarized({start=a.start, stop=b.stop})
+      if dull(a,b,ab) then
+        a= ab
+        j=j+1 end end
+    tmp[#tmp+1]= a
+    j=j+1  end
+  return #tmp < #cuts and cuts(tmp,eps,goal) or cuts
+end
+
 
 -- ## `Cols` : place to store lots of columns
 local Cols = {use  = {},
@@ -874,12 +883,65 @@ function Eg.cols(    t)
   assert(2==t.x.nums[1].pos)
 end
 
-function Eg.rows(      t)
+function Eg.rowsWeather(      t)
   t=  isa(Rows):read("data/weather.csv")
   assert(type(t.rows[14].cells[2]) == "number")
   assert(5 == t.cols.xy.all[1].seen.rainy)
 end
 
+function Eg.rowsAuto(      t)
+  t=  isa(Rows):read("data/auto93.csv")
+  assert(398 == #t.rows)
+end
+
+function Eg.rowsDiabetes(      t)
+  t=  isa(Rows):read("data/diabetes.csv")
+  assert(t.cols.x.nums[1].n==768)
+end
+
+function Eg.rowsAuto10000(      t)
+  t=  isa(Rows):read("data/auto93000.csv")
+  assert(t.cols.xy.all[1].seen[4]==5100)
+end
+
+function Eg.cuts(      t,t2,kl)
+  t=  isa(Rows):read("data/diabetes.csv")
+  kl = t.cols.klass
+  for _,col in pairs(t.cols.x.nums) do 
+     t2={}
+     for _,r in pairs(t.rows) do
+        t2[#t2+1] = {r.cells[col.pos], 
+                     r.cells[kl.pos]} end 
+     table.sort(t2, function (x,y) return 
+                       first(x)<first(y) end)
+     print("")
+     cuts = divs(t2)
+     pastes(t2, cuts,col,"tested_positive")
+
+  end
+end
+
+function Eg.cliffs(     r,n,t,u,v,x)
+   n=1000
+   t={}
+   for i =1,n do t[i] = math.random() end
+   for r = 1,1.5,.05 do 
+     u,v = Some.new(), Some.new()
+     for i =1,n do u:add(t[i]); v:add(t[i]*r) end
+     x = u:same(v)
+     if r<1.25 then assert(x) else assert(not x) end
+end  end
+
+function Eg.boot(     r,n,t,u,x)
+   n=100
+   t={}
+   for i =1,n do t[i] = math.random()^2 end
+   for r = 1,1.5,.05 do 
+     u={}
+     for i =1,n do u[i] = t[i]*r end
+     x = bootstrap(t,u)
+     if r<1.25 then assert(x) else assert(not x) end
+end  end
 -- -------------------------------------------------------------------
 -- # Command Line
 -- ## options(now,b4) : return a tree with options from `b4` updated with `now`
@@ -927,6 +989,7 @@ local function cli()
   if the.all.h then print(Help:match("(.*)\n# Details")) end
   if the.all.H then print(Help) end
   eg(the.all.U) 
+  Eg[the.all.R]()
   rogues()
 end
 
