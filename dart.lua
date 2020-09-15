@@ -665,7 +665,6 @@ local function pastes(t,cuts,all,goal)
   return #tmp < #cuts and cuts(tmp,eps,goal) or cuts
 end
 
-
 -- ## `Cols` : place to store lots of columns
 local Cols = {use  = {},
               hdr  = {},
@@ -805,7 +804,7 @@ function Eg.fun()   return true end
 function Eg.test()  assert(1==2) end
 function Eg.rnd()   assert(3.2==round(3.2222,1)) end
 function Eg.o()     assert("{1, aa, 3}" == o({1,"aa",3})) end
-function Eg.id(  a) a={}; id(a); id(a); assert(1==a._id) end
+function Eg.id()    local a={}; id(a); id(a); assert(1==a._id) end
 function Eg.push(t) 
    t={}; push(10,t); push(20,t); assert(t[1]==10 and t[2]==20) end
 
