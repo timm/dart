@@ -332,6 +332,11 @@ want=$HOME/.vimrc
 	let g:markdown_fenced_languages = ['lua','awk','py=python']
 EOF
 
+mkdir -p $Dir/docs
+want=$Dir/docs/.nojekyll
+[ -f "$want" ] || echo "">$want
+
+
 want=$Dir/.gitignore
 [ -f "$want" ] || cat<<-'EOF'>$want
 	# Swap
