@@ -28,6 +28,7 @@ EOF
   tput sgr0
   tput bold; tput setaf 0
   awk '/^alias/ {print $0}'   $Dir/$Sh
+  echo ""
   tput sgr0
 }
 

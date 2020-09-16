@@ -1,0 +1,36 @@
+BEGIN {
+  _Black="and break do else elseif end false for function if in local nil not or repeat return then true until while"
+  split(_Black,Black,"[ \t]+")
+  for(i in a) Swap["\w" a[i] "\w"] = "<span style='color: green;'>"a[i]"</span>" 
+}
+function code(s) { 
+  for(i  in Swap) 
+    gsub(i,Swap[i],s)
+  return s 
+}
+function text(s) { 
+  s=gensub("[^\\]_([^-]+)_",   "<em>\\1</em>","g",s)
+  s=gensub("[^\\]\*([^-]+)\*","<bf>\\1</bf>","g",s)
+  gsub(/^ #.*/,"<h1>&</h1>")
+  gsub(/^ ##.*/,"<h2>&</h2>")
+  gsub(/^ ###.*/,"<h3>&</h3>")
+  gsub(/^ ####.*/,"<h4>&</h4>")
+  gsub(/^ #####.*/,"<h15&</h5>")
+  gsub(/^ ######.*/,"<h6>&</h6>")
+  gsub(/^ #######.*/,"<h7>&</h7>")
+  return s
+}
+BEGIN { Code=1; Text=2; What=Text }
+
+/^local[\t ]+Help=/ {next}
+/^\]\]/             {next}
+
+/^    / { if(What != Code) { print "<pre>"; What=Code }
+          while (sub(/^    /,"")) { print code($0); next}
+          print "</pre>" ; What = Text
+        }
+
+/^-- /  { if(What != Text) { print "</pre>"; What=Text }
+          while (sub(/^-- /,"")) { print text($0) ; next}
+          print "<pre>" ; What=Code
+        }
