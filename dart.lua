@@ -630,7 +630,7 @@ local function divs(t,n,    cut,cuts,lo,hi)
   return cuts
 end
 
-local function pastes(t,cuts,all,goal)
+local function pastes(t,cuts,allx,ally,goal)
   local function summarized(cut,   s,n,j)
     if cut.x == nil then
       cut.x = Num.new()
@@ -644,25 +644,28 @@ local function pastes(t,cuts,all,goal)
     return cut
   end
   ---------------------------
-  local function dull(a,b,ab) 
-    if b.x.mu - a.x.mu < all.sd*the.stats.cohen then return true end
-    sabs = ab.y:score(goal,all)
-    return sabs > a.y:score(goal,all) and sabs > b.y:score(goal,all)
+  local function dull(a,b,ab,    sabs) 
+    if b.x.mu - a.x.mu < allx.sd*the.stats.cohen then return true end
+    sabs = ab.y:score(goal,ally)
+    return sabs > a.y:score(goal,ally) and sabs > b.y:score(goal,ally)
   end
   ------------
-  j,tmp = 1,{}
-  while j <= #cuts do
-    a = summarized(cuts[j])
-    ooo(a)
-    if j<#cuts-1 then
-      b  = summarized(cuts[j+1])
-      ab = summarized({start=a.start, stop=b.stop})
-      if dull(a,b,ab) then
-        a= ab
-        j=j+1 end end
-    tmp[#tmp+1]= a
-    j=j+1  end
-  return #tmp < #cuts and cuts(tmp,eps,goal) or cuts
+  local function main(cuts,      a,b,ab,j,tmp)
+    j,tmp = 1,{}
+    while j <= #cuts do
+      a = summarized(cuts[j])
+      if j<#cuts-1 then
+        b  = summarized(cuts[j+1])
+        ab = summarized({start=a.start, stop=b.stop})
+        if dull(a,b,ab) then
+          a= ab
+          j=j+1 end end
+      tmp[#tmp+1]= a
+      j=j+1  
+    end
+    return #tmp < #cuts and main(tmp) or cuts
+  end
+  return main(cuts)
 end
 
 -- ## `Cols` : place to store lots of columns
@@ -903,22 +906,33 @@ function Eg.rowsAuto10000(      t)
   assert(t.cols.xy.all[1].seen[4]==5100)
 end
 
-function Eg.cuts(      t,t2,kl)
+function Eg.cuts1(      t,t2,kl)
   t=  isa(Rows):read("data/diabetes.csv")
   kl = t.cols.klass
-  for _,col in pairs(t.cols.x.nums) do 
+end
+
+local function CutDemo(f, t,t2,kl,cuts) 
+  t=  isa(Rows):read(f)
+  kl = t.cols.klass
+  for i,col in pairs(t.cols.x.nums) do 
      t2={}
      for _,r in pairs(t.rows) do
         t2[#t2+1] = {r.cells[col.pos], 
                      r.cells[kl.pos]} end 
      table.sort(t2, function (x,y) return 
                        first(x)<first(y) end)
-     print("")
      cuts = divs(t2)
-     pastes(t2, cuts,col,"tested_positive")
-
+     cuts = pastes(t2, cuts,col,kl,"tested_positive")
+     print("")
+     for j,cut in pairs(cuts) do
+       print(i, j, cut.x.n)
+     end
   end
 end
+
+function Eg.cuts1() CutDemo("data/diabetes1000.csv") end
+function Eg.cuts2() CutDemo("data/xxx.csv") end
+function Eg.cuts3() CutDemo("data/yyy.csv") end
 
 function Eg.cliffs(     r,n,t,u,v,x)
    n=1000
@@ -990,6 +1004,10 @@ local function cli()
   eg(the.all.U) 
   Eg[the.all.R]()
   rogues()
+  s="cass"
+  if s:find(the.type["klass"]) then
+     print(11)
+  end
 end
 
 -- --------------------------------------------------------------------

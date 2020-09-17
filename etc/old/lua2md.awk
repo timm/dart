@@ -40,3 +40,11 @@ BEGIN {
           while (sub(/^-- /,"")) { print text($0) ; getline}
           #print "<pre>" ; What=Code
         }
+
+function more() {
+  getline
+  gsub(/[ \t\r\n]*$/,"",$0) 
+  return $0
+}
+
+/^---/ { while (sub(/^--[-]? /,"")) { print $0; more() } } 
