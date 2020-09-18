@@ -51,8 +51,12 @@ function csv(a,file,     b4, status,line) {
 #### Conventions
 ### Objects
 ## - Objects are called `i` (and not `self`)
+## - Object constructors are functions whose names start
+##   with upper case. No other functions should start with uppercase.
+## - Methods are functions whose names start with a dash `_`. At compile
+##   time, this name gets a prefix of the last constructor.
 
-### Notataion
+### Notation
 ## - :str is a string
 ## - :num is a integer or float
 ## - :int is a number
@@ -68,20 +72,20 @@ function push(x,a)    { a[length(a)+1] =x; return x}
 
 ### isa(i:list0, thing:fun) :posint
 ## Ensures `i` is a `thing`.
-## Resets `i` to the empty list, 
-## then adds `i.isa=y` and `i.id=n` where `n` is a unique number.
+## Resets `i` to the empty list, then adds `i.isa=y` and `i.id=n` 
+## where `n` is a unique number.
 ## Returns  the newly created `i.id`.
 function isa(i,y)     { List(i);i["id"] = ++Id; i["isa"]=y; return Id}
 
 ### List(i:list0) :nil
 ## Resets `i` to the empty list 
-function List(i)      { split("",i,"") }
+function List(i)      { delete i }
 
 ### has(i:list
 function has(i,k,f)   { f=f?f:"List";zap(i,k); @f(i[k]) }
 function hasmore(i,f) { has(i,length(i)+1, f); return length(i) } 
 
-function zap(i,k)     { i[k][0]; List(i[k]) } 
+function zap(i,k)     { i[k][0]; List(i[k]) }
 
 function max(x,y) { return x>y ? x : y }
 function min(x,y) { return x<y ? x : y }

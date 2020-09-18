@@ -95,11 +95,12 @@ function Rows(i) {
   has(i,"rows")
   has(i,"cols")
 }
-function num(s) { return s ~/[:<>]/ }
-function y(s)   { return s ~/[!<>]/ }
-function x(s)   { return not y(s) }
-function sym(s) { return not num(s) }
-function want(nn,out,want1,want2) {
+function _num(s) { return s ~/[:<>]/ }
+function _y(s)   { return s ~/[!<>]/ }
+function _x(s)   { return not y(s) }
+function _sym(s) { return not num(s) }
+
+function _want(nn,out,want1,want2) {
   for(i in nn)
     if (@want1(N[i]) ||  want2 && @want2(N[i])
       out[i] = i
