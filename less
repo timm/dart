@@ -1,131 +1,131 @@
 #!/usr/bin/env bash
 # vim: ft=awk ts=2 sw=2 et :
-gold() { 
-  gawk -f gold.awk --source '{transpile($0)}' > /tmp/$$.awk
-  cat /tmp/$$.awk #gawk -f gold.awk -f  /tmp/$$.awk }
+code() {cat<<'EOF'
+###
+# # About
+# ## Name 
+#   dart
+#
+# # Description
+#  Optimize = cluster plus sample plus contrast;
+#  i.e. Divide problem space into chunks;
+#  dart, a little, around the chunks;
+#  report back anything that jumps you between chunks.
+#
+# ## Usage
+#
+#       lua dart.lua [Options] [--Group Options]* 
+#
+#  Options start with "-" and contain 0 or 1 arguments.
+#  Options belong to different Groups (which start with --).
+#
+# ## Options
+#
+#    -C           ;; show copyright   
+#    -h           ;; show help   
+#    -H           ;; show help (long version) 
+#    -seed 1      ;; set random number seed   
+#    -U fun       ;; run unit test 'fun' (and `all` runs everything)
+#    -R fun       ;; run test function
+#    -id 0        ;; counter for object ids
+#    --test       ;; system stuff, set up test engine    
+#       -yes   0  
+#       -no    0
+#    --stats
+#       -cohen       .2
+#       -cliffsDelta .147
+#       -bootstrap   256
+#       -confidence  .95
+#       -enough      .50
+#    --some
+#       -max   256
+#       -few    64
+#    --type       ;; when reading csv files, names in row1 have
+#                 ;; magic symbols telling us their type.
+#       -klass !  ;; symbolic class
+#       -less  <  ;; numeric goal to be minimized
+#       -more  >  ;; numeric goal to be maximized
+#       -num   :  ;; numeric
+#       -skip  ?  ;; to be ignored
+#
+# ## Requirements
+# - Lua >= 5.3
+#
+# ## Install
+# 
+# - Install Lua 5.3
+# - Download [dart.lua](dart.lua)
+# - Run and execute the unit tests 
+# 
+#      lua dart.lua -U
+# 
+# If that all works then you see one failing test
+# (when we test the test engine) and everything else passing.
+#
+# ## How to Contribute
+#
+# Please follow these 
+# _Lua-isa-simple-language-so-lets-keep-it-simple_ conventions:
+# 
+# - Source code
+#   - All source code in one file.
+#     - All locals listed at top;
+#     - Application specific code at top;
+#     - General utilities at bottom,
+#     - Unit tests under nearly everything  else,  inside the `Eg` variable.
+#     - Second last is the main function to be called if this code is _not_ included into
+#       another library:
+#       - And I test for that using `not pcall(debug.getlocal, 4, 1)`.
+#     - Finally, there  is a return statement that exports the more useful parts of the code.
+#   - No globasl (so keep the list of `local`s at top of file up to date).
+#   - The `the` local handles information and defaults shared across all functions and classes.
+#     - And this variable is initialized by parsing the [Usage](#usage) section of this help
+#       text/
+#   - Minimize use of the `local` keyword (so ugly)
+#     - Use it once at top of file.
+#     - Then (usually) define function locals as extra input arguments.
+#   - Indent code with 2 characters for tabs.
+#   - Using classes to divide the code. 
+#     - Update the non-class library code rarely (since that is functions global to the module).
+#     - Update the class code a lot.
+#   - Classes:
+#     - Use classes for polymorphism. 
+#     - Don't use inheritance (adds to debugging effort).
+#     - Classes are created by assigning some defaults to a global value;    
+#       e.g. `Emp={lname="", fname="", add=address() }`
+#     - Class constructors are lower case functions that call `isa(X)` 
+#       (where `X` is some class).
+#       - Typically for some `Klass`, the constrictor is the same name, starting with lower case (e.g. `klass`).
+#       - Constructors often use the idiom `new.x = y or the.zzz.y` where `y` is a parameter- S
+#
+#
+# ## Contact
+#
+# Copyright 2020,  
+# Tim Menzies,   
+# timm@ieee.org
+# 
+# ## Copyright
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject
+# to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+# ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+# CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 
-gold<<EOF
-#### About
-### Name 
-##  dart
-
-### Description
-##  Optimize = cluster plus sample plus contrast;
-##  i.e. Divide problem space into chunks;
-##  dart, a little, around the chunks;
-##  report back anything that jumps you between chunks.
-
-### Usage
-##
-##       lua dart.lua [Options] [--Group Options]* 
-##
-##  Options start with "-" and contain 0 or 1 arguments.
-##  Options belong to different Groups (which start with --).
-
-### Options
-##
-##    -C           ;; show copyright   
-##    -h           ;; show help   
-##    -H           ;; show help (long version) 
-##    -seed 1      ;; set random number seed   
-##    -U fun       ;; run unit test 'fun' (and `all` runs everything)
-##    -R fun       ;; run test function
-##    -id 0        ;; counter for object ids
-##    --test       ;; system stuff, set up test engine    
-##       -yes   0  
-##       -no    0
-##    --stats
-##       -cohen       .2
-##       -cliffsDelta .147
-##       -bootstrap   256
-##       -confidence  .95
-##       -enough      .50
-##    --some
-##       -max   256
-##       -few    64
-##    --type       ;; when reading csv files, names in row1 have
-##                 ;; magic symbols telling us their type.
-##       -klass !  ;; symbolic class
-##       -less  <  ;; numeric goal to be minimized
-##       -more  >  ;; numeric goal to be maximized
-##       -num   :  ;; numeric
-##       -skip  ?  ;; to be ignored
-
-### Requirements
-## - Lua >= 5.3
-
-### Install
-## 
-## - Install Lua 5.3
-## - Download [dart.lua](dart.lua)
-## - Run and execute the unit tests 
-## 
-##      lua dart.lua -U
-## 
-## If that all works then you see one failing test
-## (when we test the test engine) and everything else passing.
-
-### Contribute
-##
-## Please follow these 
-## _Lua-isa-simple-language-so-lets-keep-it-simple_ conventions:
-## 
-## - Source code
-##   - All source code in one file.
-##     - All locals listed at top;
-##     - Application specific code at top;
-##     - General utilities at bottom,
-##     - Unit tests under nearly everything  else,  inside the `Eg` variable.
-##     - Second last is the main function to be called if this code is _not_ included into
-##       another library:
-##       - And I test for that using `not pcall(debug.getlocal, 4, 1)`.
-##     - Finally, there  is a return statement that exports the more useful parts of the code.
-##   - No globasl (so keep the list of `local`s at top of file up to date).
-##   - The `the` local handles information and defaults shared across all functions and classes.
-##     - And this variable is initialized by parsing the [Usage](#usage) section of this help
-##       text/
-##   - Minimize use of the `local` keyword (so ugly)
-##     - Use it once at top of file.
-##     - Then (usually) define function locals as extra input arguments.
-##   - Indent code with 2 characters for tabs.
-##   - Using classes to divide the code. 
-##     - Update the non-class library code rarely (since that is functions global to the module).
-##     - Update the class code a lot.
-##   - Classes:
-##     - Use classes for polymorphism. 
-##     - Don't use inheritance (adds to debugging effort).
-##     - Classes are created by assigning some defaults to a global value;    
-##       e.g. `Emp={lname="", fname="", add=address() }`
-##     - Class constructors are lower case functions that call `isa(X)` 
-##       (where `X` is some class).
-##       - Typically for some `Klass`, the constrictor is the same name, starting with lower case (e.g. `klass`).
-##       - Constructors often use the idiom `new.x = y or the.zzz.y` where `y` is a parameter- S
-##     
-
-### License
-##
-## Copyright 2020,  
-## Tim Menzies,   
-## timm@ieee.org
-## 
-## Permission is hereby granted, free of charge, to any person obtaining
-## a copy of this software and associated documentation files (the
-## "Software"), to deal in the Software without restriction, including
-## without limitation the rights to use, copy, modify, merge, publish,
-## distribute, sublicense, and/or sell copies of the Software, and to
-## permit persons to whom the Software is furnished to do so, subject
-## to the following conditions:
-## 
-## The above copyright notice and this permission notice shall be
-## included in all copies or substantial portions of the Software.
-## 
-## THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-## EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-## MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-## IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
-## ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
-## CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-## WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 BEGIN { 
   The.some.max = 256 
   The.ch.skip = "?" 
@@ -137,7 +137,7 @@ function add(i,x) {
   return x
 }
 function add1(i,x,   f) {f=i.isa "_add1"; return @f(i.x) }
-function loop(i      f) {f=i.isa "_loop"; return @f(i.x) }
+function loop(i,     f) {f=i.isa "_loop"; return @f(i.x) }
 
 function Sym(i) {
   isa(i,"Sym")
@@ -172,35 +172,35 @@ function _add1(i, x) {
   i.lo = min(i.lo,x)
 }
 
-###############################################################
-### Some(i:list0,max:pos) :nil
-## Constructor for `Some` objects that keep a random sample of atoms.
-## - `i.n` is now many things were set to this `Some`
-## - `i.all` is all the fhings kept (may be less that `i.n`
-## - `i.max` is the maximum number of things kept (and if we keep more
-##   than that, then order things (selected at random) will be removed.
-## - `i.ok` is false when `i.all` has been updated, but not resorted yet.
-function Some(i, max) {
+### Constructor for `Some` objects that keep a random sample of atoms.
+# - `i.n` is now many things were set to this `Some`
+# - `i.all` is all the fhings kept (may be less that `i.n`
+# - `i.max` is the maximum number of things kept (and if we keep more
+#   than that, then order things (selected at random) will be removed.
+# - `i.ok` is false when `i.all` has been updated, but not resorted yet.
+function Some(i:list0, max:pos) :nil {
   isa(i,"Some")
   i.n=0
   has(i,"all")
   i.ok=1          
   i.max = max ? max : The.some.max
 }
-function _update(i,x,k) { 
-  i.all[k]=x; i.ok=0 
-}
+
 function _add1(i,x, j) {
   if (length(i.all)  < i.max) 
     _update(i, x, length(i.all) + 1)
   else if (rand() < i.max/i.n) 
     _update(i, x, int(0.5+length(i.all)*rand()))
 }
-### _ok(i:Some) :nil
-## Ensure the contents are sorted
-function _ok(i) {
-  if (!i.ok) i.ok= asort(i.all) 
-}
+function _update(i,x,k) { i.all[k]=x; i.ok=0 }
+
+### Ensure contents are sorted
+function _ok(i:Some) :nil  { 
+   if (!i.ok) i.ok= asort(i.all) }
+
+### 
+function _var(i,  lo,hi) { return (_per(i,.9) - _per(i, .1))/2.54 }
+function _mid(i,  lo,hi) { return _per(i,.5,lo,hi) }
 
 function _per(i,p , lo,hi) {
   p  = p?p: 0.5
@@ -209,11 +209,6 @@ function _per(i,p , lo,hi) {
   _ok(i)
   return i.all[ int(0.5 + lo+p*(hi-lo)) ]
 }
-function _var(i,  lo,hi) {
-  return (_per(i,.9) - _per(i, .1))/2.54
-}
-function _mid(i,  lo,hi) { return _per(i,.5,lo,hi) }
-
 function _few(i,few,   j,k) {
   _ok(i)
   k = max(1, int(0.5+ length(i)/ The.some.max))
@@ -238,18 +233,14 @@ function _sym(s) { return not num(s) }
 
 function _want(nn,out,want1,want2) {
   for(i in nn)
-    if (@want1(N[i]) ||  want2 && @want2(N[i])
+    if (@want1(N[i]) ||  want2 && @want2(N[i]))
       out[i] = i
 }
 function using(u, get,  put,o) {
-  for(i in get
+  for(i in get)
     if($get !~ /\?/) 
       u[get] = ++put
 }
-function reads(
-function reads(a,Use,Names,Cols,Rows) { 
-  if length(Use)
-    readRow(a,C,R,U,N)
 
 
 function cliffs(as,bs,t,    a,b,n,lt,gt) {
@@ -279,4 +270,9 @@ function _loop(i,out,   a,ok,j,get) {
      out[j] = a[i.use[j]]
   return 1
 }
-BEGIN { rogues() }
+BEGIN { print(File); rogues(); for(i in ARGV) print(i, ARGV[i]) }
+
+EOF
+}
+code | gawk -f gold.awk --source '{transpile($0)}' > /tmp/$$gold.awk
+gawk -f gold.awk -f  /tmp/$$gold.awk
