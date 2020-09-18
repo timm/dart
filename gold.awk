@@ -1,4 +1,5 @@
 BEGIN {DOT="."; DASH="_"}
+
 function transpile(s,  a) {
   if (s ~ /^@include/) 
     print s
@@ -27,7 +28,7 @@ function ooSortOrder(a, i) {
    return PROCINFO["sorted_in"] =\
      typeof(i+1)=="number" ? "@ind_num_asc" : "@ind_str_asc"
 }
-function csv(a,file,     b4, status,line) {
+function csv(a,file,     b4, status,line,x,y) {
   file   = file ? file : "-"           # [1]
   status = getline < file
   if (status<0) {
@@ -45,6 +46,19 @@ function csv(a,file,     b4, status,line) {
   if (line ~ /,$/)
     return csv(a,file, line)           # [4]
   split(line, a, ",")                  # [7]
+  for(j in a)  {
+    x=a[j]
+    y=a[j]+0
+    a[j] = x==y? y : x }
+  return 1
+}
+function cols(a,out,file,    j,b) {
+  if(!length(a)) 
+     a["it"][1] = a["use"][1]=1
+  status = csv(b,file)
+  if (status<1) return 0
+  if (length(a))
+    for(j in a) out[j] = b[a[j]]
   return 1
 }
 
