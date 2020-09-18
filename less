@@ -1,0 +1,120 @@
+# vim: ft=awk ts=2 sw=2 et :
+transpile() { gawk '{print gensub( 
+  /\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
+  "[\"\\1\\2\"]","g",$0)}' }
+cat<<EndOfFile | transpile > $$.awk
+
+@include "lib"
+
+BEGIN { 
+  The.some.max = 256 
+  The.ch.skip = "?" 
+  The.stats.cliff = "?" 
+}
+function add1(i,x,   f) {f=i.isa "Add1"; return @f(i.x) }
+
+function add(i,x) { 
+  if (x != The.ch.skip)  { i.n++; add1(i,x) }
+  return x
+}
+function Sym(i) {
+  isa(i,"Sym")
+  has(i,seen)
+  i.mode = i.most = ""
+}
+function SymAdd1(i,x) {
+  i.seen[x] = i.seen[x] + 1
+  if (i.seen[x] > i.most) { i.most=i.seen[x]; i.mode=x}
+}
+function SymScore(i,goal,all,     
+                  e,y,n,yall,nall,ys,ns,tmp) {
+  e    = 0.00001
+  y    = i.seen[goal]
+  n    = i.n - y
+  yall = all.seen[goal] 
+  nall = all.n - yall
+  ys   = y    / (e+ yall)
+  ns   = n    / (e+ nall)
+  tmp  = ys**2 / (e+ ys + ns)
+  return (i.score = tmp > 0.01 ? tmp : 0)
+}
+function Num(i) {
+  isa(i,"Num")
+  i.hi=-10**32
+  i.lo=10**32
+  has(i,"Some")
+}
+function NumAdd1(i, x) {
+  add(i.some,x)
+  i.hi = max(i.hi,x)
+  i.lo = min(i.lo,x)
+}
+function Some(i, max) {
+  isa(i,"Some")
+  i.n=0
+  i.ok=1
+  i.max = max ? max : The.some.max
+  has(i,"all")
+}
+function SomeAdd1(i,x, j) {
+  if (length(i.all)  < i.max) 
+    SomeChange(i, x, length(i.all) + 1
+  else if (rand() < i.max/i.n) 
+    SomeChange(i, x, int(0.5+length(i.all)*rand()))
+}
+function SomeChange(i,x,j) { i.all[x]=j; i.ok=0 }
+
+function SomeFew(i,few,   j,k) {
+  if (!i.ok) i.ok= asort(i.all) 
+  k = max(1, int(0.5+ length(i)/ The.some.max))
+  for(j=1; j<=length(i.all); j += k) 
+    push( i.all[j], few) 
+}
+function SomeSame(i,j,   ai,aj) {
+  SomeFew(i, ai)
+  SomeFew(j, aj)
+  return cliffs(ai,aj)
+}
+
+function Rows(i) {
+  List(i)
+  has(i,"names")
+  has(i,"uses")
+  has(i,"rows")
+  has(i,"cols")
+}
+function num(s) { return s ~/[:<>]/ }
+function y(s)   { return s ~/[!<>]/ }
+function x(s)   { return not y(s) }
+function sym(s) { return not num(s) }
+function want(nn,out,want1,want2) {
+  for(i in nn)
+    if (@want1(N[i]) ||  want2 && @want2(N[i])
+      out[i] = i
+}
+function using(u, get,  put,o) {
+  for(i in get
+    if($get !~ /\?/) 
+      u[get] = ++put
+}
+function reads(
+function reads(a,Use,Names,Cols,Rows) { 
+  if length(Use)
+    readRow(a,C,R,U,N)
+
+
+function cliffs(as,bs,t,    a,b,n,lt,gt) {
+  t= t? t : The.stats.cliff
+  for(a in as)
+   for(b in bs) {
+     n++
+     if (as[a] < bs[b]) lt++
+     if (as[a] > bs[b]) gt++
+  }
+  return abs(lt-gt)/n < t
+}
+
+BEGIN { rogues() }
+EndOfFile
+
+gawk -f /tmp/$$.awk
