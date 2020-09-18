@@ -1,32 +1,33 @@
+#!/usr/bin/env bash
 # vim: ft=awk ts=2 sw=2 et :
-transpile() { gawk '{print gensub( 
-  /\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/, 
-  "[\"\\1\\2\"]","g",$0)}' }
-cat<<EndOfFile | transpile > $$.awk
-
-@include "lib"
+gold() { 
+  gawk -f gold.awk --source '{transpile($0)}' > /tmp/$$.awk
+  gawk -f gold.awk -f  /tmp/$$.awk
+}
+cat<<`EOF` | gold 
 
 BEGIN { 
   The.some.max = 256 
   The.ch.skip = "?" 
   The.stats.cliff = "?" 
 }
-function add1(i,x,   f) {f=i.isa "Add1"; return @f(i.x) }
 
 function add(i,x) { 
   if (x != The.ch.skip)  { i.n++; add1(i,x) }
   return x
 }
+function add1(i,x,   f) {f=i.isa "_add1"; return @f(i.x) }
+
 function Sym(i) {
   isa(i,"Sym")
   has(i,seen)
   i.mode = i.most = ""
 }
-function SymAdd1(i,x) {
+function _add1(i,x) {
   i.seen[x] = i.seen[x] + 1
   if (i.seen[x] > i.most) { i.most=i.seen[x]; i.mode=x}
 }
-function SymScore(i,goal,all,     
+function _score(i,goal,all,     
                   e,y,n,yall,nall,ys,ns,tmp) {
   e    = 0.00001
   y    = i.seen[goal]
@@ -44,38 +45,49 @@ function Num(i) {
   i.lo=10**32
   has(i,"Some")
 }
-function NumAdd1(i, x) {
+function _add1(i, x) {
   add(i.some,x)
   i.hi = max(i.hi,x)
   i.lo = min(i.lo,x)
 }
+
+### Some(i:list0,max:pos) :nil
+## Constructor for `Some` objects that keep a random sample of atoms.
+## - `i.n` is now many things were set to this `Some`
+## - `i.all` is all the fhings kept (may be less that `i.n`
+## - `i.max` is the maximum number of things kept (and if we keep more
+##   than that, then order things (selected at random) will be removed.
+## - `i.ok` is false when `i.all` has been updated, but not resorted yet.
 function Some(i, max) {
   isa(i,"Some")
   i.n=0
-  i.ok=1
-  i.max = max ? max : The.some.max
   has(i,"all")
+  i.ok=1          # if 0, then `i.all` needs resoting
+  i.max = max ? max : The.some.max
 }
-function SomeAdd1(i,x, j) {
+function _update(i,x,k) { 
+  i.all[k]=x; i.ok=0 
+}
+function _add1(i,x, j) {
   if (length(i.all)  < i.max) 
-    SomeChange(i, x, length(i.all) + 1
+    _update(i, x, length(i.all) + 1)
   else if (rand() < i.max/i.n) 
-    SomeChange(i, x, int(0.5+length(i.all)*rand()))
+    _update(i, x, int(0.5+length(i.all)*rand()))
 }
-function SomeChange(i,x,j) { i.all[x]=j; i.ok=0 }
-
-function SomeFew(i,few,   j,k) {
+function _ok(i) {
   if (!i.ok) i.ok= asort(i.all) 
+}
+function _few(i,few,   j,k) {
+  _ok(i)
   k = max(1, int(0.5+ length(i)/ The.some.max))
   for(j=1; j<=length(i.all); j += k) 
     push( i.all[j], few) 
 }
-function SomeSame(i,j,   ai,aj) {
-  SomeFew(i, ai)
-  SomeFew(j, aj)
+function _same(i,j,   ai,aj) {
+  _few(i, ai)
+  _few(j, aj)
   return cliffs(ai,aj)
 }
-
 function Rows(i) {
   List(i)
   has(i,"names")
@@ -115,6 +127,3 @@ function cliffs(as,bs,t,    a,b,n,lt,gt) {
 }
 
 BEGIN { rogues() }
-EndOfFile
-
-gawk -f /tmp/$$.awk
