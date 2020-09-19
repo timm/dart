@@ -4,6 +4,8 @@ function transpile(s,  a) {
   if (s ~ /^@include/) 
     print s
   else {
+    if (s ~ /^function/) 
+       gsub(/:[A-Za-z0-9]+/,"",s); 
     if (s ~ /^function[ \t]+[A-Z][^\(]*\(/) {
       split(s,a,/[ \t\(]/)
       Prefix = a[2] 
@@ -12,6 +14,22 @@ function transpile(s,  a) {
     print gensub( /\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/,
                   "[\"\\1\\2\"]","g",s)   }
 }
+function document(s) {
+  while(getline) 
+    if (/^###[ $]?/) {
+      s=""
+      while(sub(/^[#]+[ $]?/,"")) { 
+         s = s "\n" $0
+         getline 
+      }
+      if (/^function /) {
+        gsub(/(^function[ \t]*[_]?|{.*)/,"") 
+        gsub(/:[A-Za-z0-0]+/,"_&_")
+        s = "\n### " $0  s 
+      }
+      print s
+}}
+
 function oo(a,prefix,    indent,   i,txt) {
   txt = indent ? indent : (prefix "." )
   if (!isarray(a)) {print(a); return a}
