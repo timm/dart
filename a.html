@@ -1,0 +1,183 @@
+<h1>About</h1>
+
+<h2>Name</h2>
+
+<h1>Description</h1>
+
+<h2>Usage</h2>
+
+<h2>Options</h2>
+
+<h2>Requirements</h2>
+
+<h2>Install</h2>
+
+<h2>How to Contribute</h2>
+
+<h2>Contact</h2>
+
+<h2>Copyright</h2>
+
+<h3>Some</h3>
+
+<h4>ok</h4>
+
+<h4>var</h4>
+
+<h1>About</h1>
+
+<h2>Name</h2>
+
+<p>dart</p>
+
+<h1>Description</h1>
+
+<p>Optimize = cluster plus sample plus contrast;
+ i.e. Divide problem space into chunks;
+ dart, a little, around the chunks;
+ report back anything that jumps you between chunks.</p>
+
+<h2>Usage</h2>
+
+<pre><code>  lua dart.lua [Options] [--Group Options]*
+</code></pre>
+
+<p>Options start with "-" and contain 0 or 1 arguments.
+ Options belong to different Groups (which start with --).</p>
+
+<h2>Options</h2>
+
+<pre><code>-C           ;; show copyright   
+-h           ;; show help   
+-H           ;; show help (long version) 
+-seed 1      ;; set random number seed   
+-U fun       ;; run unit test 'fun' (and `all` runs everything)
+-R fun       ;; run test function
+-id 0        ;; counter for object ids
+--test       ;; system stuff, set up test engine    
+   -yes   0  
+   -no    0
+--stats
+   -cohen       .2
+   -cliffsDelta .147
+   -bootstrap   256
+   -confidence  .95
+   -enough      .50
+--some
+   -max   256
+   -few    64
+--type       ;; when reading csv files, names in row1 have
+             ;; magic symbols telling us their type.
+   -klass !  ;; symbolic class
+   -less  &lt;  ;; numeric goal to be minimized
+   -more  &gt;  ;; numeric goal to be maximized
+   -num   :  ;; numeric
+   -skip  ?  ;; to be ignored
+</code></pre>
+
+<h2>Requirements</h2>
+
+<ul>
+<li>Lua >= 5.3</li>
+</ul>
+
+<h2>Install</h2>
+
+<ul>
+<li>Install Lua 5.3</li>
+<li>Download <a href="dart.lua">dart.lua</a></li>
+<li><p>Run and execute the unit tests </p>
+
+<p>lua dart.lua -U</p></li>
+</ul>
+
+<p>If that all works then you see one failing test
+(when we test the test engine) and everything else passing.</p>
+
+<h2>How to Contribute</h2>
+
+<p>Please follow these 
+<em>Lua-isa-simple-language-so-lets-keep-it-simple</em> conventions:</p>
+
+<ul>
+<li>Source code
+<ul>
+<li>All source code in one file.</li>
+<li>All locals listed at top;</li>
+<li>Application specific code at top;</li>
+<li>General utilities at bottom,</li>
+<li>Unit tests under nearly everything  else,  inside the <code>Eg</code> variable.</li>
+<li>Second last is the main function to be called if this code is <em>not</em> included into
+another library:
+<ul>
+<li>And I test for that using <code>not pcall(debug.getlocal, 4, 1)</code>.</li>
+</ul></li>
+<li>Finally, there  is a return statement that exports the more useful parts of the code.</li>
+<li>No globasl (so keep the list of <code>local</code>s at top of file up to date).</li>
+<li>The <code>the</code> local handles information and defaults shared across all functions and classes.</li>
+<li>And this variable is initialized by parsing the <a href="#usage">Usage</a> section of this help
+text/</li>
+<li>Minimize use of the <code>local</code> keyword (so ugly)</li>
+<li>Use it once at top of file.</li>
+<li>Then (usually) define function locals as extra input arguments.</li>
+<li>Indent code with 2 characters for tabs.</li>
+<li>Using classes to divide the code. </li>
+<li>Update the non-class library code rarely (since that is functions global to the module).</li>
+<li>Update the class code a lot.</li>
+<li>Classes:</li>
+<li>Use classes for polymorphism. </li>
+<li>Don't use inheritance (adds to debugging effort).</li>
+<li>Classes are created by assigning some defaults to a global value; <br />
+e.g. <code>Emp={lname="", fname="", add=address() }</code></li>
+<li>Class constructors are lower case functions that call <code>isa(X)</code> 
+(where <code>X</code> is some class).
+<ul>
+<li>Typically for some <code>Klass</code>, the constrictor is the same name, starting with lower case (e.g. <code>klass</code>).</li>
+<li>Constructors often use the idiom <code>new.x = y or the.zzz.y</code> where <code>y</code> is a parameter- S</li>
+</ul></li>
+</ul></li>
+</ul>
+
+<h2>Contact</h2>
+
+<p>Copyright 2020, <br />
+Tim Menzies, <br />
+timm@ieee.org</p>
+
+<h2>Copyright</h2>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject
+to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. </p>
+
+<h3>Some(i:list0, max:pos) :nil</h3>
+
+<p>Constructor for <code>Some</code> objects that keep a random sample of atoms.
+- <code>i.n</code> is now many things were set to this <code>Some</code>
+- <code>i.all</code> is all the fhings kept (may be less that <code>i.n</code>
+- <code>i.max</code> is the maximum number of things kept (and if we keep more
+  than that, then order things (selected at random) will be removed.
+- <code>i.ok</code> is false when <code>i.all</code> has been updated, but not resorted yet.</p>
+
+<p><b>Returns</b> fred</p>
+
+<h4>ok(i:Some) :nil</h4>
+
+<p>Ensure contents are sorted</p>
+
+<h4>var(i,  lo,hi)</h4>

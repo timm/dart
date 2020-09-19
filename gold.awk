@@ -14,22 +14,29 @@ function transpile(s,  a) {
     print gensub( /\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/,
                   "[\"\\1\\2\"]","g",s)   }
 }
-function document(s) {
+function document(s, t,head,body,pre) {
+  head=body=""
   while(getline) 
     if (/^###[ $]?/) {
       s=""
       while(sub(/^[#]+[ $]?/,"")) { 
          s = s "\n" $0
+         if (/^#/) head = head "\n" $0
          getline 
       }
       if (/^function /) {
+        pre = /^function _?[A-Z]/ ? "\n### " : "\n#### "
         gsub(/(^function[ \t]*[_]?|{.*)/,"") 
-        s = "\n### " $0  s 
+        body = body pre $0  
+        gsub(/\(.*/,"")
+        head = head pre $0
       }
       gsub(/:[A-Za-z0-0]+/,"<em>&</em>",s)
       gsub(/Returns/,"\n<b>Returns</b>",s)
-      print s
-}}
+      body = body "\n" s
+   }
+   print head "\n" body
+}
 
 function oo(a,prefix,    indent,   i,txt) {
   txt = indent ? indent : (prefix "." )
