@@ -178,6 +178,7 @@ function _add1(i, x) {
 # - `i.max` is the maximum number of things kept (and if we keep more
 #   than that, then order things (selected at random) will be removed.
 # - `i.ok` is false when `i.all` has been updated, but not resorted yet.
+# Returns fred
 function Some(i:list0, max:pos) :nil {
   isa(i,"Some")
   i.n=0

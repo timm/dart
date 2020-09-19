@@ -20,14 +20,14 @@ function document(s) {
       s=""
       while(sub(/^[#]+[ $]?/,"")) { 
          s = s "\n" $0
-         gsub(/Returns/,"\n<b>Returns</b>")
          getline 
       }
       if (/^function /) {
         gsub(/(^function[ \t]*[_]?|{.*)/,"") 
-        gsub(/:[A-Za-z0-0]+/,"<em>&</em>")
         s = "\n### " $0  s 
       }
+      gsub(/:[A-Za-z0-0]+/,"<em>&</em>")
+      gsub(/Returns/,"\n<b>Returns</b>")
       print s
 }}
 
