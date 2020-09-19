@@ -26,8 +26,8 @@ function document(s) {
         gsub(/(^function[ \t]*[_]?|{.*)/,"") 
         s = "\n### " $0  s 
       }
-      gsub(/:[A-Za-z0-0]+/,"<em>&</em>")
-      gsub(/Returns/,"\n<b>Returns</b>")
+      gsub(/:[A-Za-z0-0]+/,"<em>&</em>",s)
+      gsub(/Returns/,"\n<b>Returns</b>",s)
       print s
 }}
 
