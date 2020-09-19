@@ -276,7 +276,8 @@ BEGIN { print(File); rogues(); for(i in ARGV) print(i, ARGV[i]) }
 EOF
 }
 if [ "$1" == "-R" ]; then 
-  code | gawk -f gold.awk --source 'BEGIN {document()}'
+  cat etc/header.md > README.md
+  code | gawk -f gold.awk --source 'BEGIN {document()}' >> README.md
 else
   code | gawk -f gold.awk --source '{transpile($0)}' > /tmp/$$gold.awk
   gawk -f gold.awk -f  /tmp/$$gold.awk
