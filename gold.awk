@@ -20,6 +20,7 @@ function document(s) {
       s=""
       while(sub(/^[#]+[ $]?/,"")) { 
          s = s "\n" $0
+         gsub(/Returns/,"\n<b>Returns</b>")
          getline 
       }
       if (/^function /) {
