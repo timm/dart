@@ -24,7 +24,7 @@ function document(s) {
       }
       if (/^function /) {
         gsub(/(^function[ \t]*[_]?|{.*)/,"") 
-        gsub(/:[A-Za-z0-0]+/,"_&_")
+        gsub(/:[A-Za-z0-0]+/,"<em>&</em>")
         s = "\n### " $0  s 
       }
       print s

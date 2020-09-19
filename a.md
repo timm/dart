@@ -124,7 +124,7 @@ ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 
-### Some(i_:list0_, max_:pos_) _:nil_ 
+### Some(i<em>:list0</em>, max<em>:pos</em>) <em>:nil</em> 
 Constructor for `Some` objects that keep a random sample of atoms.
 - `i.n` is now many things were set to this `Some`
 - `i.all` is all the fhings kept (may be less that `i.n`
@@ -132,7 +132,7 @@ Constructor for `Some` objects that keep a random sample of atoms.
   than that, then order things (selected at random) will be removed.
 - `i.ok` is false when `i.all` has been updated, but not resorted yet.
 
-### ok(i_:Some_) _:nil_  
+### ok(i<em>:Some</em>) <em>:nil</em>  
 Ensure contents are sorted
 
 ### var(i,  lo,hi) 
