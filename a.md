@@ -1,18 +1,4 @@
 
-# About
-## Name 
-# Description
-## Usage
-## Options
-## Requirements
-## Install
-## How to Contribute
-## Contact
-## Copyright
-### Some
-#### ok
-#### var
-
 
 
 # About
@@ -147,7 +133,7 @@ Constructor for `Some` objects that keep a random sample of atoms.
   than that, then order things (selected at random) will be removed.
 - `i.ok` is false when `i.all` has been updated, but not resorted yet.
 
-<b>Returns</b> fred
+<u><em>Returns</em></u> fred
 #### ok(i:Some) :nil  
 
 Ensure contents are sorted

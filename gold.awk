@@ -32,10 +32,11 @@ function document(s, t,head,body,pre) {
         head = head pre $0
       }
       gsub(/:[A-Za-z0-0]+/,"<em>&</em>",s)
-      gsub(/Returns/,"\n<b>Returns</b>",s)
+      gsub(/Returns/,"\n<u><em>Returns</em></u>",s)
       body = body "\n" s
    }
-   print head "\n" body
+   #print head "\n" body
+   print  body
 }
 
 function oo(a,prefix,    indent,   i,txt) {
