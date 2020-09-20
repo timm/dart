@@ -8,9 +8,9 @@ function transpile(s,  a) {
        gsub(/:[A-Za-z0-9]+/,"",s); 
     if (s ~ /^function[ \t]+[A-Z][^\(]*\(/) {
       split(s,a,/[ \t\(]/)
-      Prefix = a[2] 
+      PREFIX = a[2] 
     }
-    gsub(/_/,Prefix "_",s)
+    gsub(/_/,PREFIX "_",s)
     print gensub( /\.([^0-9\\*\\$\\+])([a-zA-Z0-9_]*)/,
                   "[\"\\1\\2\"]","g",s)   }
 }

@@ -126,10 +126,12 @@ code() { cat<<'EOF'
 # CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 
+###
+# # Code
 BEGIN { 
-  The.some.max = 256 
-  The.ch.skip = "?" 
-  The.stats.cliff = "?" 
+  THE.some.max = 256 
+  THE.ch.skip = "?" 
+  THE.stats.cliff = "?" 
 }
 
 function add(i,x) { 
@@ -137,7 +139,7 @@ function add(i,x) {
   return x
 }
 function add1(i,x,   f) {f=i.isa "_add1"; return @f(i.x) }
-function loop(i,     f) {f=i.isa "_loop"; return @f(i.x) }
+function looping(i,  f) {f=i.isa "_loop"; return @f(i.x) }
 
 function Sym(i) {
   isa(i,"Sym")
@@ -199,7 +201,6 @@ function _update(i,x,k) { i.all[k]=x; i.ok=0 }
 function _ok(i:Some) :nil  { 
    if (!i.ok) i.ok= asort(i.all) }
 
-### 
 function _var(i,  lo,hi) { return (_per(i,.9) - _per(i, .1))/2.54 }
 function _mid(i,  lo,hi) { return _per(i,.5,lo,hi) }
 
@@ -237,13 +238,8 @@ function _want(nn,out,want1,want2) {
     if (@want1(N[i]) ||  want2 && @want2(N[i]))
       out[i] = i
 }
-function using(u, get,  put,o) {
-  for(i in get)
-    if($get !~ /\?/) 
-      u[get] = ++put
-}
 
-
+ 
 function cliffs(as,bs,t,    a,b,n,lt,gt) {
   t= t? t : The.stats.cliff
   for(a in as)
@@ -260,7 +256,7 @@ function Cols(i,file) {
   i.file = file
   has(i,"use")
 } 
-function _loop(i,out,   a,ok,j,get) {
+function _looping(i,out,   a,ok,j,get) {
   ok = csv(a,i.file) 
   if (!ok) return 0
   if (!length(i.use))   
@@ -271,7 +267,7 @@ function _loop(i,out,   a,ok,j,get) {
      out[j] = a[i.use[j]]
   return 1
 }
-BEGIN { print(File); rogues(); for(i in ARGV) print(i, ARGV[i]) }
+BEGIN { print(File); rogues() }
 
 EOF
 }
